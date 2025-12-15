@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.challengebank.entity;
+package com.paynalty.domain.challengebank.entity;
 
 import com.example.paynalty.domain.challenge.entity.Challenge;
 import jakarta.persistence.*;

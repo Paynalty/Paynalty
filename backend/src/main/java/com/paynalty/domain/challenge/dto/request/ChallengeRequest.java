@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.challenge.dto.request;
+package com.paynalty.domain.challenge.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.challengeverification.dto.request;
+package com.paynalty.domain.challengeverification.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
