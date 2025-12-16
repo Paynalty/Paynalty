@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.challengebank.dto.response;
+package com.paynalty.domain.challengebank.dto.response;
 
 import com.example.paynalty.domain.challengebank.entity.ChallengeBank;
 import lombok.Builder;

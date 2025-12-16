@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.user.dto.response;
+package com.paynalty.domain.user.dto.response;
 
 import com.example.paynalty.domain.user.entity.User;
 import lombok.Builder;

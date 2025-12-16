@@ -1,4 +1,4 @@
-package com.example.paynalty.domain.challenge.entity;
+package com.paynalty.domain.challenge.entity;
 
 import com.example.paynalty.domain.challengebank.entity.ChallengeBank;
 import com.example.paynalty.domain.challengemember.entity.ChallengeMember;
