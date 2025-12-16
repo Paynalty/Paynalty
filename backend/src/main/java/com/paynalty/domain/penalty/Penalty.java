@@ -1,7 +1,7 @@
-package com.paynalty.domain.penalty.entity;
+package com.paynalty.domain.penalty;
 
-import com.example.paynalty.domain.challenge.entity.Challenge;
-import com.example.paynalty.domain.user.entity.User;
+import com.paynalty.domain.challenge.Challenge;
+import com.paynalty.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

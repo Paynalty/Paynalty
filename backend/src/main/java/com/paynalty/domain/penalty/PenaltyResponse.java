@@ -1,6 +1,5 @@
-package com.paynalty.domain.penalty.dto.response;
+package com.paynalty.domain.penalty;
 
-import com.example.paynalty.domain.penalty.entity.Penalty;
 import lombok.Builder;
 import lombok.Getter;
 

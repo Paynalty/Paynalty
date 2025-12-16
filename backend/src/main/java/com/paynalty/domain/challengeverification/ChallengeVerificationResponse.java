@@ -1,6 +1,5 @@
-package com.paynalty.domain.challengeverification.dto.response;
+package com.paynalty.domain.challengeverification;
 
-import com.example.paynalty.domain.challengeverification.entity.ChallengeVerification;
 import lombok.Builder;
 import lombok.Getter;
 

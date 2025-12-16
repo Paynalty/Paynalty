@@ -1,4 +1,4 @@
-package com.paynalty.domain.user.dto.request;
+package com.paynalty.domain.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

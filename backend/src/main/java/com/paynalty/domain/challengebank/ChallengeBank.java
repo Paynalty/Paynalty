@@ -1,6 +1,6 @@
-package com.paynalty.domain.challengebank.entity;
+package com.paynalty.domain.challengebank;
 
-import com.example.paynalty.domain.challenge.entity.Challenge;
+import com.paynalty.domain.challenge.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
 

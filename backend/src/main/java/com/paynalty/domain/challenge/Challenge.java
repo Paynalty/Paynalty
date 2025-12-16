@@ -1,9 +1,9 @@
-package com.paynalty.domain.challenge.entity;
+package com.paynalty.domain.challenge;
 
-import com.example.paynalty.domain.challengebank.entity.ChallengeBank;
-import com.example.paynalty.domain.challengemember.entity.ChallengeMember;
-import com.example.paynalty.domain.challengeverification.entity.ChallengeVerification;
-import com.example.paynalty.domain.penalty.entity.Penalty;
+import com.paynalty.domain.challengebank.ChallengeBank;
+import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengeverification.ChallengeVerification;
+import com.paynalty.domain.penalty.Penalty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
