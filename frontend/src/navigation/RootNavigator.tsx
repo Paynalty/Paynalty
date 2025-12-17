@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { RootStackParamList } from './types';
 
 // 화면 import (토스 앱빌더에서 만든 화면들을 여기에 import)
-// import HomeScreen from '@screens/HomeScreen';
+import HomeScreen from '@screens/HomeScreen';
 // import LoginScreen from '@screens/LoginScreen';
 // 등등...
 
@@ -29,7 +29,7 @@ const RootNavigator = () => {
       */}
       <Stack.Screen
         name="Home"
-        component={() => null}
+        component={HomeScreen}
         options={{ headerShown: true, title: '홈' }}
       />
     </Stack.Navigator>

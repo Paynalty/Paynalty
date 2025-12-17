@@ -16,6 +16,7 @@ const queryClient = new QueryClient({
 });
 
 function App(): React.JSX.Element {
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
