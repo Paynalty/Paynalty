@@ -1,5 +1,8 @@
 # OSX
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
 
 # Xcode
 build/
@@ -19,6 +22,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 ios/.xcode.env.local
+project.xcworkspace
 
 # Android/IntelliJ
 build/
@@ -30,13 +34,30 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+.externalNativeBuild
+.cxx
+android/app/debug
+android/app/release
 
-# node.js
+# Node.js
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
 
-# fastlane
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# Fastlane
 ios/fastlane/report.xml
 ios/fastlane/Preview.html
 ios/fastlane/screenshots
@@ -53,7 +74,45 @@ ios/fastlane/test_output
 .env
 .env.local
 .env.production
+.env.development
+.env.test
+.env*.local
 
 # Temporary files
 tmp/
 temp/
+
+# Metro bundler
+.metro-health-check*
+
+# Expo (if used later)
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Logs
+*.log
+logs/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.history
+*.swp
+*.swo
+*~
+
+# Debugging
+.vscode/launch.json
+chrome-user-data/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
