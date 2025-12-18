@@ -15,7 +15,7 @@ public class UserRequest {
     @Size(max = 50, message = "닉네임은 50자 이하여야 합니다")
     private String nickname;
 
-    private Integer tossId;
+    private Long tossId;
 
     @Size(max = 500, message = "프로필 이미지 URL은 500자 이하여야 합니다")
     private String profileImageUrl;

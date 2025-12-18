@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Getter
-@Setter
 @NoArgsConstructor
 public class User {
 
@@ -26,17 +25,23 @@ public class User {
     private String profileImageUrl;
 
     @Column(name = "toss_id")
-    private Integer tossId;
+    private Long tossId;
 
     @Column(name = "nickname", length = 50)
     private String nickname;
 
-    @Column(name = "phone_number", length = 20)
-    private String phoneNumber;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Builder
+    public User(String profileImageUrl,Long tossId, String nickname ){
+        this.profileImageUrl = profileImageUrl;
+        this.tossId = tossId;
+        this.nickname = nickname;
+        this.createdAt = LocalDateTime.now();
+    }
+
 
     // 관계 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

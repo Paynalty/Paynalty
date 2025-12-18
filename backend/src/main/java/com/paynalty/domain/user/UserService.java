@@ -11,5 +11,19 @@ public class UserService {
     
     private final UserRepository userRepository;
 
+    @Transactional
+    public UserResponse create(UserRequest request){
+        User user = User.builder()
+                .tossId(request.getTossId())
+                .nickname(request.getNickname())
+                .profileImageUrl(request.getProfileImageUrl())
+                .build();
+
+        User saved = userRepository.save(user);
+
+        return UserResponse.from(saved);
+
+    }
+
 }
 

@@ -12,7 +12,7 @@ public class UserResponse {
 
     private Long id;
     private String profileImageUrl;
-    private Integer tossId;
+    private Long tossId;
     private String nickname;
     private LocalDateTime createdAt;
 
