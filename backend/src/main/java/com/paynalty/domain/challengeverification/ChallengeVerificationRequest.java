@@ -19,8 +19,6 @@ public class ChallengeVerificationRequest {
     @NotNull(message = "챌린지 ID는 필수입니다")
     private Long challengeId;
 
-    @NotNull(message = "인증 날짜는 필수입니다")
-    private LocalDate date;
 
     @Size(max = 500, message = "인증 이미지 URL은 500자 이하여야 합니다")
     private String imageUrl;

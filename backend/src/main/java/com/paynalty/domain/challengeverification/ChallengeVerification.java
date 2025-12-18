@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "challenge_verification")
 @Getter
-@Setter
 @NoArgsConstructor  
 public class ChallengeVerification {
 
@@ -29,7 +28,7 @@ public class ChallengeVerification {
     private Challenge challenge;
 
     @Column(name = "date", nullable = false)
-    private LocalDate date;
+    private LocalDateTime date;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
@@ -40,5 +39,17 @@ public class ChallengeVerification {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Builder
+    public ChallengeVerification(User user, Challenge challenge, String imageUrl, String status) {
+        this.user = user;
+        this.challenge = challenge;
+        this.date = LocalDateTime.now();
+        this.imageUrl = imageUrl;
+        this.status = status;
+    }
+
+
 }
+
 

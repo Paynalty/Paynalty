@@ -1,11 +1,7 @@
 package com.paynalty.domain.challenge;
 
 import com.paynalty.global.response.ApiResponse;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +37,9 @@ public class ChallengeController {
         List<ChallengeResponse> response = challengeService.findByStatus(userId, status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    // 목록에 사용자 기준으로 뜨니 ("/{id})
+
+    //
 }
 
