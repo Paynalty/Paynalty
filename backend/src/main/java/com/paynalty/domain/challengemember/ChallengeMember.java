@@ -37,5 +37,13 @@ public class ChallengeMember {
 
     @Column(name = "end_at")
     private LocalDate endAt;
+
+    @Builder
+    public ChallengeMember(User user, Challenge challenge,String isSuccess){
+        this.user = user;
+        this.challenge = challenge;
+        this.joinedAt = LocalDateTime.now();
+        this.isSuccess = isSuccess;
+    }
 }
 
