@@ -60,13 +60,12 @@ logging:
 # 토스 앱인토스 API 설정
 toss:
   api:
-    base-url: ${TOSS_API_BASE_URL:https://api.toss.im}
-    client-id: ${TOSS_CLIENT_ID:}
-    client-secret: ${TOSS_CLIENT_SECRET:}
+    base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im/endpoint}
+    # client-id: ${TOSS_CLIENT_ID:}
+    # client-secret: ${TOSS_CLIENT_SECRET:}
     # mTLS 인증서 경로 (resources/certs 폴더 기준)
     mtls:
       client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/client-cert.pem}
       client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/client-key.pem}
-      ca-cert-path: ${TOSS_CA_CERT_PATH:classpath:certs/ca-cert.pem}
-      # 인증서 비밀번호
+      # 인증서 비밀번호 (있는 경우만)
       key-password: ${TOSS_KEY_PASSWORD:}

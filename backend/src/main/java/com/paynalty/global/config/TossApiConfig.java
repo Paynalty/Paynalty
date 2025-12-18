@@ -28,8 +28,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Configuration
@@ -43,9 +41,6 @@ public class TossApiConfig {
 
     @Value("${toss.api.mtls.client-key-path}")
     private Resource clientKeyResource;
-
-    @Value("${toss.api.mtls.ca-cert-path}")
-    private Resource caCertResource;
 
     @Value("${toss.api.mtls.key-password:}")
     private String keyPassword;
@@ -74,11 +69,7 @@ public class TossApiConfig {
             PrivateKey privateKey = readPrivateKey(clientKeyResource);
             log.debug("클라이언트 개인키 로드 완료");
 
-            // 3. CA 인증서 읽기 (신뢰할 수 있는 인증서 목록)
-            List<X509Certificate> caCerts = readCertificates(caCertResource);
-            log.debug("CA 인증서 로드 완료: {}개", caCerts.size());
-
-            // 4. KeyStore 생성 및 클라이언트 인증서/키 저장
+            // 3. KeyStore 생성 및 클라이언트 인증서/키 저장
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             keyStore.load(null, null);
             keyStore.setKeyEntry(
@@ -88,17 +79,9 @@ public class TossApiConfig {
                     new X509Certificate[]{clientCert}
             );
 
-            // 5. TrustStore 생성 및 CA 인증서 저장
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            trustStore.load(null, null);
-            for (int i = 0; i < caCerts.size(); i++) {
-                trustStore.setCertificateEntry("ca-cert-" + i, caCerts.get(i));
-            }
-
-            // 6. SSLContext 빌드
+            // 4. SSLContext 빌드 (TrustStore는 JDK 기본값 사용)
             SSLContext sslContext = SSLContextBuilder.create()
                     .loadKeyMaterial(keyStore, keyPassword.toCharArray())
-                    .loadTrustMaterial(trustStore, null)
                     .build();
 
             log.info("토스 mTLS SSLContext 설정 완료");
@@ -126,27 +109,6 @@ public class TossApiConfig {
             }
             throw new IllegalArgumentException("인증서 형식이 올바르지 않습니다.");
         }
-    }
-
-    /**
-     * PEM 파일에서 여러 인증서 읽기 (CA 인증서용)
-     */
-    private List<X509Certificate> readCertificates(Resource resource) throws Exception {
-        List<X509Certificate> certificates = new ArrayList<>();
-        try (Reader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            PEMParser parser = new PEMParser(reader);
-            Object object;
-            while ((object = parser.readObject()) != null) {
-                if (object instanceof X509CertificateHolder) {
-                    X509CertificateHolder certHolder = (X509CertificateHolder) object;
-                    X509Certificate cert = new JcaX509CertificateConverter()
-                            .setProvider("BC")
-                            .getCertificate(certHolder);
-                    certificates.add(cert);
-                }
-            }
-        }
-        return certificates;
     }
 
     /**
