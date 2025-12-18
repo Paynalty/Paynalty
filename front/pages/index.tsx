@@ -1,26 +1,14 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {View, StyleSheet, ScrollView} from 'react-native';
-import {Asset, Txt, Top, ListRow, Border, ListHeader, TextButton, Icon} from '@toss/tds-react-native';
+import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState} from 'react';
+import {ChallengeCard} from 'components/challenge/ChallengeCard';
+import {Challenge} from 'components/challenge/types';
 
 export const Route = createRoute('/', {
     component: Page,
 });
-
-// 챌린지 데이터 타입 정의
-type ChallengeStatus = 'completed' | 'in_progress' | 'pending';
-
-type Challenge = {
-    id: string;
-    title: string;
-    status: ChallengeStatus;
-    currentCount: number;
-    totalCount: number;
-    penaltyAmount: number;
-    participants: string;
-    remainingTime?: string;
-};
 
 function Page() {
     const adaptive = useAdaptive();
@@ -34,7 +22,7 @@ function Page() {
             currentCount: 3,
             totalCount: 3,
             penaltyAmount: 5000,
-            participants: '민수 · 지은 · 지영 ··',
+            participants: '민수,지은,영지··',
         },
         {
             id: '2',
@@ -45,6 +33,34 @@ function Page() {
             penaltyAmount: 5000,
             participants: '하트브레이커',
             remainingTime: '5시간 31분',
+        },
+        {
+            id: '3',
+            title: '영어 단어 20개 암기',
+            status: 'in_progress',
+            currentCount: 1,
+            totalCount: 5,
+            penaltyAmount: 3000,
+            participants: '스터디A',
+            remainingTime: '2시간 10분',
+        },
+        {
+            id: '4',
+            title: '야식 금지 챌린지',
+            status: 'pending',
+            currentCount: 2,
+            totalCount: 3,
+            penaltyAmount: 10000,
+            participants: '한우,한돈',
+        },
+        {
+            id: '5',
+            title: '독서 30분',
+            status: 'completed',
+            currentCount: 7,
+            totalCount: 7,
+            penaltyAmount: 2000,
+            participants: '북클럽',
         },
     ]);
 
@@ -107,14 +123,14 @@ function Page() {
                 right={<Icon name="icon-x-mono" color={adaptive.grey600} size={16}/>}
                 verticalPadding={16}
             />
-            <Border/>
+            <Border type="full" />
 
             {/* 진행중인 챌린지 헤더 */}
             <ListHeader
                 title={
                     <ListHeader.TitleSelector
                         typography="t4"
-                        color={adaptive.grey600}
+                        color={adaptive.grey800}
                         fontWeight="bold"
                     >
                         진행중인 챌린지
@@ -132,8 +148,6 @@ function Page() {
         </ScrollView>
     );
 }
-
-// 챌린지 카드 컴포넌트
 
 const styles = StyleSheet.create({
     container: {
@@ -171,8 +185,5 @@ const styles = StyleSheet.create({
         height: 44,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    challengeCard: {
-        paddingHorizontal: 16,
     },
 });
