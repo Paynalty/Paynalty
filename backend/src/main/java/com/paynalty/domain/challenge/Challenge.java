@@ -53,8 +53,16 @@ public class Challenge {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+
+    // 테스트용 userId
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Builder
-    public Challenge(String title, String description, String category, LocalDate startDate, LocalDate endDate, Integer frequency, Integer penaltyAmount, String status){
+    public Challenge(String title, String description, String category
+            , LocalDate startDate, LocalDate endDate, Integer frequency
+            , Integer penaltyAmount, String status
+            ,Long userId){
         this.title = title;
         this.description = description;
         this.category = category;
@@ -64,6 +72,7 @@ public class Challenge {
         this.penaltyAmount = penaltyAmount;
         this.status = status;
         this.createdAt = LocalDateTime.now();
+        this.userId = userId;
     }
 
     // 관계 설정
