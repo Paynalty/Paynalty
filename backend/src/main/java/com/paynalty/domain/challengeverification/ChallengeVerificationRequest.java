@@ -1,28 +1,22 @@
 package com.paynalty.domain.challengeverification;
 
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
+@Schema(description = "챌린지 인증 생성 요청")
 @Getter
 @Setter
 @NoArgsConstructor
 public class ChallengeVerificationRequest {
 
-    @NotNull(message = "사용자 ID는 필수입니다")
-    private Long userId;
-
-    @NotNull(message = "챌린지 ID는 필수입니다")
-    private Long challengeId;
-
-
+    @Schema(description = "인증 이미지 URL", example = "https://example.com/image.jpg")
     @Size(max = 500, message = "인증 이미지 URL은 500자 이하여야 합니다")
     private String imageUrl;
 
+    @Schema(description = "인증 상태", example = "인증완", required = true)
     @Size(max = 20, message = "인증 상태는 20자 이하여야 합니다")
     private String status;
 }

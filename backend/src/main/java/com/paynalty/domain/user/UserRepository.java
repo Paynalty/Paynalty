@@ -7,8 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByTossId(Integer tossId);
-    
-    Optional<User> findByPhoneNumber(String phoneNumber);
+
 }
 
