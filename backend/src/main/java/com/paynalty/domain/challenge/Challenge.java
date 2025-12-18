@@ -76,16 +76,21 @@ public class Challenge {
     }
 
     // 관계 설정
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    // orphanRemoval 는 Many데이터를 사용하기위해 남기려면 orphanRemoval = false 설정하여, 부모삭제시에도 데이터 유지
+    // 사용할 데이터가 아니면 굳이 설정할 필요 없음
+    
+    
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeMember> challengeMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    // 첼린지가 삭제되더라고 자신이 여태 지불한 벌금 내역이 알고싶다면 orphanRemoval 설정 필요
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<Penalty> penalties = new ArrayList<>();
 
-    @OneToOne(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "challenge", cascade = CascadeType.ALL)
     private ChallengeBank challengeBank;
 
 }
