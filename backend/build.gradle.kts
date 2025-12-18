@@ -26,6 +26,10 @@ dependencies {
         implementation("org.springframework.boot:spring-boot-starter-webflux")
         implementation("org.springframework.boot:spring-boot-starter-validation")
 
+        // mTLS를 위한 HTTP Client
+        implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
+        implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
+
         // JWT
         implementation("io.jsonwebtoken:jjwt-api:0.13.0")
         runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
