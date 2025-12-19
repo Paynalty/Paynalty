@@ -1,26 +1,25 @@
 import {Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top} from "@toss/tds-react-native";
 import {createRoute, Spacing} from "@granite-js/react-native";
-import {adaptive} from "@toss/tds-colors";
 import {useAdaptive} from "@toss/tds-react-native/private";
 
-export const Route=createRoute('/create-goal/step5', {
-    component:Page,
+export const Route = createRoute('/create-goal/step5', {
+    component: Page,
 })
 
 function Page() {
     const adaptive = useAdaptive();
-    const navigation= Route.useNavigation();
+    const navigation = Route.useNavigation();
     return (
         <>
             <Spacing size={30}></Spacing>
-            <ProgressBar progress={45} color="#3182f6" size="normal" />
+            <ProgressBar progress={45} color="#3182f6" size="normal"/>
             <Top
                 title={
                     <Top.TitleParagraph color={adaptive.grey900}>
                         언제 인증할까요?
                     </Top.TitleParagraph>
                 }
-                subtitle1={<Top.SubtitleBadges items={[]} />}
+                subtitle1={<Top.SubtitleBadges items={[]}/>}
                 subtitle2={
                     <Top.SubtitleParagraph>
                         이 시간 안에 인증하면 자동으로 성공 처리돼요{'\n'}

@@ -1,6 +1,5 @@
 import {createRoute, Spacing} from "@granite-js/react-native";
 import {Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top, Txt} from "@toss/tds-react-native";
-import {adaptive} from "@toss/tds-colors";
 import {useAdaptive} from "@toss/tds-react-native/private";
 import {View} from "react-native";
 

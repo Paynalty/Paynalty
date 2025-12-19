@@ -1,10 +1,9 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top} from "@toss/tds-react-native";
-import {adaptive} from "@toss/tds-colors";
 import {useAdaptive} from "@toss/tds-react-native/private";
 
 export const Route = createRoute('/create-goal/step3', {
-  component : Page,
+    component: Page,
 })
 
 function Page() {
@@ -13,14 +12,14 @@ function Page() {
     return (
         <>
             <Spacing size={30}/>
-            <ProgressBar progress={35} color="#3182f6" size="normal" />
+            <ProgressBar progress={35} color="#3182f6" size="normal"/>
             <Top
                 title={
                     <Top.TitleParagraph color={adaptive.grey900}>
                         언제까지 도전할까요?
                     </Top.TitleParagraph>
                 }
-                subtitle1={<Top.SubtitleBadges items={[]} />}
+                subtitle1={<Top.SubtitleBadges items={[]}/>}
                 subtitle2={
                     <Top.SubtitleParagraph>
                         이 날짜까지 결과가 기록돼요{'\n'}
