@@ -29,9 +29,6 @@ public class PenaltyResponse {
                 .challengeId(penalty.getChallenge().getId())
                 .amount(penalty.getAmount())
                 .reason(penalty.getReason())
-                .paid(penalty.isPaid())
-                .paidAt(penalty.getPaidAt())
-                .paymentOrderId(penalty.getPaymentOrderId())
                 .createdAt(penalty.getCreatedAt())
                 .build();
     }

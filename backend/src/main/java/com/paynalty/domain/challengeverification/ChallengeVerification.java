@@ -5,10 +5,8 @@ import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "challenge_verification")

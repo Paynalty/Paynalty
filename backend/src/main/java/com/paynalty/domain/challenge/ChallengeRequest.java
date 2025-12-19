@@ -39,18 +39,15 @@ public class ChallengeRequest {
     @Schema(description = "패널티 금액", example = "10000", required = true)
     private int penaltyAmount;
 
-    @Schema(description = "인증 가능 시작 시간 (시/분)", example = "13:00")
+    @Schema(description = "인증 가능 시작 시간 (시/분)", example = "00:00")
     private LocalTime verifyStartAt;
 
-    @Schema(description = "인증 가능 종료 시간 (시/분)", example = "18:00")
+    @Schema(description = "인증 가능 종료 시간 (시/분)", example = "23:59")
     private LocalTime verifyEndAt;
 
     @Schema(description = "인증 횟수", example = "7")
     private int verifyCount;
 
-//    @Schema(description = "사용자 ID (테스트용)", example = "1", required = true)
-//    @NotNull(message = "사용자 ID는 필수입니다")
-//    private Long userId;
 
     @Schema(description = "인증 방식", example = "PHOTO", required = true)
     @NotNull(message = "인증 방식은 필수입니다")
