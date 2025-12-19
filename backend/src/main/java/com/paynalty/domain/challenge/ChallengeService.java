@@ -19,9 +19,9 @@ public class ChallengeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ChallengeResponse create(ChallengeRequest request,String nickName) {
-        User user = userRepository.findByNickName(nickName)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + nickName));
+    public ChallengeResponse create(ChallengeRequest request,String email) {
+        User user = userRepository.findByEmailOrName(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
@@ -50,9 +50,9 @@ public class ChallengeService {
     }
 
 
-    public List<ChallengeResponse> findByStatus(Long userId,String status){
+    public List<ChallengeResponse> findByStatus(String email,String status){
         // status 상태,사용자가 참여 중인 : 조건에 맞는 challenge 불러오기
-        List<Challenge> challenges = challengeRepository.findByUserIdAndStatus(userId,status);
+        List<Challenge> challenges = challengeRepository.findByEmailAndStatus(email,status);
 
         return challenges.stream().map(ChallengeResponse::from).collect(Collectors.toList());
 

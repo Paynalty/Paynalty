@@ -13,7 +13,7 @@ public class UserResponse {
     private Long id;
     private String profileImageUrl;
     private Long tossId;
-    private String nickname;
+    private String email;
     private LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
@@ -21,7 +21,7 @@ public class UserResponse {
                 .id(user.getId())
                 .profileImageUrl(user.getProfileImageUrl())
                 .tossId(user.getTossId())
-                .nickname(user.getNickname())
+                .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

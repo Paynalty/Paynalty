@@ -11,9 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserRequest {
 
-    @NotBlank(message = "닉네임은 필수입니다")
-    @Size(max = 50, message = "닉네임은 50자 이하여야 합니다")
-    private String nickname;
+    @NotBlank(message = "이메일은 필수입니다")
+    @Size(max = 50, message = "이메일은 50자 이하여야 합니다")
+    private String email;
 
     private Long tossId;
 

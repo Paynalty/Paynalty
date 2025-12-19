@@ -15,7 +15,7 @@ public class UserService {
     public UserResponse create(UserRequest request){
         User user = User.builder()
                 .tossId(request.getTossId())
-                .nickname(request.getNickname())
+                .email(request.getEmail())
                 .profileImageUrl(request.getProfileImageUrl())
                 .build();
 

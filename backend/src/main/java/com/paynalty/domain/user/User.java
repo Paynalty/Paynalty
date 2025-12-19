@@ -27,18 +27,18 @@ public class User {
     @Column(name = "toss_id")
     private Long tossId;
 
-    @Column(name = "nickname", length = 50)
-    private String nickname;
+    @Column
+    private String email;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Builder
-    public User(String profileImageUrl,Long tossId, String nickname ){
+    public User(String profileImageUrl,Long tossId, String nickname, String email ){
         this.profileImageUrl = profileImageUrl;
         this.tossId = tossId;
-        this.nickname = nickname;
+        this.email = email;
         this.createdAt = LocalDateTime.now();
     }
 
