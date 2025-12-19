@@ -1,6 +1,6 @@
 package com.paynalty.domain.toss.test;
 
-import com.paynalty.domain.toss.TossApiService;
+//import com.paynalty.domain.toss.TossApiService;
 import com.paynalty.domain.toss.TossLoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TossTestController {
 
-    private final TossApiService tossApiService;
+//    private final TossApiService tossApiService;
 
     /**
      * 토스 로그인 토큰 교환 테스트
@@ -33,11 +33,11 @@ public class TossTestController {
      * 예시:
      * GET /api/toss/login-test?code=AUTH_CODE
      */
-    @GetMapping("/login-test")
-    public ResponseEntity<TossLoginResponse> loginTest(@RequestParam("code") String authorizationCode) {
-        TossLoginResponse response = tossApiService.login(authorizationCode);
-        return ResponseEntity.ok(response);
-    }
+//    @GetMapping("/login-test")
+//    public ResponseEntity<TossLoginResponse> loginTest(@RequestParam("code") String authorizationCode) {
+//        TossLoginResponse response = tossApiService.login(authorizationCode);
+//        return ResponseEntity.ok(response);
+//    }
 }
 
 
