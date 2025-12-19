@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -32,13 +33,28 @@ public class ChallengeRequest {
     @NotNull(message = "종료 날짜는 필수입니다")
     private LocalDate endDate;
 
-    private Integer frequency;
+    @Schema(description = "인증 주기", example = "3", required = true)
+    private int frequency;
 
-    private Integer penaltyAmount;
+    @Schema(description = "패널티 금액", example = "10000", required = true)
+    private int penaltyAmount;
 
-    @Schema(description = "사용자 ID (테스트용)", example = "1", required = true)
-    @NotNull(message = "사용자 ID는 필수입니다")
-    private Long userId;
+    @Schema(description = "인증 가능 시작 시간 (시/분)", example = "13:00")
+    private LocalTime verifyStartAt;
+
+    @Schema(description = "인증 가능 종료 시간 (시/분)", example = "18:00")
+    private LocalTime verifyEndAt;
+
+    @Schema(description = "인증 횟수", example = "7")
+    private int verifyCount;
+
+//    @Schema(description = "사용자 ID (테스트용)", example = "1", required = true)
+//    @NotNull(message = "사용자 ID는 필수입니다")
+//    private Long userId;
+
+    @Schema(description = "인증 방식", example = "PHOTO", required = true)
+    @NotNull(message = "인증 방식은 필수입니다")
+    private VerificationType verificationType;
 
     @Schema(description = "챌린지 상태", example = "진행중")
     @Size(max = 20, message = "상태는 20자 이하여야 합니다")

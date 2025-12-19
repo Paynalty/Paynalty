@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,11 +19,14 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    @PostMapping
+    //TODO : 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 create 매개변수에 nickName 추가)
+    // 현재는 주소에 변수 넣어서 사용중
+    @PostMapping("/{nickName}")
     public ResponseEntity<ApiResponse<ChallengeResponse>> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
-            @Valid @RequestBody ChallengeRequest request) {
-        ChallengeResponse response = challengeService.create(request);
+            @Valid @RequestBody ChallengeRequest request,
+            @PathVariable String nickName) {
+        ChallengeResponse response = challengeService.create(request,nickName);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
