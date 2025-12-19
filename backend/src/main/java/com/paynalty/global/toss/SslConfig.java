@@ -1,5 +1,6 @@
 package com.paynalty.global.toss;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,11 +10,11 @@ import javax.net.ssl.SSLContext;
 public class SslConfig {
 
     @Bean
-    public SSLContext tossSslContext() throws Exception {
-        return TLSClient.createSSLContext(
-                "/Users/yurakim/dev/Paynalty-Certs/exp-yura_public.crt",
-                "/Users/yurakim/dev/Paynalty-Certs/exp-yura_private.key"
-        );
+    public SSLContext tossSslContext(
+            @Value("${toss.api.mtls.client-cert-path}") String certPath,
+            @Value("${toss.api.mtls.client-key-path}") String keyPath
+    ) throws Exception {
+        return TLSClient.createSSLContext(certPath, keyPath);
     }
 
 }
