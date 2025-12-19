@@ -1,8 +1,8 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {View, StyleSheet, ScrollView} from 'react-native';
-import {Asset, Top, ListRow, Border, ListHeader, Icon, Dropdown} from '@toss/tds-react-native';
+import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {ChallengeCard} from 'components/challenge/ChallengeCard';
 import {Challenge} from 'components/challenge/types';
 
@@ -14,7 +14,24 @@ function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
 
-    // Mock 데이터 - 추후 API로 교체
+    useEffect(() => {
+        checkOnboarding();
+    }, []);
+
+    const checkOnboarding = async () => {
+        navigation.navigate('/auth');
+        // TODO : AsyncStorage의 네이티브 모듈이 링크 문제 해결
+        /*try {
+            const hasCompletedOnboarding = await AsyncStorage.getItem('hasCompletedOnboarding');
+            if (!hasCompletedOnboarding) {
+                navigation.navigate('/auth');
+            }
+        } catch (error) {
+            console.error('Failed to check onboarding status:', error);
+        }*/
+    };
+
+    // TODO : Mock 데이터 - 추후 API로 교체
     const [challenges] = useState<Challenge[]>([
         {
             id: '1',

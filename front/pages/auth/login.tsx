@@ -1,43 +1,35 @@
-import {Asset, Txt, Top, FixedBottomCTA, FixedBottomCTAProvider} from '@toss/tds-react-native';
-import { Spacing } from '@granite-js/react-native';
+import {Asset, Top, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
+import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+import { appLogin } from '@apps-in-toss/framework';
+import { useState } from 'react';
+
+export const Route = createRoute('/auth/login', {
+    component: Page,
+});
 
 export default function Page() {
     const adaptive = useAdaptive();
+    const navigation = Route.useNavigation();
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async () => {
+        try {
+            setLoading(true);
+            const { authorizationCode, referrer } = await appLogin();
+
+            // TODO: authorizationCode를 서버로 전달하여 JWT 토큰 발급
+            console.log('Login Success:', { authorizationCode, referrer });
+
+            // 로그인 성공 후 메인 페이지로 이동
+            navigation.navigate('/');
+        } catch (error) {
+            console.error('Login Failed:', error);
+            setLoading(false);
+        }
+    };
     return (
         <>
-            <>
-                <Asset.Icon
-                    frameShape={Asset.frameShape.CleanW24}
-                    name="icon-arrow-back-ios-mono"
-                    color="#191F28ff"
-                />
-            </>
-            <Txt color="#191F28ff" typography="t6" fontWeight="semibold">
-                페이널티
-            </Txt>
-            <>
-                <Asset.Icon
-                    frameShape={{ width: 20 }}
-                    name="icon-dots-mono"
-                    color="rgba(0, 19, 43, 0.58)"
-                />
-            </>
-            <>
-                <Asset.Icon
-                    frameShape={{ width: 20 }}
-                    name="icon-x-mono"
-                    color="rgba(0, 19, 43, 0.58)"
-                />
-            </>
-            <>
-                <Asset.Image
-                    frameShape={{ width: 16 }}
-                    source={{
-                        uri: 'https://static.toss.im/appsintoss/11149/88b088d4-24ea-4d39-9503-55e53608f7f1.png',
-                    }}
-                />
-            </>
             <Spacing size={14} />
             <Top
                 title={
@@ -58,8 +50,21 @@ export default function Page() {
                 }
             />
             <FixedBottomCTAProvider>
-                <FixedBottomCTA loading={false} bottomAccessory="로그인 없이 둘러보기">
-                    페이널티 시작하기
+                <FixedBottomCTA
+                    loading={loading}
+                    onPress={handleLogin}
+                    bottomAccessory={
+                        <Button
+                            type="dark"
+                            style="weak"
+                            display="block"
+                            onPress={() => navigation.navigate('/')}
+                        >
+                            로그인 없이 둘러보기
+                        </Button>
+                    }
+                >
+                    토스 인증으로 로그인
                 </FixedBottomCTA>
             </FixedBottomCTAProvider>
         </>
