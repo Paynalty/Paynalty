@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
+                                "/toss/**",
                                 "/api/auth/**",           // 인증 관련
                                 "/api/**",     // 챌린지 API (개발 환경 - 테스트용)
                                 "/h2-console/**",         // H2 콘솔 (개발 환경)

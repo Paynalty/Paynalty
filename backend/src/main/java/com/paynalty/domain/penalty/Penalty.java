@@ -4,7 +4,9 @@ import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

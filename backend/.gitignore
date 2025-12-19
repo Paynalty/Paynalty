@@ -48,3 +48,13 @@ logs/
 ### OS Files ###
 .DS_Store
 Thumbs.db
+
+### SSL Certificates ###
+**/certs/**
+**/certificates/**
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+!**/src/test/**/*.pem
