@@ -1,6 +1,6 @@
 import {View, StyleSheet} from 'react-native';
 import {Spacing} from '@granite-js/react-native';
-import {Badge, Top, TextButton, ParagraphBadge} from '@toss/tds-react-native';
+import {Badge, Top, TextButton} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Challenge, ChallengeStatus} from './types';
 

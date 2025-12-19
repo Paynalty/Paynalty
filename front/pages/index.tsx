@@ -2,7 +2,7 @@ import {createRoute, Spacing} from '@granite-js/react-native';
 import {View, StyleSheet, ScrollView} from 'react-native';
 import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {ChallengeCard} from 'components/challenge/ChallengeCard';
 import {Challenge} from 'components/challenge/types';
 
@@ -14,7 +14,24 @@ function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
 
-    // Mock 데이터 - 추후 API로 교체
+    useEffect(() => {
+        checkOnboarding();
+    }, []);
+
+    const checkOnboarding = async () => {
+        navigation.navigate('/auth');
+        // TODO : AsyncStorage의 네이티브 모듈이 링크 문제 해결
+        /*try {
+            const hasCompletedOnboarding = await AsyncStorage.getItem('hasCompletedOnboarding');
+            if (!hasCompletedOnboarding) {
+                navigation.navigate('/auth');
+            }
+        } catch (error) {
+            console.error('Failed to check onboarding status:', error);
+        }*/
+    };
+
+    // TODO : Mock 데이터 - 추후 API로 교체
     const [challenges] = useState<Challenge[]>([
         {
             id: '1',
@@ -68,6 +85,7 @@ function Page() {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             {/* 오늘의 미션 */}
+            {/*TODO : 로그인 안했을 때, 로그인 했을 때 , 미션이 없을 때로 구분*/}
             <View style={{
                 backgroundColor: adaptive.blue500,
                 borderBottomLeftRadius: 20,
@@ -114,6 +132,7 @@ function Page() {
                 }
             />
 
+            {/*TODO : 툴팁 삭제 하거나 결제 관련된 내용으로 이동*/}
             <ListRow
                 left={<ListRow.Icon name="icon-emoji-money-with-wings"/>}
                 contents={
@@ -131,6 +150,7 @@ function Page() {
             <Border type="full" />
 
             {/* 진행중인 챌린지 헤더 */}
+            {/*TODO : 예정된 챌린지, 완료된 챌린지 구분하여 추가*/}
             <ListHeader
                 title={
                     <ListHeader.TitleSelector
@@ -144,6 +164,7 @@ function Page() {
             />
 
             {/* 챌린지 카드 반복 렌더링 */}
+            {/*TODO : 무한 스크롤 or  페이징 적용*/}
             {challenges.map((challenge, index) => (
                 <View key={challenge.id}>
                     {index > 0 && <Spacing size={16}/>}

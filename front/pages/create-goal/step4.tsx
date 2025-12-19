@@ -1,7 +1,10 @@
 import {createRoute, Spacing} from "@granite-js/react-native";
-import {Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top, Txt} from "@toss/tds-react-native";
-import {useAdaptive} from "@toss/tds-react-native/private";
-import {View} from "react-native";
+import {
+    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top
+} from "@toss/tds-react-native";
+import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
+import {Pressable, StyleSheet} from "react-native";
+import {useState} from "react";
 
 export const Route = createRoute('/create-goal/step4', {
     component: Page,
@@ -10,9 +13,33 @@ export const Route = createRoute('/create-goal/step4', {
 function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+
+    const [selectionType, setSelectionType] = useState<'day' | 'count'>('day');
+    const [selectedDays, setSelectedDays] = useState<string[]>([]);
+    const [selectedCount, setSelectedCount] = useState<string>('');
+
+    const days = ['월', '화', '수', '목', '금', '토', '일'];
+    const counts = ['1회', '2회', '3회', '4회', '5회', '6회', '7회'];
+
+    const toggleDay = (day: string) => {
+        setSelectionType('day');
+        setSelectedCount('');
+        if (selectedDays.includes(day)) {
+            setSelectedDays(selectedDays.filter(d => d !== day));
+        } else {
+            setSelectedDays([...selectedDays, day]);
+        }
+    };
+
+    const selectCount = (count: string) => {
+        setSelectionType('count');
+        setSelectedDays([]);
+        setSelectedCount(count);
+    };
+
     return (
         <>
-            <Spacing size={30}/>
+            <Spacing size={32}/>
             <ProgressBar progress={40} color="#3182f6" size="normal"/>
             <Top
                 title={
@@ -28,64 +55,72 @@ function Page() {
                     </Top.SubtitleParagraph>
                 }
             />
-            <TableRow
-                align="right"
-                left={<TableRow.LeftText>요일</TableRow.LeftText>}
-                right=""
-                leftRatio={30}
-            />
-            <View>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    월
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    화
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    수
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    목
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    금
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    토
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    일
-                </Txt>
-            </View>
-            <TableRow
-                align="right"
-                left={<TableRow.LeftText>횟수</TableRow.LeftText>}
-                right=""
-                leftRatio={30}
-            />
-            <View>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    1회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    2회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    3회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    4회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    5회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    6회
-                </Txt>
-                <Txt color={adaptive.grey700} typography="st8" fontWeight="bold">
-                    7회
-                </Txt>
-            </View>
+            <Spacing size={32}/>
+            <Paragraph.Text
+                color={adaptive.grey700}
+                typography="st8"
+                fontWeight="bold"
+                style={{paddingHorizontal: 28, marginBottom: 8}}
+            >
+            요일
+            </Paragraph.Text>
+            <Carousel itemWidth={76} style={styles.carousel}>
+                {days.map((day) => {
+                    const isSelected = selectedDays.includes(day);
+                    return (
+                        <Carousel.Item key={day}>
+                            <Pressable
+                                onPress={() => toggleDay(day)}
+                                style={[
+                                    styles.dayButton,
+                                    isSelected ? styles.selectedButton : styles.unselectedButton
+                                ]}
+                            >
+                                <Paragraph.Text
+                                    color={isSelected ? adaptive.background : adaptive.grey700}
+                                    typography="st8"
+                                    fontWeight="bold"
+                                >
+                                    {day}
+                                </Paragraph.Text>
+                            </Pressable>
+                        </Carousel.Item>
+                    );
+                })}
+            </Carousel>
+            <Spacing size={32}/>
+            <Paragraph.Text
+                color={adaptive.grey700}
+                typography="st8"
+                fontWeight="bold"
+                style={{paddingHorizontal: 28, marginBottom: 8}}
+            >
+            횟수
+            </Paragraph.Text>
+            <Carousel itemWidth={76} style={styles.carousel}>
+                {counts.map((count) => {
+                    const isSelected = selectedCount === count;
+                    return (
+                        <Carousel.Item key={count}>
+                            <Pressable
+                                onPress={() => selectCount(count)}
+                                style={[
+                                    styles.countButton,
+                                    isSelected ? styles.selectedButton : styles.unselectedButton
+                                ]}
+                            >
+                                <Paragraph.Text
+                                    color={isSelected ? adaptive.background : adaptive.grey700}
+                                    typography="st8"
+                                    fontWeight="bold"
+                                >
+                                    {count}
+                                </Paragraph.Text>
+                            </Pressable>
+                        </Carousel.Item>
+                    );
+                })}
+            </Carousel>
             <FixedBottomCTAProvider>
                 <FixedBottomCTA.Double
                     leftButton={
@@ -117,3 +152,29 @@ function Page() {
         </>
     );
 }
+
+const styles = StyleSheet.create({
+    carousel: {
+        marginTop: -8,
+    },
+    dayButton: {
+        width: 68,
+        height: 73,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 12,
+    },
+    countButton: {
+        width: 68,
+        height: 73,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 12,
+    },
+    selectedButton: {
+        backgroundColor: '#4b4ddc',
+    },
+    unselectedButton: {
+        backgroundColor: '#f9fafb',
+    },
+});
