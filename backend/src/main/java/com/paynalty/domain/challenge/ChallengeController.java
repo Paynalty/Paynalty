@@ -40,6 +40,19 @@ public class ChallengeController {
         List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+    
+    @GetMapping("/{challengeId}/detail")
+    public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
+            @Parameter(description = "챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId
+    ) {
+        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
+        // 현재는 임시로 userId = 1L 사용
+        Long userId = 1L;
+        
+        ChallengeDetailResponse response = challengeService.getDetail(challengeId, userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
 }
 
