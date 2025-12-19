@@ -12,6 +12,7 @@ export const Route = createRoute('/', {
 
 function Page() {
     const adaptive = useAdaptive();
+    const navigation = Route.useNavigation();
 
     // Mock 데이터 - 추후 API로 교체
     const [challenges] = useState<Challenge[]>([
@@ -106,7 +107,11 @@ function Page() {
                         친구들과 달성해보세요!
                     </Top.TitleParagraph>
                 }
-                right={<Top.RightButton>만들기</Top.RightButton>}
+                right={
+                    <Top.RightButton onPress={() => navigation.navigate('/create-goal')}>
+                        만들기
+                    </Top.RightButton>
+                }
             />
 
             <ListRow
