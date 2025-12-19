@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ChallengeVerificationResponse {
 
     private Long id;
-    private Long userId;
+    private String authEmail;
     private Long challengeId;
     private LocalDate date;
     private String imageUrl;
@@ -23,7 +23,7 @@ public class ChallengeVerificationResponse {
     public static ChallengeVerificationResponse from(ChallengeVerification cv) {
         return ChallengeVerificationResponse.builder()
                 .id(cv.getId())
-                .userId(cv.getUser().getId())
+                .authEmail(cv.getUser().getEmail())
                 .challengeId(cv.getChallenge().getId())
                 .date(cv.getDate())
                 .imageUrl(cv.getImageUrl())

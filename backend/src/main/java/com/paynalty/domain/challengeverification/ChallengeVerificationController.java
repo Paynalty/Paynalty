@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.*;
 public class ChallengeVerificationController {
     private final ChallengeVerificationService challengeVerificationService;
 
-    @PostMapping("/{challengeId}/{userId}")
+    @PostMapping("/{challengeId}/{authEmail}")
     public ResponseEntity<ApiResponse<ChallengeVerificationResponse>> create(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
-            @Parameter(description = "사용자 ID", required = true, example = "1")
-            @PathVariable Long userId,
+            @Parameter(description = "사용자 이메일", required = true, example = "test@test.com")
+            @PathVariable String authEmail,
             @Parameter(description = "챌린지 인증 요청 정보", required = true)
             @Valid @RequestBody ChallengeVerificationRequest request
     ) {
-        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, request);
+        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, authEmail, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
