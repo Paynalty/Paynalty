@@ -32,10 +32,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
+                                "/toss/**",
                                 "/api/auth/**",           // 인증 관련
+                                "/api/**",     // 챌린지 API (개발 환경 - 테스트용)
                                 "/h2-console/**",         // H2 콘솔 (개발 환경)
                                 "/swagger-ui/**",         // Swagger UI
-                                "/api-docs/**"            // API 문서
+                                "/api-docs/**",           // API 문서
+                                "/swagger-ui.html",       // Swagger UI (Spring Boot 2.x)
+                                "/swagger-ui/index.html", // Swagger UI (Spring Boot 3.x)
+                                "/v3/api-docs/**"         // OpenAPI 3.0 문서
                         ).permitAll()
 
                         // 그 외 모든 요청은 인증 필요
