@@ -15,7 +15,7 @@ public class TossService {
 
     public String callTossApi() throws Exception {
         return TLSClient.makeRequest(
-                "https://apps-in-toss-api.toss.im/endpoint",
+                "https://apps-in-toss-api.toss.im",
                 sslContext
         );
     }

@@ -83,9 +83,13 @@ public class TLSClient {
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
 
-        try (BufferedReader reader =
-                     new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+        int status = conn.getResponseCode();
 
+        InputStream is = (status >= 200 && status < 300)
+                ? conn.getInputStream()
+                : conn.getErrorStream();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -96,5 +100,6 @@ public class TLSClient {
             conn.disconnect();
         }
     }
+
 
 }
