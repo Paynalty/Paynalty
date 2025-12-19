@@ -88,6 +88,12 @@ cd backend
 ./gradlew bootRun
 ```
 
+서버 기본 포트: `http://localhost:8080`
+
+API 기본 prefix: `http://localhost:8080/api`
+
+---
+
 ## 5. 토스 mTLS 설정 요약
 
 백엔드는 **AppsInToss API 호출 시 mTLS(mutual TLS)** 를 사용합니다.
@@ -167,17 +173,15 @@ toss:
 ## 8. 팀 개발 규칙 (초안)
 
 - **브랜치 전략**
-
   - `main`: 배포/데모용
   - `dev`: 통합 개발 브랜치
   - 기능 단위 브랜치: `feature/도메인-기능명` (예: `feature/penalty-payment`)
 
 - **커밋 메시지 컨벤션 (예시)**
-
-  - `feat: ~` 새로운 기능
-  - `fix: ~` 버그 수정
+  - `feat: ~`  새로운 기능
+  - `fix: ~`   버그 수정
   - `chore: ~` 설정/빌드/기타
-  - `docs: ~` 문서 수정 (README 등)
+  - `docs: ~`  문서 수정 (README 등)
 
 - **코딩 컨벤션**
   - Java: Spring 기본 컨벤션 + Lombok 활용
@@ -198,3 +202,5 @@ toss:
 ## 10. 문의
 
 프로젝트 관련 질문은 팀 내 Slack/Notion 또는 이 저장소 이슈로 공유합니다.
+
+
