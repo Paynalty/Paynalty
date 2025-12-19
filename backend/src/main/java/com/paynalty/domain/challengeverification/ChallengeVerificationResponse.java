@@ -15,7 +15,7 @@ public class ChallengeVerificationResponse {
     private Long id;
     private Long userId;
     private Long challengeId;
-    private LocalDateTime date;
+    private LocalDate date;
     private String imageUrl;
     private String status;
     private LocalDateTime createdAt;

@@ -1,6 +1,7 @@
 package com.paynalty.domain.challengebank;
 
 import com.paynalty.domain.challenge.Challenge;
+import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChallengeBank {
+public class ChallengeBank extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
