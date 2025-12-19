@@ -70,7 +70,7 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return ChallengeDetailResponse
      */
-    public ChallengeDetailResponse getDetail(Long challengeId, Long userId) {
+    public ChallengeDetailResponse getMyChallengeDetail(Long challengeId, Long userId) {
         // 1단계: Challenge 조회
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new IllegalArgumentException("챌린지를 찾을 수 없습니다: " + challengeId));

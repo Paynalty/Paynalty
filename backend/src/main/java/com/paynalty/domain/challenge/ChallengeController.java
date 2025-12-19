@@ -12,7 +12,7 @@ import java.util.List;
 
 @Tag(name = "Challenge", description = "챌린지 관리 API")
 @RestController
-@RequestMapping("/api/challenges")
+@RequestMapping("/api/challenge")
 @RequiredArgsConstructor
 public class ChallengeController {
 
@@ -41,7 +41,7 @@ public class ChallengeController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
     
-    @GetMapping("/{challengeId}/detail")
+    @GetMapping("/{challengeId}/myChallenge/detail")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId
@@ -50,7 +50,7 @@ public class ChallengeController {
         // 현재는 임시로 userId = 1L 사용
         Long userId = 1L;
         
-        ChallengeDetailResponse response = challengeService.getDetail(challengeId, userId);
+        ChallengeDetailResponse response = challengeService.getMyChallengeDetail(challengeId, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
