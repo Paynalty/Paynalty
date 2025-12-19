@@ -28,7 +28,7 @@ export default function Page() {
                     </Top.SubtitleParagraph>
                 }
             />
-            <Pressable onPress={() => navigation.navigate('/create-goal/inviteFriends')}>
+            <Pressable onPress={() => navigation.navigate('/create-goal/invite-friends')}>
                 <ListRow
                     contents={
                         <ListRow.Texts
@@ -70,7 +70,7 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/completePage')}
+                            onPress={() => navigation.navigate('/create-goal/complete')}
                         >
                             다음
                         </Button>

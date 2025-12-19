@@ -68,6 +68,7 @@ function Page() {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             {/* 오늘의 미션 */}
+            {/*TODO : 로그인 안했을 때, 로그인 했을 때 , 미션이 없을 때로 구분*/}
             <View style={{
                 backgroundColor: adaptive.blue500,
                 borderBottomLeftRadius: 20,
@@ -114,6 +115,7 @@ function Page() {
                 }
             />
 
+            {/*TODO : 툴팁 삭제 하거나 결제 관련된 내용으로 이동*/}
             <ListRow
                 left={<ListRow.Icon name="icon-emoji-money-with-wings"/>}
                 contents={
@@ -131,6 +133,7 @@ function Page() {
             <Border type="full" />
 
             {/* 진행중인 챌린지 헤더 */}
+            {/*TODO : 예정된 챌린지, 완료된 챌린지 구분하여 추가*/}
             <ListHeader
                 title={
                     <ListHeader.TitleSelector
@@ -144,6 +147,7 @@ function Page() {
             />
 
             {/* 챌린지 카드 반복 렌더링 */}
+            {/*TODO : 무한 스크롤 or  페이징 적용*/}
             {challenges.map((challenge, index) => (
                 <View key={challenge.id}>
                     {index > 0 && <Spacing size={16}/>}

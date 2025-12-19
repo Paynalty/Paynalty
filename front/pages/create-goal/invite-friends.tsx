@@ -1,8 +1,8 @@
 import {Post, List, ListRow, Icon, FixedBottomCTA, FixedBottomCTAProvider, Button,} from '@toss/tds-react-native';
 import {Paragraph, useAdaptive} from '@toss/tds-react-native/private';
-import {createRoute} from "@granite-js/react-native";
+import {createRoute, Spacing} from "@granite-js/react-native";
 
-export const Route = createRoute('/create-goal/inviteFriends', {
+export const Route = createRoute('/create-goal/invite-friends', {
     component: Page,
 })
 
@@ -11,6 +11,7 @@ export default function Page() {
     const navigation = Route.useNavigation();
     return (
         <>
+            <Spacing size={30}/>
             <Post.Paragraph
                 paddingBottom={8}
                 typography="t7"
@@ -101,7 +102,7 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate("/create-goal/completePage")}
+                            onPress={() => navigation.navigate("/create-goal/complete")}
                         >
                             다음
                         </Button>

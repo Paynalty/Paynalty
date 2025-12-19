@@ -1,8 +1,8 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {Asset, Txt, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow} from '@toss/tds-react-native';
+import {Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 
-export const Route = createRoute('/create-goal/completePage', {
+export const Route = createRoute('/create-goal/complete', {
     component: Page,
 })
 
@@ -11,17 +11,21 @@ export default function Page() {
     const navigation = Route.useNavigation();
     return (
         <>
-            <Spacing size={10}/>
-            <>
-                <Asset.Image
-                    frameShape={{width: 100}}
-                    source={{uri: 'https://static.toss.im/lotties/check-spot-apng.png'}}
-                />
-            </>
-            <Spacing size={24}/>
-            <Txt color={adaptive.grey800} typography="t2" fontWeight="bold">
-                목표를 만들었어요
-            </Txt>
+            <Spacing size={30}/>
+            <Top
+                upper={
+                    <Top.UpperAssetContent
+                        content={
+                            <Asset.Lottie
+                                frameShape={Asset.frameShape.SquareLarge}
+                                scale={1}
+                                src="https://static.toss.im/lotties-common/check-blue-spot.json"
+                            />
+                        }
+                    />
+                }
+                title={<Top.TitleParagraph size={28}>목표를 만들었어요</Top.TitleParagraph>}
+            />
             <List rowSeparator="none">
                 <ListRow
                     left={
@@ -37,12 +41,12 @@ export default function Page() {
                         <ListRow.Texts
                             type="2RowTypeD"
                             top="목표"
-                            topProps={{ color: adaptive.grey600 }}
+                            topProps={{color: adaptive.grey600}}
                             bottom="런닝 3KM"
-                            bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
-                    verticalPadding="large"
+                    verticalPadding="small"
                 />
                 <ListRow
                     left={
@@ -58,12 +62,12 @@ export default function Page() {
                         <ListRow.Texts
                             type="2RowTypeD"
                             top="마감일"
-                            topProps={{ color: adaptive.grey600 }}
+                            topProps={{color: adaptive.grey600}}
                             bottom="2025년 8월 25일"
-                            bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
-                    verticalPadding="large"
+                    verticalPadding="small"
                 />
                 <ListRow
                     left={
@@ -79,12 +83,12 @@ export default function Page() {
                         <ListRow.Texts
                             type="2RowTypeD"
                             top="인증 주기"
-                            topProps={{ color: adaptive.grey600 }}
+                            topProps={{color: adaptive.grey600}}
                             bottom="주 3회"
-                            bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
-                    verticalPadding="large"
+                    verticalPadding="small"
                 />
                 <ListRow
                     left={
@@ -100,12 +104,12 @@ export default function Page() {
                         <ListRow.Texts
                             type="2RowTypeD"
                             top="인증 방법"
-                            topProps={{ color: adaptive.grey600 }}
+                            topProps={{color: adaptive.grey600}}
                             bottom="사진"
-                            bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
-                    verticalPadding="large"
+                    verticalPadding="small"
                 />
                 <ListRow
                     left={
@@ -121,12 +125,12 @@ export default function Page() {
                         <ListRow.Texts
                             type="2RowTypeD"
                             top="벌금"
-                            topProps={{ color: adaptive.grey600 }}
+                            topProps={{color: adaptive.grey600}}
                             bottom="10,000원"
-                            bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
-                    verticalPadding="large"
+                    verticalPadding="small"
                 />
             </List>
             <FixedBottomCTAProvider>
