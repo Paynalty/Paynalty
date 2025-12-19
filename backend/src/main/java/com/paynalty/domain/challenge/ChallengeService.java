@@ -99,8 +99,7 @@ public class ChallengeService {
         } else {
             remainingDuration = Duration.between(now, deadline);
         }
-        
-        long remainingSeconds = remainingDuration.getSeconds();
+
         String remainingTimeFormatted = formatDuration(remainingDuration);
 
         // 4단계: ChallengeDetailResponse 생성 및 반환
@@ -110,7 +109,6 @@ public class ChallengeService {
                 .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
                 .weeklyRequiredVerificationCount(challenge.getFrequency())
                 .penaltyAmount(challenge.getPenaltyAmount())
-                .remainingSecondsUntilDeadline(remainingSeconds)
                 .remainingTimeFormatted(remainingTimeFormatted)
                 .build();
     }

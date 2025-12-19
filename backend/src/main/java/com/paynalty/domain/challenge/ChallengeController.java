@@ -31,7 +31,7 @@ public class ChallengeController {
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
     @GetMapping("/{userId}/{status}")
-    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> findByStatus(
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getByStatus(
             @Parameter(description = "사용자 userId", required = true, example = "1")
             @PathVariable Long userId,
             @Parameter(description = "챌린지 상태", required = true, example = "progress")
