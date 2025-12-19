@@ -1,7 +1,7 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {Asset, ProgressBar, Top, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {Pressable} from "react-native";
+import {Pressable, View} from "react-native";
 
 export const Route = createRoute('/create-goal/step8', {
     component: Page,
@@ -23,7 +23,7 @@ export default function Page() {
                 subtitle1={<Top.SubtitleBadges items={[]}/>}
                 subtitle2={
                     <Top.SubtitleParagraph>
-                        혼자보다 함께가 오래 갑니다
+                        혼자보다 함께가 오래 갑니다{'\n'}
                         서로의 진행 상황을 공유해요
                     </Top.SubtitleParagraph>
                 }
@@ -39,15 +39,15 @@ export default function Page() {
                             bottomProps={{color: adaptive.grey500}}
                         />
                     }
-                    verticalPadding="large"
+                    right={
+                        <View style={{ flexDirection: 'row', gap: -12, alignItems: 'center' }}>
+                            <Asset.Icon
+                                frameShape={{width: 42, height: 42}}
+                                name="icon-plus-grey-fill-opacity"
+                            />
+                        </View>
+                    }
                 />
-                <>
-                    <Asset.Icon
-                        frameShape={{width: 42, height: 42}}
-                        name="icon-plus-grey-fill-opacity"
-                        accessibilityLabel=""
-                    />
-                </>
             </Pressable>
             <FixedBottomCTAProvider>
                 <FixedBottomCTA.Double

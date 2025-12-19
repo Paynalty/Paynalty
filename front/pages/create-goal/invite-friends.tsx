@@ -1,6 +1,16 @@
-import {Post, List, ListRow, Icon, FixedBottomCTA, FixedBottomCTAProvider, Button,} from '@toss/tds-react-native';
+import {
+    Post,
+    List,
+    ListRow,
+    Icon,
+    FixedBottomCTA,
+    FixedBottomCTAProvider,
+    Button,
+    SearchField,
+} from '@toss/tds-react-native';
 import {Paragraph, useAdaptive} from '@toss/tds-react-native/private';
 import {createRoute, Spacing} from "@granite-js/react-native";
+import {useState} from 'react';
 
 export const Route = createRoute('/create-goal/invite-friends', {
     component: Page,
@@ -9,8 +19,28 @@ export const Route = createRoute('/create-goal/invite-friends', {
 export default function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+    const [searchText, setSearchText] = useState('');
+    const [filteredResults, setFilteredResults] = useState([]);
+    const handleSearch = (text: string) => {
+        setSearchText(text);
+        // 검색 로직
+        const results = data.filter(item =>
+            item.name.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredResults(results);
+    };
     return (
         <>
+            <Spacing size={30}/>
+            <SearchField
+                placeholder="친구의 이름, 이메일을 입력해요"
+                autoFocus={true}
+                value={searchText}
+                hasClearButton={true}
+                maxLength={40}
+                onChange={(e) => setSearchText(e.nativeEvent.text)}
+                style={{borderRadius: 20, marginHorizontal: 16}}
+            />
             <Spacing size={30}/>
             <Post.Paragraph
                 paddingBottom={8}
@@ -28,6 +58,7 @@ export default function Page() {
                             topProps={{color: adaptive.grey700}}
                         />
                     }
+                    verticalPadding="small"
                     right={
                         <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24}/>
                     }
@@ -40,6 +71,7 @@ export default function Page() {
                             topProps={{color: adaptive.grey700}}
                         />
                     }
+                    verticalPadding="small"
                     right={
                         <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24}/>
                     }
@@ -52,6 +84,7 @@ export default function Page() {
                             topProps={{color: adaptive.grey700}}
                         />
                     }
+                    verticalPadding="small"
                     right={
                         <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24}/>
                     }
@@ -64,6 +97,7 @@ export default function Page() {
                             topProps={{color: adaptive.grey700}}
                         />
                     }
+                    verticalPadding="small"
                     right={
                         <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24}/>
                     }
@@ -76,6 +110,7 @@ export default function Page() {
                             topProps={{color: adaptive.grey700}}
                         />
                     }
+                    verticalPadding="small"
                     right={
                         <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24}/>
                     }
