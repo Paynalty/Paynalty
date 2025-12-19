@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,8 +41,5 @@ public class ChallengeController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // 목록에 사용자 기준으로 뜨니 ("/{id})
-
-    //
 }
 

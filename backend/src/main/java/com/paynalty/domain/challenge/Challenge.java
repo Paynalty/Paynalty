@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,10 +69,6 @@ public class Challenge extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "verification_type", length = 20)
     private VerificationType verificationType;
-
-    // 테스트용 userId
-//    @Column(name = "user_id", nullable = false)
-//    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

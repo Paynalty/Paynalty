@@ -35,12 +35,7 @@ public class ChallengeVerificationService {
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);
-        
-        // Lazy Loading 문제 방지를 위해 트랜잭션 내에서 연관 엔티티 로드
-        // Response 생성 시 user와 challenge에 접근하므로 미리 로드
-        //saved.getUser().getId(); // Lazy Loading 트리거
-        //saved.getChallenge().getId(); // Lazy Loading 트리거
-        
+
         return ChallengeVerificationResponse.from(saved);
     }
 }

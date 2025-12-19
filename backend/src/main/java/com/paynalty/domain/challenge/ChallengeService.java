@@ -40,12 +40,6 @@ public class ChallengeService {
 
         Challenge saved = challengeRepository.save(challenge);
 
-        // challenge 생성됨. (challenge id 값 있음)
-        // challenge -> challengeMembers 에 맴버 추가
-        // challengeMembers 안의 인덱스 값만큼 ChallengeMember 객체 생성 매서드 실행
-        // (객체 생성 -> challenge의 Members 리스트에 추가)
-
-
         return ChallengeResponse.from(saved);
     }
 

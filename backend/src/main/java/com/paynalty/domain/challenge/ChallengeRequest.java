@@ -48,9 +48,6 @@ public class ChallengeRequest {
     @Schema(description = "인증 횟수", example = "7")
     private int verifyCount;
 
-//    @Schema(description = "사용자 ID (테스트용)", example = "1", required = true)
-//    @NotNull(message = "사용자 ID는 필수입니다")
-//    private Long userId;
 
     @Schema(description = "인증 방식", example = "PHOTO", required = true)
     @NotNull(message = "인증 방식은 필수입니다")
