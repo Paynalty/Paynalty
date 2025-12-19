@@ -56,7 +56,7 @@ public class ChallengeRequest {
     @NotNull(message = "인증 방식은 필수입니다")
     private VerificationType verificationType;
 
-    @Schema(description = "챌린지 상태", example = "진행중")
+    @Schema(description = "챌린지 상태", example = "progress")
     @Size(max = 20, message = "상태는 20자 이하여야 합니다")
     private String status;
 }

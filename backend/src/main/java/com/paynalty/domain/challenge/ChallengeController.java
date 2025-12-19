@@ -21,24 +21,24 @@ public class ChallengeController {
 
     //TODO : 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 create 매개변수에 nickName 추가)
     // 현재는 주소에 변수 넣어서 사용중
-    @PostMapping("/{email}")
+    @PostMapping()
     public ResponseEntity<ApiResponse<ChallengeResponse>> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
-            @Valid @RequestBody ChallengeRequest request,
-            @PathVariable String email) {
-        ChallengeResponse response = challengeService.create(request,email);
+            @Valid @RequestBody ChallengeRequest request) {
+        Long userId = 1L;
+        ChallengeResponse response = challengeService.create(request,userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
-    @GetMapping("/{email}/{status}")
+    @GetMapping("/{userId}/{status}")
     public ResponseEntity<ApiResponse<List<ChallengeResponse>>> findByStatus(
-            @Parameter(description = "사용자 email", required = true, example = "test@test.com")
-            @PathVariable String email,
-            @Parameter(description = "챌린지 상태", required = true, example = "진행중")
+            @Parameter(description = "사용자 userId", required = true, example = "1")
+            @PathVariable Long userId,
+            @Parameter(description = "챌린지 상태", required = true, example = "progress")
             @PathVariable String status
     ) {
-        List<ChallengeResponse> response = challengeService.findByStatus(email, status);
+        List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 

@@ -16,7 +16,7 @@ public class ChallengeVerificationRequest {
     @Size(max = 500, message = "인증 이미지 URL은 500자 이하여야 합니다")
     private String imageUrl;
 
-    @Schema(description = "인증 상태", example = "인증완", required = true)
+    @Schema(description = "인증 상태", example = "completed", required = true)
     @Size(max = 20, message = "인증 상태는 20자 이하여야 합니다")
     private String status;
 }
