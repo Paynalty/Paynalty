@@ -1,6 +1,7 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
+import {View} from "react-native";
 
 export const Route = createRoute('/create-goal/step7', {
     component: Page,
@@ -27,58 +28,25 @@ export default function Page() {
                     </Top.SubtitleParagraph>
                 }
             />
-            <FixedBottomCTAProvider>
-                <FixedBottomCTA.Double
-                    leftButton={
-                        <Button
-                            type="dark"
-                            style="weak"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                        >
-                            5,000원
-                        </Button>
-                    }
-                    rightButton={
-                        <Button
-                            type="primary"
-                            style="fill"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                        >
-                            10,000원
-                        </Button>
-                    }
-                />
-            </FixedBottomCTAProvider>
-            <FixedBottomCTAProvider>
-                <FixedBottomCTA.Double
-                    leftButton={
-                        <Button
-                            type="dark"
-                            style="weak"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                        >
-                            20,000원
-                        </Button>
-                    }
-                    rightButton={
-                        <Button
-                            type="dark"
-                            style="weak"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                        >
-                            직접 입력하기
-                        </Button>
-                    }
-                />
-            </FixedBottomCTAProvider>
+            <Spacing size={30}/>
+            <View style={{paddingHorizontal: 16, gap: 12}}>
+                <View style={{flexDirection: 'row', gap: 12, margin: 12}}>
+                    <View style={{flex: 1}}>
+                        <Button type="dark" style="weak" display="block">5,000원</Button>
+                    </View>
+                    <View style={{flex: 1}}>
+                        <Button type="primary" style="fill" display="block">10,000원</Button>
+                    </View>
+                </View>
+                <View style={{flexDirection: 'row', gap: 12, margin: 12}}>
+                    <View style={{flex: 1}}>
+                        <Button type="dark" style="weak" display="block">20,000원</Button>
+                    </View>
+                    <View style={{flex: 1}}>
+                        <Button type="dark" style="weak" display="block">직접 입력하기</Button>
+                    </View>
+                </View>
+            </View>
             <FixedBottomCTAProvider>
                 <FixedBottomCTA.Double
                     leftButton={

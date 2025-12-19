@@ -3,6 +3,7 @@ import {
 } from '@toss/tds-react-native';
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
+import {View} from "react-native";
 
 export const Route = createRoute('/create-goal/step6', {
     component: Page,
@@ -24,10 +25,12 @@ export default function Page() {
                 subtitle1={<Top.SubtitleBadges items={[]}/>}
                 subtitle2={
                     <Top.SubtitleParagraph>
-                        가장 부담 없는 방식이면 충분해요 증명보다 지속이 중요해요
+                        가장 부담 없는 방식이면 충분해요{'\n'}
+                        증명보다 지속이 중요해요
                     </Top.SubtitleParagraph>
                 }
             />
+            <View style={{flexDirection: 'row', alignSelf: 'center', gap: 12}}>
             <Button size="large">사진</Button>
             <Button size="large" style="weak" type="dark">
                 {' '}
@@ -36,6 +39,7 @@ export default function Page() {
             <Button size="large" style="weak" type="dark">
                 체크
             </Button>
+            </View>
             <Spacing size={40}/>
             <ListRow
                 left={
@@ -48,7 +52,7 @@ export default function Page() {
                         topProps={{color: adaptive.grey700}}
                     />
                 }
-                verticalPadding="large"
+                verticalPadding={4}
             />
             <TextField
                 variant="box"
