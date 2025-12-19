@@ -4,15 +4,16 @@ import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.penalty.Penalty;
+import com.paynalty.domain.user.User;
+import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import java.util.List;
 @Table(name = "challenges")
 @Getter
 @NoArgsConstructor
-public class Challenge {
+public class Challenge extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,34 +36,56 @@ public class Challenge {
     @Column(name = "category", length = 30)
     private String category;
 
+    // 시작 일
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
+    // 종료 일
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "frequency")
-    private Integer frequency;
 
     @Column(name = "penalty_amount")
-    private Integer penaltyAmount;
+    private int penaltyAmount;
 
     @Column(name = "status", length = 20)
     private String status;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    // 인증 주기 - 주 몇 회
+    @Column(name = "frequency")
+    private int frequency;
 
+    // 인증 가능 시작 시간 (시/분만 사용)
+    @Column(name = "verify_start_at")
+    private LocalTime verifyStartAt;
+
+    // 인증 가능 종료 시간 (시/분만 사용)
+    @Column(name = "verify_end_at")
+    private LocalTime verifyEndAt;
+
+    @Column(name = "verify_count")
+    private int verifyCount;
+
+    // 인증 방식. (사진,텍스트,체크)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verification_type", length = 20)
+    private VerificationType verificationType;
 
     // 테스트용 userId
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+//    @Column(name = "user_id", nullable = false)
+//    private Long userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Builder
     public Challenge(String title, String description, String category
             , LocalDate startDate, LocalDate endDate, Integer frequency
             , Integer penaltyAmount, String status
-            ,Long userId){
+            , VerificationType verificationType
+            , User user
+            , LocalTime verifyStartAt, LocalTime verifyEndAt){
         this.title = title;
         this.description = description;
         this.category = category;
@@ -71,8 +94,10 @@ public class Challenge {
         this.frequency = frequency;
         this.penaltyAmount = penaltyAmount;
         this.status = status;
-        this.createdAt = LocalDateTime.now();
-        this.userId = userId;
+        this.user = user;
+        this.verificationType = verificationType;
+        this.verifyStartAt = verifyStartAt;
+        this.verifyEndAt = verifyEndAt;
     }
 
     // 관계 설정
