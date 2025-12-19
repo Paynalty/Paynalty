@@ -1,6 +1,6 @@
 import {createRoute, Spacing} from "@granite-js/react-native";
 import {
-    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top
+    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top
 } from "@toss/tds-react-native";
 import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
 import {Pressable, StyleSheet} from "react-native";
@@ -156,6 +156,7 @@ function Page() {
 const styles = StyleSheet.create({
     carousel: {
         marginTop: -8,
+        paddingHorizontal : 12,
     },
     dayButton: {
         width: 68,
