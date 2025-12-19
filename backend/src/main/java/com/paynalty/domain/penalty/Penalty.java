@@ -2,6 +2,7 @@ package com.paynalty.domain.penalty;
 
 import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.user.User;
+import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor                                  
-public class Penalty {      
+public class Penalty extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +34,5 @@ public class Penalty {
     @Column(name = "reason", length = 255)
     private String reason;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 }
 
