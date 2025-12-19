@@ -35,8 +35,8 @@ server:
 # JWT 설정
 jwt:
   secret: ${JWT_SECRET:paynalty-secret-key-for-development-only-change-in-production}
-  access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:3600000}  # 1시간 (ms)
-  refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY:604800000}  # 7일 (ms)
+  access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:3600000} # 1시간 (ms)
+  refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY:604800000} # 7일 (ms)
 
 # Swagger 설정
 springdoc:
@@ -56,3 +56,16 @@ logging:
     com.paynalty: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 토스 앱인토스 API 설정
+toss:
+  api:
+    base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im/endpoint}
+    # client-id: ${TOSS_CLIENT_ID:}
+    # client-secret: ${TOSS_CLIENT_SECRET:}
+    # mTLS 인증서 경로 (resources/certs 폴더 기준)
+    mtls:
+      client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/client-cert.pem}
+      client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/client-key.pem}
+      # 인증서 비밀번호 (있는 경우만)
+      key-password: ${TOSS_KEY_PASSWORD:}
