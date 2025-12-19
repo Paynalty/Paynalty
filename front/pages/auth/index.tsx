@@ -53,10 +53,10 @@ export default function Page() {
                     }
                 />
                 <>
-                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ alignItems: 'center', justifyContent: 'center',  marginVertical: -16 }}>
                         <Asset.Image
-                            frameShape={{ width: 250, height: 250 }}
-                            source={{ uri: 'https://static.toss.im/ml-product/dog-a-coin.png' }}
+                            frameShape={{ width: 300, height: 300 }}
+                            source={{ uri: 'https://i.ibb.co/fdHRBmx3/onboarding-character.png' }}
                             accessibilityLabel=""
                         />
                     </View>
