@@ -11,7 +11,7 @@ public class TossController {
 
     private final TossService tossService;
 
-    @PostMapping("/toss/test")
+    @GetMapping("/toss/test")
     public String testToss() throws Exception {
         System.out.println(">>> TossController reached");
         return tossService.refreshToken();
