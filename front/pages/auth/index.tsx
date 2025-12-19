@@ -2,7 +2,7 @@ import {Asset, Top, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Butto
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ScrollView} from "react-native";
+import {ScrollView, View} from "react-native";
 
 export const Route = createRoute('/auth', {
     component: Page,
@@ -25,10 +25,6 @@ export default function Page() {
         navigation.navigate('/auth/login');
     };
 
-    const handleStartWithoutLogin = async () => {
-        await completeOnboarding();
-        navigation.navigate('/');
-    };
     return (
         <ScrollView>
             <>
@@ -41,7 +37,8 @@ export default function Page() {
                     }
                     subtitle2={
                         <Top.SubtitleParagraph>
-                            목표 달성에 실패하면 정해둔 패널티가 발생해요.
+                            목표 달성에 실패하면{'\n'}
+                            정해둔 패널티가 발생해요.
                         </Top.SubtitleParagraph>
                     }
                     right={
@@ -56,16 +53,20 @@ export default function Page() {
                     }
                 />
                 <>
-                    <Asset.Image
-                        frameShape={{width: 250, height: 250}}
-                        source={{uri: 'https://static.toss.im/ml-product/dog-a-coin.png'}}
-                        accessibilityLabel=""
-                    />
+                    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Asset.Image
+                            frameShape={{ width: 250, height: 250 }}
+                            source={{ uri: 'https://static.toss.im/ml-product/dog-a-coin.png' }}
+                            accessibilityLabel=""
+                        />
+                    </View>
                 </>
                 <List rowSeparator="none">
+                    {/*List 1*/}
                     <ListRow
                         left={
                             <ListRow.Image
+                                type="square"
                                 source={{
                                     uri: 'https://static.toss.im/ml-product/man-collar-box-red.png',
                                 }}
@@ -76,11 +77,12 @@ export default function Page() {
                             <ListRow.Texts
                                 type="1RowTypeB"
                                 top="친구와 함께 목표를 정하세요"
-                                topProps={{color: adaptive.grey800}}
+                                topProps={{color: adaptive.grey800, typography: 't4', fontWeight: 'bold',}}
                             />
                         }
-                        verticalPadding="large"
+                        verticalPadding="small"
                     />
+                    {/*List 2*/}
                     <ListRow
                         left={
                             <ListRow.Image
@@ -95,14 +97,16 @@ export default function Page() {
                             <ListRow.Texts
                                 type="1RowTypeB"
                                 top="실패하면 벌금이 기록돼요"
-                                topProps={{color: adaptive.grey800}}
+                                topProps={{color: adaptive.grey800, typography: 't4', fontWeight: 'bold',}}
                             />
                         }
-                        verticalPadding="large"
+                        verticalPadding="small"
                     />
+                    {/*List 3*/}
                     <ListRow
                         left={
                             <ListRow.Image
+                                type="square"
                                 source={{
                                     uri: 'https://static.toss.im/ml-product/farmer-golden-rice-plant.png',
                                 }}
@@ -113,10 +117,10 @@ export default function Page() {
                             <ListRow.Texts
                                 type="1RowTypeB"
                                 top="목표를 달성해봐요!"
-                                topProps={{color: adaptive.grey800}}
+                                topProps={{color: adaptive.grey800, typography: 't4', fontWeight: 'bold',}}
                             />
                         }
-                        verticalPadding="large"
+                        verticalPadding="small"
                     />
                 </List>
                 <FixedBottomCTAProvider>
