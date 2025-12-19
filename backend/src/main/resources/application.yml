@@ -61,8 +61,7 @@ logging:
 toss:
   api:
     base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im}
-    # client-id: ${TOSS_CLIENT_ID:}
-    # client-secret: ${TOSS_CLIENT_SECRET:}
+
     # mTLS 인증서 경로 (resources/certs 폴더 기준)
     mtls:
       client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/test-mTLS_public.crt}

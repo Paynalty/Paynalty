@@ -33,13 +33,6 @@ public class TossApiService {
     @Value("${toss.api.base-url}")
     private String tossApiBaseUrl;
 
-    @Value("${toss.api.client-id}")
-    private String clientId;
-
-    @Value("${toss.api.client-secret}")
-    private String clientSecret;
-
-
     /**
      * 토스 로그인 (사용자 인증)
      *
@@ -56,8 +49,6 @@ public class TossApiService {
             // 요청 헤더 설정
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-Client-Id", clientId);
-            headers.set("X-Client-Secret", clientSecret);
 
             // 요청 body 생성
             Map<String, String> requestBody = Map.of(
