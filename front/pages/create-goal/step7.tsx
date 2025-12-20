@@ -1,5 +1,5 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button, TextField} from '@toss/tds-react-native';
+import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button, TextField, Txt} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
 import {useState} from "react";
@@ -9,10 +9,11 @@ export const Route = createRoute('/create-goal/step7', {
     component: Page,
 })
 
+
 const PENALTY_OPTIONS = [
-    {value: 5000, label: '5,000원'},
+    {value: 1000, label: '1,000원'},
+    {value: 50000, label: '5,000원'},
     {value: 10000, label: '10,000원'},
-    {value: 20000, label: '20,000원'},
     {value: 'custom', label: '직접 입력하기'},
 ] as const;
 
@@ -21,6 +22,7 @@ export default function Page() {
     const navigation = Route.useNavigation();
     const [selectAmount, setSelectAmount] = useState<number | string>(10000);
     const [customAmount, setCustomAmount] = useState('');
+    const isNextButtonEnabled = selectAmount > 0 || (customAmount > 0 && customAmount < 50000);
 
     return (
         <>
@@ -83,6 +85,12 @@ export default function Page() {
                             placeholder="원하는 금액을 입력하세요"
                             keyboardType="numeric"
                         />
+                        {customAmount >= 50000 && (
+                            <Txt typography="t6" color={adaptive.red500}
+                                 style={{textAlign: 'right', marginTop: 0, paddingHorizontal: 28}}>
+                                최대 50000원 까지만 설정할 수 있어요{'\n'}
+                            </Txt>
+                        )}
                     </View>
                 )}
             </View>
@@ -105,7 +113,7 @@ export default function Page() {
                             type="primary"
                             style="fill"
                             display="block"
-                            disabled={false}
+                            disabled={!isNextButtonEnabled}
                             loading={false}
                             onPress={() => {
                                 updateCreateGoalData({

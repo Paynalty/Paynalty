@@ -94,7 +94,7 @@ export default function Page() {
                             type="2RowTypeD"
                             top="목표"
                             topProps={{color: adaptive.grey600}}
-                            bottom="런닝 3KM"
+                            bottom={goalData.goalTitle}
                             bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
