@@ -1,14 +1,32 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {ProgressBar, Top, TextArea, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
+import {ProgressBar, Top, TextArea, FixedBottomCTA, FixedBottomCTAProvider, Button, Txt} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
+import {useState} from "react";
+import {View} from "react-native";
+import {updateCreateGoalData} from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step2', {
     component: Page,
 });
 
+const MAX_TITLE_LENGTH = 30;
+
 function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+    const [goalTitle, setGoalTitle] = useState('');
+
+    // 목표 제목 변경 처리
+    const handleChangeTitle = (text: string) => {
+        // 최대 길이 제한
+        if (text.length <= MAX_TITLE_LENGTH) {
+            setGoalTitle(text);
+        }
+    };
+
+    // 다음 버튼 활성화 조건
+    const isNextButtonEnabled = goalTitle.trim().length > 0;
+
     return (
         <>
             <Spacing size={30}/>
@@ -25,14 +43,20 @@ function Page() {
                 }
                 lowerGap={0}
             />
-            <TextArea
-                label=""
-                value=""
-                placeholder="어떤 목표든 괜찮아요!"
-                error={false}
-                autoFocus={false}
-                height={100}
-            />
+            <View style={{paddingHorizontal: 16}}>
+                <TextArea
+                    label=""
+                    value={goalTitle}
+                    placeholder="어떤 목표든 괜찮아요!"
+                    autoFocus={true}
+                    onChangeText={handleChangeTitle}
+                />
+                {goalTitle.length >= 20 && (
+                    <Txt typography="t6" color={adaptive.red500} style={{textAlign: 'right', marginTop: 0, paddingHorizontal: 28}}>
+                        {`최대 ${goalTitle.length}/${MAX_TITLE_LENGTH}자 까지만 작성할 수 있어요`}
+                    </Txt>
+                )}
+            </View>
             <Spacing size={24}/>
 
             {/* TODO : 템플릿 제공*/}
@@ -55,9 +79,14 @@ function Page() {
                             type="primary"
                             style="fill"
                             display="block"
-                            disabled={false}
+                            disabled={!isNextButtonEnabled}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step3')}
+                            onPress={() => {
+                                // 데이터 저장
+                                updateCreateGoalData({ goalTitle: goalTitle.trim() });
+                                // 다음 단계로 이동
+                                navigation.navigate('/create-goal/step3');
+                            }}
                         >
                             다음
                         </Button>

@@ -3,6 +3,7 @@ import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button, TextFi
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
 import {useState} from "react";
+import {updateCreateGoalData} from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step7', {
     component: Page,
@@ -106,7 +107,13 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step8')}
+                            onPress={() => {
+                                updateCreateGoalData({
+                                    penaltyAmount: selectAmount,
+                                    customAmount: selectAmount === 'custom' ? customAmount : undefined,
+                                });
+                                navigation.navigate('/create-goal/step8');
+                            }}
                         >
                             다음
                         </Button>

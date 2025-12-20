@@ -5,6 +5,7 @@ import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
 import {useState} from "react";
+import {updateCreateGoalData} from "../../src/stores/createGoalStore";
 
 export const Route = createRoute('/create-goal/step6', {
     component: Page,
@@ -112,7 +113,12 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step7')}
+                            onPress={() => {
+                                updateCreateGoalData({
+                                    verificationMethod: selectedMethod
+                                });
+                                navigation.navigate('/create-goal/step7')}
+                            }
                         >
                             다음
                         </Button>
