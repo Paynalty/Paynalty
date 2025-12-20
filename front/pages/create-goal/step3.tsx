@@ -1,9 +1,19 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, TextField, Asset, Txt} from "@toss/tds-react-native";
+import {
+    Button,
+    FixedBottomCTA,
+    FixedBottomCTAProvider,
+    ProgressBar,
+    Top,
+    TextField,
+    Asset,
+    Txt
+} from "@toss/tds-react-native";
 import {useAdaptive} from "@toss/tds-react-native/private";
 import {useState} from "react";
 import {View, Modal, ScrollView, Pressable} from "react-native";
 import {updateCreateGoalData} from '../../src/stores/createGoalStore';
+import {background} from "@toss/tds-colors";
 
 export const Route = createRoute('/create-goal/step3', {
     component: Page,
@@ -56,74 +66,84 @@ function Page() {
                 }
             />
 
-            <View style={{paddingHorizontal: 16, gap: 12}}>
+            <View style={{paddingHorizontal: 16}}>
                 <Spacing size={20}/>
 
                 {/* 년/월/일 선택 */}
                 <View style={{flexDirection: 'row', gap: 8}}>
                     {/* 년 선택 */}
-                    <View style={{flex: 1}}>
-                        <Pressable onPress={() => setShowYearPicker(true)}>
-                            <TextField
-                                variant="box"
-                                label=""
-                                value={`${year}`}
-                                editable={false}
-                                right={
-                                    <Asset.Icon
-                                        frameShape={Asset.frameShape.CleanW24}
-                                        name="icon-arrow-down-mono"
-                                        color={adaptive.grey400}
-                                    />
-                                }
-                            />
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => setShowYearPicker(true)}
+                        style={{flex: 1, backgroundColor: 'red'}}
+                    >
+                        <TextField
+                            variant="line"
+                            label=""
+                            value={`${year}`}
+                            editable={false}
+                            style={{ width: '100%' }}
+                            right={
+                                <Asset.Icon
+                                    frameShape={Asset.frameShape.CleanW24}
+                                    name="icon-arrow-down-mono"
+                                    color={adaptive.grey400}
+                                />
+                            }
+                        />
+                    </Pressable>
 
                     {/* 월 선택 */}
-                    <View style={{flex: 1}}>
-                        <Pressable onPress={() => setShowMonthPicker(true)}>
-                            <TextField
-                                variant="box"
-                                label=""
-                                value={`${month}`}
-                                editable={false}
-                                right={
-                                    <Asset.Icon
-                                        frameShape={Asset.frameShape.CleanW24}
-                                        name="icon-arrow-down-mono"
-                                        color={adaptive.grey400}
-                                    />
-                                }
-                            />
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => setShowMonthPicker(true)}
+                        style={{flex: 1}}
+                    >
+                        <TextField
+                            variant="line"
+                            label=""
+                            value={`${month}`}
+                            editable={false}
+                            right={
+                                <Asset.Icon
+                                    frameShape={Asset.frameShape.CleanW24}
+                                    name="icon-arrow-down-mono"
+                                    color={adaptive.grey400}
+                                />
+                            }
+                        />
+                    </Pressable>
 
                     {/* 일 선택 */}
-                    <View style={{flex: 1}}>
-                        <Pressable onPress={() => setShowDayPicker(true)}>
-                            <TextField
-                                variant="box"
-                                label=""
-                                value={`${day}`}
-                                editable={false}
-                                right={
-                                    <Asset.Icon
-                                        frameShape={Asset.frameShape.CleanW24}
-                                        name="icon-arrow-down-mono"
-                                        color={adaptive.grey400}
-                                    />
-                                }
-                            />
-                        </Pressable>
-                    </View>
+                    <Pressable
+                        onPress={() => setShowDayPicker(true)}
+                        style={{flex: 1}}
+                    >
+                        <TextField
+                            variant="line"
+                            label=""
+                            value={`${day}`}
+                            editable={false}
+                            right={
+                                <Asset.Icon
+                                    frameShape={Asset.frameShape.CleanW24}
+                                    name="icon-arrow-down-mono"
+                                    color={adaptive.grey400}
+                                />
+                            }
+                        />
+                    </Pressable>
                 </View>
+                <Spacing size={12}/>
             </View>
 
             {/* 년도 선택 모달 */}
             <Modal visible={showYearPicker} transparent animationType="slide">
                 <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)'}}>
-                    <View style={{backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '50%'}}>
+                    <View style={{
+                        backgroundColor: 'white',
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        maxHeight: '50%'
+                    }}>
                         <View style={{padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey200}}>
                             <Txt typography="t4" fontWeight="bold">년도 선택</Txt>
                         </View>
@@ -155,7 +175,12 @@ function Page() {
             {/* 월 선택 모달 */}
             <Modal visible={showMonthPicker} transparent animationType="slide">
                 <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)'}}>
-                    <View style={{backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '50%'}}>
+                    <View style={{
+                        backgroundColor: 'white',
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        maxHeight: '50%'
+                    }}>
                         <View style={{padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey200}}>
                             <Txt typography="t4" fontWeight="bold">월 선택</Txt>
                         </View>
@@ -187,7 +212,12 @@ function Page() {
             {/* 일 선택 모달 */}
             <Modal visible={showDayPicker} transparent animationType="slide">
                 <View style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)'}}>
-                    <View style={{backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '50%'}}>
+                    <View style={{
+                        backgroundColor: 'white',
+                        borderTopLeftRadius: 20,
+                        borderTopRightRadius: 20,
+                        maxHeight: '50%'
+                    }}>
                         <View style={{padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey200}}>
                             <Txt typography="t4" fontWeight="bold">일 선택</Txt>
                         </View>

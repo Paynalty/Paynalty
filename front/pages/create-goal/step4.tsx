@@ -5,6 +5,7 @@ import {
 import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
 import {Pressable, StyleSheet} from "react-native";
 import {useState} from "react";
+import {updateCreateGoalData} from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step4', {
     component: Page,
@@ -64,7 +65,7 @@ function Page() {
             >
             요일
             </Paragraph.Text>
-            <Carousel itemWidth={76} style={styles.carousel}>
+            <Carousel itemWidth={76}>
                 {days.map((day) => {
                     const isSelected = selectedDays.includes(day);
                     return (
@@ -97,7 +98,7 @@ function Page() {
             >
             횟수
             </Paragraph.Text>
-            <Carousel itemWidth={76} style={styles.carousel}>
+            <Carousel itemWidth={76}>
                 {counts.map((count) => {
                     const isSelected = selectedCount === count;
                     return (
@@ -140,9 +141,16 @@ function Page() {
                             type="primary"
                             style="fill"
                             display="block"
-                            disabled={false}
+                            disabled={!((selectionType === 'day' && selectedDays.length > 0) || (selectionType === 'count' && selectedCount))}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step5')}
+                            onPress={() => {
+                                const periodValue = selectionType === 'count' ? selectedCount : selectedDays.join(', ');
+                                updateCreateGoalData({
+                                    period: periodValue,
+                                    selectionType: selectionType,
+                                });
+                                navigation.navigate('/create-goal/step5');
+                            }}
                         >
                             다음
                         </Button>
@@ -154,10 +162,6 @@ function Page() {
 }
 
 const styles = StyleSheet.create({
-    carousel: {
-        marginTop: -8,
-        paddingHorizontal : 12,
-    },
     dayButton: {
         width: 68,
         height: 73,

@@ -3,8 +3,12 @@ export interface CreateGoalData {
     goalTitle?: string;
     verificationMethod?: string;
     period?: string;
+    selectionType?: 'day' | 'count';
     penaltyAmount?: number | string;
     customAmount?: string;
+    deadline?: string;
+    startTime?: string;
+    endTime?: string;
 }
 
 // 전역 상태 (목표 생성 중에만 사용)

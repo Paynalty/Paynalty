@@ -115,7 +115,7 @@ export default function Page() {
                             type="2RowTypeD"
                             top="마감일"
                             topProps={{color: adaptive.grey600}}
-                            bottom="2025년 8월 25일"
+                            bottom={goalData.deadline}
                             bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
@@ -136,7 +136,7 @@ export default function Page() {
                             type="2RowTypeD"
                             top="인증 주기"
                             topProps={{color: adaptive.grey600}}
-                            bottom={goalData.period}
+                            bottom={`${goalData.period} \n${goalData.startTime} ~ ${goalData.endTime}`}
                             bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
                         />
                     }
