@@ -1,15 +1,26 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
+import {ProgressBar, Top, FixedBottomCTA, FixedBottomCTAProvider, Button, TextField} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
+import {useState} from "react";
 
 export const Route = createRoute('/create-goal/step7', {
     component: Page,
 })
 
+const PENALTY_OPTIONS = [
+    {value: 5000, label: '5,000원'},
+    {value: 10000, label: '10,000원'},
+    {value: 20000, label: '20,000원'},
+    {value: 'custom', label: '직접 입력하기'},
+] as const;
+
 export default function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+    const [selectAmount, setSelectAmount] = useState<number | string>(10000);
+    const [customAmount, setCustomAmount] = useState('');
+
     return (
         <>
             <Spacing size={30}/>
@@ -31,21 +42,48 @@ export default function Page() {
             <Spacing size={30}/>
             <View style={{paddingHorizontal: 16, gap: 12}}>
                 <View style={{flexDirection: 'row', gap: 12, margin: 12}}>
-                    <View style={{flex: 1}}>
-                        <Button type="dark" style="weak" display="block">5,000원</Button>
-                    </View>
-                    <View style={{flex: 1}}>
-                        <Button type="primary" style="fill" display="block">10,000원</Button>
-                    </View>
+                    {PENALTY_OPTIONS.slice(0, 2).map(({label, value}) => (
+                        <View key={value} style={{flex: 1}}>
+                            <Button
+                                type={selectAmount === value ? 'primary' : 'dark'}
+                                style={selectAmount === value ? 'fill' : 'weak'}
+                                display="block"
+                                onPress={() => setSelectAmount(value)}
+                            >
+                                {label}
+                            </Button>
+                        </View>
+                    ))}
                 </View>
+
                 <View style={{flexDirection: 'row', gap: 12, margin: 12}}>
-                    <View style={{flex: 1}}>
-                        <Button type="dark" style="weak" display="block">20,000원</Button>
-                    </View>
-                    <View style={{flex: 1}}>
-                        <Button type="dark" style="weak" display="block">직접 입력하기</Button>
-                    </View>
+                    {PENALTY_OPTIONS.slice(2, 4).map(({label, value}) => (
+                        <View key={value} style={{flex: 1}}>
+                            <Button
+                                type={selectAmount === value ? 'primary' : 'dark'}
+                                style={selectAmount === value ? 'fill' : 'weak'}
+                                display="block"
+                                onPress={() => setSelectAmount(value)}
+                            >
+                                {label}
+                            </Button>
+                        </View>
+                    ))}
                 </View>
+
+                {selectAmount === 'custom' && (
+                    <View style={{paddingHorizontal: 16, marginTop: 12}}>
+                        <TextField
+                            variant="box"
+                            label="금액 입력"
+                            labelOption="sustain"
+                            value={customAmount}
+                            onChangeText={setCustomAmount}
+                            placeholder="원하는 금액을 입력하세요"
+                            keyboardType="numeric"
+                        />
+                    </View>
+                )}
             </View>
             <FixedBottomCTAProvider>
                 <FixedBottomCTA.Double

@@ -4,6 +4,7 @@ import {
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
+import {useState} from "react";
 
 export const Route = createRoute('/create-goal/step6', {
     component: Page,
@@ -12,6 +13,9 @@ export const Route = createRoute('/create-goal/step6', {
 export default function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+
+    const [selectedMethod, setSelectedMethod] = useState('사진');
+
     return (
         <>
             <Spacing size={30}/>
@@ -31,14 +35,30 @@ export default function Page() {
                 }
             />
             <View style={{flexDirection: 'row', alignSelf: 'center', gap: 12}}>
-            <Button size="large">사진</Button>
-            <Button size="large" style="weak" type="dark">
-                {' '}
-                텍스트
-            </Button>
-            <Button size="large" style="weak" type="dark">
-                체크
-            </Button>
+                <Button
+                    size="large"
+                    style={selectedMethod === '사진' ? 'fill' : 'weak'}
+                    type={selectedMethod === '사진' ? 'primary' : 'dark'}
+                    onPress={() => setSelectedMethod('사진')}
+                >
+                    사진
+                </Button>
+                <Button
+                    size="large"
+                    style={selectedMethod === '텍스트' ? 'fill' : 'weak'}
+                    type={selectedMethod === '텍스트' ? 'primary' : 'dark'}
+                    onPress={() => setSelectedMethod('텍스트')}
+                >
+                    텍스트
+                </Button>
+                <Button
+                    size="large"
+                    style={selectedMethod === '체크' ? 'fill' : 'weak'}
+                    type={selectedMethod === '체크' ? 'primary' : 'dark'}
+                    onPress={() => setSelectedMethod('체크')}
+                >
+                    체크
+                </Button>
             </View>
             <Spacing size={40}/>
             <ListRow
