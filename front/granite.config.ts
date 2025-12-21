@@ -9,7 +9,7 @@ export default defineConfig({
             brand: {
                 displayName: '페이널티', // 화면에 노출될 앱의 한글 이름
                 primaryColor: '#3182F6', // 화면에 노출될 앱의 기본 색상
-                icon: 'https://static.toss.im/appsintoss/11149/88b088d4-24ea-4d39-9503-55e53608f7f1.png',
+                icon: 'https://static.toss.im/appsintoss/11149/212e2799-d5bd-4f72-a2fe-6bf2c72da56f.png',
                 bridgeColorMode: 'basic',
             },
             permissions: [],
