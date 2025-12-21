@@ -1,5 +1,5 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {View, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView, Pressable} from 'react-native';
 import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState, useEffect} from 'react';
@@ -32,6 +32,8 @@ function Page() {
             console.error('Failed to check onboarding status:', error);
         }
     };
+
+    const [showTooltip, setShowTooltip] = useState(true);
 
     // TODO : Mock 데이터 - 추후 API로 교체
     const [challenges] = useState<Challenge[]>([
@@ -135,21 +137,29 @@ function Page() {
             />
 
             {/*TODO : 툴팁 삭제 하거나 결제 관련된 내용으로 이동*/}
-            <ListRow
-                left={<ListRow.Icon name="icon-emoji-money-with-wings"/>}
-                contents={
-                    <ListRow.Texts
-                        type="2RowTypeD"
-                        top="오늘 미션을 하지 않으면"
-                        topProps={{color: adaptive.grey600}}
-                        bottom="5000원을 납부해야 돼요"
-                        bottomProps={{color: adaptive.blue500, fontWeight: 'bold'}}
+            {showTooltip && (
+                <>
+                    <ListRow
+                        left={<ListRow.Icon name="icon-emoji-money-with-wings"/>}
+                        contents={
+                            <ListRow.Texts
+                                type="2RowTypeD"
+                                top="오늘 미션을 하지 않으면"
+                                topProps={{color: adaptive.grey600}}
+                                bottom="5000원을 납부해야 돼요"
+                                bottomProps={{color: adaptive.blue500, fontWeight: 'bold'}}
+                            />
+                        }
+                        right={
+                            <Pressable onPress={() => setShowTooltip(false)}>
+                                <Icon name="icon-x-mono" color={adaptive.grey600} size={16}/>
+                            </Pressable>
+                        }
+                        verticalPadding={16}
                     />
-                }
-                right={<Icon name="icon-x-mono" color={adaptive.grey600} size={16}/>}
-                verticalPadding={16}
-            />
-            <Border type="full" />
+                    <Border type="full" />
+                </>
+            )}
 
             {/* 진행중인 챌린지 헤더 */}
             {/*TODO : 예정된 챌린지, 완료된 챌린지 구분하여 추가*/}
