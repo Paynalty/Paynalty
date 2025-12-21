@@ -5,7 +5,7 @@ import {
 import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
 import {Pressable, StyleSheet} from "react-native";
 import {useState} from "react";
-import {updateCreateGoalData} from '../../src/stores/createGoalStore';
+import {updateCreateGoalData} from "../../src/stores/createGoalStore";
 
 export const Route = createRoute('/create-goal/step4', {
     component: Page,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     selectedButton: {
-        backgroundColor: '#4b4ddc',
+        backgroundColor: '#3182f6',
     },
     unselectedButton: {
         backgroundColor: '#f9fafb',

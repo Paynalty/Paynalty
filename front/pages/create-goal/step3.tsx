@@ -5,15 +5,13 @@ import {
     FixedBottomCTAProvider,
     ProgressBar,
     Top,
-    TextField,
     Asset,
     Txt
 } from "@toss/tds-react-native";
 import {useAdaptive} from "@toss/tds-react-native/private";
 import {useState} from "react";
-import {View, Modal, ScrollView, Pressable} from "react-native";
+import {View, Modal, ScrollView, Pressable, StyleSheet} from "react-native";
 import {updateCreateGoalData} from '../../src/stores/createGoalStore';
-import {background} from "@toss/tds-colors";
 
 export const Route = createRoute('/create-goal/step3', {
     component: Page,
@@ -24,9 +22,10 @@ function Page() {
     const navigation = Route.useNavigation();
 
     const currentDate = new Date();
-    const [year, setYear] = useState(currentDate.getFullYear());
-    const [month, setMonth] = useState(currentDate.getMonth() + 1);
-    const [day, setDay] = useState(currentDate.getDate());
+    const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
+    const [year, setYear] = useState(nextMonthDate.getFullYear());
+    const [month, setMonth] = useState(nextMonthDate.getMonth() + 1);
+    const [day, setDay] = useState(nextMonthDate.getDate());
 
     const [showYearPicker, setShowYearPicker] = useState(false);
     const [showMonthPicker, setShowMonthPicker] = useState(false);
@@ -67,29 +66,31 @@ function Page() {
             />
 
             <View style={{paddingHorizontal: 16}}>
-                <Spacing size={20}/>
+                <Spacing size={24}/>
+
+                <Txt typography="t5" color={adaptive.grey700} fontWeight="bold" style={{marginBottom: 12}}>
+                    마감 날짜
+                </Txt>
 
                 {/* 년/월/일 선택 */}
                 <View style={{flexDirection: 'row', gap: 8}}>
                     {/* 년 선택 */}
                     <Pressable
                         onPress={() => setShowYearPicker(true)}
-                        style={{flex: 1, backgroundColor: 'red'}}
+                        style={{flex: 1}}
                     >
-                        <TextField
-                            variant="line"
-                            label=""
-                            value={`${year}`}
-                            editable={false}
-                            style={{ width: '100%' }}
-                            right={
-                                <Asset.Icon
-                                    frameShape={Asset.frameShape.CleanW24}
-                                    name="icon-arrow-down-mono"
-                                    color={adaptive.grey400}
-                                />
-                            }
-                        />
+                        <View style={[styles.dateCard, {backgroundColor: adaptive.grey50}]}>
+                            <View>
+                                <Txt typography="t2" color={adaptive.grey900} fontWeight="bold">
+                                    {year}
+                                </Txt>
+                            </View>
+                            <Asset.Icon
+                                frameShape={Asset.frameShape.CleanW24}
+                                name="icon-arrow-down-mono"
+                                color={adaptive.grey400}
+                            />
+                        </View>
                     </Pressable>
 
                     {/* 월 선택 */}
@@ -97,19 +98,18 @@ function Page() {
                         onPress={() => setShowMonthPicker(true)}
                         style={{flex: 1}}
                     >
-                        <TextField
-                            variant="line"
-                            label=""
-                            value={`${month}`}
-                            editable={false}
-                            right={
-                                <Asset.Icon
-                                    frameShape={Asset.frameShape.CleanW24}
-                                    name="icon-arrow-down-mono"
-                                    color={adaptive.grey400}
-                                />
-                            }
-                        />
+                        <View style={[styles.dateCard, {backgroundColor: adaptive.grey50}]}>
+                            <View>
+                                <Txt typography="t2" color={adaptive.grey900} fontWeight="bold">
+                                    {String(month).padStart(2, '0')}
+                                </Txt>
+                            </View>
+                            <Asset.Icon
+                                frameShape={Asset.frameShape.CleanW24}
+                                name="icon-arrow-down-mono"
+                                color={adaptive.grey400}
+                            />
+                        </View>
                     </Pressable>
 
                     {/* 일 선택 */}
@@ -117,22 +117,21 @@ function Page() {
                         onPress={() => setShowDayPicker(true)}
                         style={{flex: 1}}
                     >
-                        <TextField
-                            variant="line"
-                            label=""
-                            value={`${day}`}
-                            editable={false}
-                            right={
-                                <Asset.Icon
-                                    frameShape={Asset.frameShape.CleanW24}
-                                    name="icon-arrow-down-mono"
-                                    color={adaptive.grey400}
-                                />
-                            }
-                        />
+                        <View style={[styles.dateCard, {backgroundColor: adaptive.grey50}]}>
+                            <View>
+                                <Txt typography="t2" color={adaptive.grey900} fontWeight="bold">
+                                    {String(day).padStart(2, '0')}
+                                </Txt>
+                            </View>
+                            <Asset.Icon
+                                frameShape={Asset.frameShape.CleanW24}
+                                name="icon-arrow-down-mono"
+                                color={adaptive.grey400}
+                            />
+                        </View>
                     </Pressable>
                 </View>
-                <Spacing size={12}/>
+                <Spacing size={16}/>
             </View>
 
             {/* 년도 선택 모달 */}
@@ -284,3 +283,16 @@ function Page() {
         </>
     );
 }
+
+const styles = StyleSheet.create({
+    dateCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 20,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+});

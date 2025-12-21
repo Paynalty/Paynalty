@@ -18,7 +18,6 @@ function Page() {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
-    // 시간 배열 (00:00 ~ 23:00)
     const hours = Array.from({length: 24}, (_, i) => `${String(i).padStart(2, '0')}:00`);
 
     const handleSelectStartTime = (time: string) => {
