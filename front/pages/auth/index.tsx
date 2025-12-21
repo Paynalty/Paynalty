@@ -1,7 +1,7 @@
 import {Asset, Top, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Storage} from '@apps-in-toss/framework';
 import {ScrollView, View} from "react-native";
 
 export const Route = createRoute('/auth', {
@@ -14,7 +14,7 @@ export default function Page() {
 
     const completeOnboarding = async () => {
         try {
-            await AsyncStorage.setItem('hasCompletedOnboarding', 'true');
+            await Storage.setItem('hasCompletedOnboarding', 'true');
         } catch (error) {
             console.error('Failed to save onboarding status:', error);
         }
