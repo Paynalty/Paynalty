@@ -46,6 +46,15 @@ function Page() {
     // 날짜 포맷팅
     const formattedDate = `${year}년 ${month}월 ${day}일`;
 
+    // 마감날짜가 유효한지 확인 (오늘보다 미래인지)
+    const isDeadlineValid = () => {
+        const selectedDate = new Date(year, month - 1, day);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+        return selectedDate > today;
+    };
+
     return (
         <>
             <Spacing size={30}/>
@@ -132,6 +141,11 @@ function Page() {
                     </Pressable>
                 </View>
                 <Spacing size={16}/>
+                {!isDeadlineValid() && (
+                    <Txt typography="t6" color={adaptive.red500} style={{textAlign: 'right', marginTop: 0, paddingHorizontal: 28}}>
+                        {`마감일은 내일부터 설정할 수 있어요`}
+                    </Txt>
+                )}
             </View>
 
             {/* 년도 선택 모달 */}
@@ -264,7 +278,7 @@ function Page() {
                             type="primary"
                             style="fill"
                             display="block"
-                            disabled={false}
+                            disabled={!isDeadlineValid()}
                             loading={false}
                             onPress={() => {
                                 // 데이터 저장
