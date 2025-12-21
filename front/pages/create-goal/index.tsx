@@ -22,9 +22,9 @@ function Page() {
                 }
             />
             <View style={{ alignItems: 'center' }}>
-                <Asset.Icon
-                    frameShape={{ width: 100, height: 100 }}
-                    name="icon-calendar-list-blue-grey"
+                <Asset.Image
+                    frameShape={{ width: 130, height: 130 }}
+                    source={{ uri: 'https://i.ibb.co/gYFDpGL/AIDrawing-251220-8ea29a0a-8911-4094-b2c5-6be96d47c2af-0-Miri-Canvas.png' }}
                 />
             </View>
             <Spacing size={32}/>

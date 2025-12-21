@@ -1,10 +1,11 @@
 import {createRoute, Spacing} from "@granite-js/react-native";
 import {
-    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, TableRow, Top
+    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Txt
 } from "@toss/tds-react-native";
 import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
-import {Pressable, StyleSheet} from "react-native";
+import {Pressable, StyleSheet, View} from "react-native";
 import {useState} from "react";
+import {updateCreateGoalData} from "../../src/stores/createGoalStore";
 
 export const Route = createRoute('/create-goal/step4', {
     component: Page,
@@ -20,6 +21,12 @@ function Page() {
 
     const days = ['월', '화', '수', '목', '금', '토', '일'];
     const counts = ['1회', '2회', '3회', '4회', '5회', '6회', '7회'];
+
+    const cards = [
+        { title: '카드 1', description: '설명 1' },
+        { title: '카드 2', description: '설명 2' },
+        { title: '카드 3', description: '설명 3' },
+    ];
 
     const toggleDay = (day: string) => {
         setSelectionType('day');
@@ -56,6 +63,7 @@ function Page() {
                 }
             />
             <Spacing size={32}/>
+
             <Paragraph.Text
                 color={adaptive.grey700}
                 typography="st8"
@@ -64,7 +72,7 @@ function Page() {
             >
             요일
             </Paragraph.Text>
-            <Carousel itemWidth={76} style={styles.carousel}>
+            <Carousel itemWidth={76} padding={16}>
                 {days.map((day) => {
                     const isSelected = selectedDays.includes(day);
                     return (
@@ -97,7 +105,7 @@ function Page() {
             >
             횟수
             </Paragraph.Text>
-            <Carousel itemWidth={76} style={styles.carousel}>
+            <Carousel itemWidth={76}>
                 {counts.map((count) => {
                     const isSelected = selectedCount === count;
                     return (
@@ -140,9 +148,16 @@ function Page() {
                             type="primary"
                             style="fill"
                             display="block"
-                            disabled={false}
+                            disabled={!((selectionType === 'day' && selectedDays.length > 0) || (selectionType === 'count' && selectedCount))}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step5')}
+                            onPress={() => {
+                                const periodValue = selectionType === 'count' ? selectedCount : selectedDays.join(', ');
+                                updateCreateGoalData({
+                                    period: periodValue,
+                                    selectionType: selectionType,
+                                });
+                                navigation.navigate('/create-goal/step5');
+                            }}
                         >
                             다음
                         </Button>
@@ -154,9 +169,6 @@ function Page() {
 }
 
 const styles = StyleSheet.create({
-    carousel: {
-        marginTop: -8,
-    },
     dayButton: {
         width: 68,
         height: 73,
@@ -172,7 +184,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     selectedButton: {
-        backgroundColor: '#4b4ddc',
+        backgroundColor: '#3182f6',
     },
     unselectedButton: {
         backgroundColor: '#f9fafb',

@@ -3,6 +3,7 @@ import {View, StyleSheet, ScrollView} from 'react-native';
 import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState, useEffect} from 'react';
+import {Storage} from '@apps-in-toss/framework';
 import {ChallengeCard} from 'components/challenge/ChallengeCard';
 import {Challenge} from 'components/challenge/types';
 
@@ -19,16 +20,17 @@ function Page() {
     }, []);
 
     const checkOnboarding = async () => {
-        navigation.navigate('/auth');
-        // TODO : AsyncStorage의 네이티브 모듈이 링크 문제 해결
-        /*try {
-            const hasCompletedOnboarding = await AsyncStorage.getItem('hasCompletedOnboarding');
+        try {
+            // 테스트용: 저장된 온보딩 상태 삭제
+            await Storage.removeItem('hasCompletedOnboarding');
+
+            const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
             if (!hasCompletedOnboarding) {
                 navigation.navigate('/auth');
             }
         } catch (error) {
             console.error('Failed to check onboarding status:', error);
-        }*/
+        }
     };
 
     // TODO : Mock 데이터 - 추후 API로 교체

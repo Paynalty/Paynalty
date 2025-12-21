@@ -34,7 +34,8 @@ export default function Page() {
             <Top
                 title={
                     <Top.TitleParagraph size={28} color={adaptive.grey900}>
-                        페이널티에서 토스로 로그인할게요
+                        토스 계정으로{'\n'}
+                        페이널티에 로그인할게요!
                     </Top.TitleParagraph>
                 }
                 upper={
@@ -50,10 +51,19 @@ export default function Page() {
                 }
             />
             <FixedBottomCTAProvider>
-                <FixedBottomCTA
-                    loading={loading}
-                    onPress={handleLogin}
-                    bottomAccessory={
+                <FixedBottomCTA.Double
+                    leftButton={
+                        <Button
+                            type="primary"
+                            style="fill"
+                            display="block"
+                            loading={loading}
+                            onPress={handleLogin}
+                        >
+                            토스로 로그인하기
+                        </Button>
+                    }
+                    rightButton={
                         <Button
                             type="dark"
                             style="weak"
@@ -63,9 +73,7 @@ export default function Page() {
                             로그인 없이 둘러보기
                         </Button>
                     }
-                >
-                    토스 인증으로 로그인
-                </FixedBottomCTA>
+                />
             </FixedBottomCTAProvider>
         </>
     );
