@@ -1,9 +1,9 @@
 import {createRoute, Spacing} from "@granite-js/react-native";
 import {
-    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top
+    Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Txt
 } from "@toss/tds-react-native";
 import {useAdaptive, Paragraph} from "@toss/tds-react-native/private";
-import {Pressable, StyleSheet} from "react-native";
+import {Pressable, StyleSheet, View} from "react-native";
 import {useState} from "react";
 import {updateCreateGoalData} from "../../src/stores/createGoalStore";
 
@@ -21,6 +21,12 @@ function Page() {
 
     const days = ['월', '화', '수', '목', '금', '토', '일'];
     const counts = ['1회', '2회', '3회', '4회', '5회', '6회', '7회'];
+
+    const cards = [
+        { title: '카드 1', description: '설명 1' },
+        { title: '카드 2', description: '설명 2' },
+        { title: '카드 3', description: '설명 3' },
+    ];
 
     const toggleDay = (day: string) => {
         setSelectionType('day');
@@ -57,6 +63,7 @@ function Page() {
                 }
             />
             <Spacing size={32}/>
+
             <Paragraph.Text
                 color={adaptive.grey700}
                 typography="st8"
@@ -65,7 +72,7 @@ function Page() {
             >
             요일
             </Paragraph.Text>
-            <Carousel itemWidth={76}>
+            <Carousel itemWidth={76} padding={16}>
                 {days.map((day) => {
                     const isSelected = selectedDays.includes(day);
                     return (
