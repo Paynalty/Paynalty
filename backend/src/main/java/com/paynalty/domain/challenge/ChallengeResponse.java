@@ -30,16 +30,13 @@ public class ChallengeResponse {
         return ChallengeResponse.builder()
                 .id(challenge.getId())
                 .title(challenge.getTitle())
-                .description(challenge.getDescription())
-                .category(challenge.getCategory())
                 .startDate(challenge.getStartDate())
                 .endDate(challenge.getEndDate())
                 .frequency(challenge.getFrequency())
                 .penaltyAmount(challenge.getPenaltyAmount())
-                .status(challenge.getStatus())
+                .status(challenge.calculateStatus())  // 자동 계산된 status 사용
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
-                .verifyCount(challenge.getVerifyCount())
                 .verificationType(challenge.getVerificationType())
                 .createdAt(challenge.getCreatedAt())
                 .build();

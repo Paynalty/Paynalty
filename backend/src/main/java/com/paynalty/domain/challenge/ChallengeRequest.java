@@ -21,12 +21,6 @@ public class ChallengeRequest {
     @Size(max = 50, message = "챌린지명은 50자 이하여야 합니다")
     private String title;
 
-    @Size(max = 255, message = "챌린지 소개는 255자 이하여야 합니다")
-    private String description;
-
-    @Size(max = 30, message = "카테고리는 30자 이하여야 합니다")
-    private String category;
-
     @NotNull(message = "시작 날짜는 필수입니다")
     private LocalDate startDate;
 
@@ -45,16 +39,10 @@ public class ChallengeRequest {
     @Schema(description = "인증 가능 종료 시간 (시/분)", example = "23:59")
     private LocalTime verifyEndAt;
 
-    @Schema(description = "인증 횟수", example = "7")
-    private int verifyCount;
-
 
     @Schema(description = "인증 방식", example = "PHOTO", required = true)
     @NotNull(message = "인증 방식은 필수입니다")
     private VerificationType verificationType;
 
-    @Schema(description = "챌린지 상태", example = "progress")
-    @Size(max = 20, message = "상태는 20자 이하여야 합니다")
-    private String status;
 }
 

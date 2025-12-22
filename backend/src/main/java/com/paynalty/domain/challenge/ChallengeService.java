@@ -32,13 +32,10 @@ public class ChallengeService {
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
-                .description(request.getDescription())
-                .category(request.getCategory())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .frequency(request.getFrequency())
                 .penaltyAmount(request.getPenaltyAmount())
-                .status(request.getStatus())
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())

@@ -3,7 +3,6 @@ package com.paynalty.domain.challenge;
 import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
-import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -29,12 +28,6 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "title", length = 50, nullable = false)
     private String title;
 
-    @Column(name = "description", length = 255)
-    private String description;
-
-    @Column(name = "category", length = 30)
-    private String category;
-
     // 시작 일
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -50,6 +43,10 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "status", length = 20)
     private String status;
 
+
+    @Column
+    private List<String> designatedDays;
+
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
     private int frequency;
@@ -61,9 +58,6 @@ public class Challenge extends BaseTimeEntity {
     // 인증 가능 종료 시간 (시/분만 사용)
     @Column(name = "verify_end_at")
     private LocalTime verifyEndAt;
-
-    @Column(name = "verify_count")
-    private int verifyCount;
 
     // 인증 방식. (사진,텍스트,체크)
     @Enumerated(EnumType.STRING)
@@ -82,8 +76,6 @@ public class Challenge extends BaseTimeEntity {
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt){
         this.title = title;
-        this.description = description;
-        this.category = category;
         this.startDate = startDate;
         this.endDate = endDate;
         this.frequency = frequency;
@@ -106,11 +98,27 @@ public class Challenge extends BaseTimeEntity {
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
-    // 첼린지가 삭제되더라고 자신이 여태 지불한 벌금 내역이 알고싶다면 orphanRemoval 설정 필요
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
-    private List<Penalty> penalties = new ArrayList<>();
+    // Penalty는 이제 ChallengeMember를 통해 접근하므로 Challenge와의 직접 관계 제거
+    // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
 
     @OneToOne(mappedBy = "challenge", cascade = CascadeType.ALL)
     private ChallengeBank challengeBank;
+
+    /**
+     * 챌린지의 현재 상태를 시작일과 종료일을 기준으로 자동 계산합니다.
+     * 
+     * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
+     */
+    public String calculateStatus() {
+        LocalDate today = LocalDate.now();
+        
+        if (today.isBefore(startDate)) {
+            return "pending";  // 시작 전
+        } else if (today.isAfter(endDate)) {
+            return "completed";  // 완료됨
+        } else {
+            return "progress";  // 진행 중
+        }
+    }
 
 }
