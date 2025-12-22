@@ -12,10 +12,8 @@ public class PenaltyResponse {
 
     private Long id;
     private Long challengeMemberId;
-    private Long userId;
-    private Long challengeId;
     private String challengeTitle;
-    private Integer amount;
+    private Long amount;
 
     // 결제 관련 정보
     private boolean paid;
@@ -29,8 +27,6 @@ public class PenaltyResponse {
         return PenaltyResponse.builder()
                 .id(penalty.getId())
                 .challengeMemberId(member.getId())
-                .userId(member.getUser().getId())
-                .challengeId(member.getChallenge().getId())
                 .challengeTitle(member.getChallenge().getTitle())
                 .amount(penalty.getFixedAmount())
                 .createdAt(penalty.getCreatedAt())

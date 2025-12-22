@@ -24,10 +24,10 @@ public class Penalty extends BaseTimeEntity {
     private ChallengeMember challengeMember;
 
     @Column(nullable = false)
-    private Integer fixedAmount;
+    private Long fixedAmount;
 
     @Builder
-    public Penalty(ChallengeMember challengeMember, Integer fixedAmount) {
+    public Penalty(ChallengeMember challengeMember, Long fixedAmount) {
         this.challengeMember = challengeMember;
         this.fixedAmount = fixedAmount;
     }

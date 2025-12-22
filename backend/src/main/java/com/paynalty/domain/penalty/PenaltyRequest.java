@@ -17,6 +17,6 @@ public class PenaltyRequest {
 
     @NotNull(message = "벌금 금액은 필수입니다")
     @Positive(message = "벌금 금액은 양수여야 합니다")
-    private Integer amount;
+    private Long amount;
 }
 

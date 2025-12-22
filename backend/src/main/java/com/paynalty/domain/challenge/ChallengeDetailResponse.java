@@ -24,7 +24,7 @@ public class ChallengeDetailResponse {
     private int weeklyRequiredVerificationCount;
 
     @Schema(description = "인증 실패 시 벌금", example = "10000")
-    private int penaltyAmount;
+    private Long penaltyAmount;
 
     @Schema(description = "당일 인증 마감까지 남은 시간 (시:분:초 형식)", example = "01:00:00")
     private String remainingTimeFormatted;

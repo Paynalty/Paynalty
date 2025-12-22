@@ -56,6 +56,8 @@ public class ChallengeService {
                 .designatedDays(request.getDesignatedDays())
                 .build();
 
+
+
         Challenge saved = challengeRepository.save(challenge);
 
         return ChallengeResponse.from(saved);

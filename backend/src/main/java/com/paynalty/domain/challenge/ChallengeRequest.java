@@ -34,7 +34,7 @@ public class ChallengeRequest {
     private List<String> designatedDays;
 
     @Schema(description = "패널티 금액", example = "10000", required = true)
-    private int penaltyAmount;
+    private Long penaltyAmount;
 
     @Schema(description = "인증 가능 시작 시간 (시/분)", example = "00:00")
     private LocalTime verifyStartAt;

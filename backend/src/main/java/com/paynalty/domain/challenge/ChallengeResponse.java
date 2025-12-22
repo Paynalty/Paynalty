@@ -16,7 +16,7 @@ public class ChallengeResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private int frequency;
-    private int penaltyAmount;
+    private Long penaltyAmount;
     private String status;
     private LocalTime verifyStartAt;
     private LocalTime verifyEndAt;

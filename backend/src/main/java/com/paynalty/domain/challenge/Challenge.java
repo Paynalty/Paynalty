@@ -38,7 +38,7 @@ public class Challenge extends BaseTimeEntity {
 
 
     @Column(name = "penalty_amount")
-    private int penaltyAmount;
+    private Long penaltyAmount;
 
     @Column(name = "status", length = 20)
     private String status;
@@ -71,7 +71,7 @@ public class Challenge extends BaseTimeEntity {
     @Builder
     public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
-            , Integer penaltyAmount, String status
+            , Long penaltyAmount, String status
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
