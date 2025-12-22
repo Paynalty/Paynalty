@@ -1,10 +1,10 @@
 import {
-    Asset, Txt, Top, ListHeader, Post, BarChart, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Spacing
+    Asset, Txt, ListHeader, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Top, TextButton, BarChart
 } from '@toss/tds-react-native';
-import {Paragraph, useAdaptive } from '@toss/tds-react-native/private';
-import {createRoute} from "@granite-js/react-native";
-import {Pressable, ScrollView} from 'react-native';
-import {getSelectedChallenge} from '../../src/stores/challengeStore';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {createRoute, Spacing} from "@granite-js/react-native";
+import {ScrollView} from 'react-native';
+import {getSelectedChallenge, setSelectedChallengeId} from '../../src/stores/challengeStore';
 
 export const Route = createRoute('/challenge-detail', {
     component: Page,
@@ -23,15 +23,7 @@ function Page() {
 
     return (
         <ScrollView>
-            <Pressable onPress={() => navigation.goBack()}>
-                <Asset.Icon
-                    frameShape={{ width: 24, height: 24 }}
-                    name="icon-arrow-back-ios-mono"
-                    color="adaptive-grey-900"
-                    accessibilityLabel="뒤로 가기"
-                />
-            </Pressable>
-            <Spacing size={16} />
+            <Spacing size={16}/>
             <Top
                 title={
                     <Top.TitleParagraph color={adaptive.grey900}>
@@ -44,7 +36,7 @@ function Page() {
                     </Top.SubtitleParagraph>
                 }
                 right={
-                    <Top.RightAssetContent
+                    <Top.UpperAssetContent
                         content={
                             <Asset.Image
                                 frameShape={Asset.frameShape.CleanW60}
@@ -59,7 +51,7 @@ function Page() {
             />
             <Top
                 title={
-                    <Top.TitleParagraph color={adaptive.grey900}></Top.TitleParagraph>
+                    <Top.TitleParagraph></Top.TitleParagraph>
                 }
                 subtitle1={
                     <Top.SubtitleParagraph>남은 시간 : 5시간 31분</Top.SubtitleParagraph>
@@ -67,9 +59,9 @@ function Page() {
                 subtitle2={
                     <Top.SubtitleBadges
                         items={[
-                            { text: '지금 할 차례에요', type: 'yellow', style: 'weak' },
-                            { text: '3/7', type: 'yellow', style: 'weak' },
-                            { text: '5000원', type: 'blue', style: 'weak' },
+                            {text: '지금 할 차례에요', type: 'yellow', style: 'weak'},
+                            {text: '3/7', type: 'yellow', style: 'weak'},
+                            {text: '5000원', type: 'blue', style: 'weak'},
                         ]}
                     />
                 }
@@ -85,7 +77,9 @@ function Page() {
                     </ListHeader.TitleParagraph>
                 }
                 right={
-                    <ListHeader.RightArrow color={adaptive.grey400}>
+                    <ListHeader.RightArrow
+                        typography="t7"
+                        color={adaptive.grey600}>
                         자세히 보기
                     </ListHeader.RightArrow>
                 }
@@ -93,9 +87,9 @@ function Page() {
             <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
                 2025년 8월 15일 월요일
             </Txt>
-            <Post.H2 paddingBottom={8}>
-                <Paragraph.Text>지은</Paragraph.Text>
-            </Post.H2>
+            <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
+                지은
+            </Txt>
             <>
                 <Asset.Image
                     frameShape={Asset.frameShape.CleanW32}
@@ -106,7 +100,7 @@ function Page() {
             </>
             <>
                 <Asset.Icon
-                    frameShape={{ width: 250 }}
+                    frameShape={{width: 250}}
                     name="icon-document-folder-yellow"
                 />
             </>
@@ -146,7 +140,7 @@ function Page() {
                     { xAxisLabel: '지은', value: 2 },
                     { xAxisLabel: '은채', value: 1 },
                 ]}
-                fill={{ type: 'single-bar', theme: 'blue', barIndex: 4 }}
+                fill={{ type: 'all-bar', theme:'blue'}}
             />
             <ListHeader
                 title={
@@ -159,7 +153,9 @@ function Page() {
                     </ListHeader.TitleParagraph>
                 }
                 right={
-                    <ListHeader.RightArrow color={adaptive.grey400}>
+                    <ListHeader.RightArrow
+                        typography="t7"
+                        color={adaptive.grey600}>
                         자세히 보기
                     </ListHeader.RightArrow>
                 }
@@ -175,8 +171,10 @@ function Page() {
                     </ListHeader.TitleParagraph>
                 }
                 right={
-                    <ListHeader.RightArrow color={adaptive.grey400}>
-                        친구 초대하기
+                    <ListHeader.RightArrow
+                        typography="t7"
+                        color={adaptive.grey600}>
+                        자세히 보기
                     </ListHeader.RightArrow>
                 }
             />
@@ -191,87 +189,85 @@ function Page() {
                     </ListHeader.TitleParagraph>
                 }
                 right={
-                    <ListHeader.RightArrow color={adaptive.grey400}>
+                    <ListHeader.RightArrow
+                        typography="t7"
+                        color={adaptive.grey600}>
                         수정하기
                     </ListHeader.RightArrow>
                 }
             />
             <List rowSeparator="none">
                 <ListRow
-                    left={<ListRow.LeftText marginTop={0}>언제</ListRow.LeftText>}
+                    left={<ListRow.LeftText>언제</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
                             top=""
-                            topProps={{ color: adaptive.grey700 }}
                         />
                     }
                     right={
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="14:00~ 23:00"
-                            topProps={{ color: adaptive.grey700 }}
+                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText marginTop={0}>주기</ListRow.LeftText>}
+                    left={<ListRow.LeftText>주기</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
                             top=""
-                            topProps={{ color: adaptive.grey700 }}
                         />
                     }
                     right={
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="월, 화, 목"
-                            topProps={{ color: adaptive.grey700 }}
+                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText marginTop={0}>방법</ListRow.LeftText>}
+                    left={<ListRow.LeftText>방법</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
                             top=""
-                            topProps={{ color: adaptive.grey700 }}
                         />
                     }
                     right={
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="사진 인증"
-                            topProps={{ color: adaptive.grey700 }}
+                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText marginTop={0}>패널티</ListRow.LeftText>}
+                    left={<ListRow.LeftText>패널티</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
                             top=""
-                            topProps={{ color: adaptive.grey700 }}
                         />
                     }
                     right={
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="5000원"
-                            topProps={{ color: adaptive.grey700 }}
+                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
             </List>
             <FixedBottomCTAProvider>
-                <FixedBottomCTA loading={false} bottomAccessory="로그인 없이 둘러보기">
+                <FixedBottomCTA loading={false}>
                     바로 인증하기
                 </FixedBottomCTA>
             </FixedBottomCTAProvider>
