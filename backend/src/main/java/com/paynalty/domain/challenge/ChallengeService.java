@@ -43,12 +43,16 @@ public class ChallengeService {
             calculatedFrequency = request.getFrequency();
         }
 
+        // 시작일 자동 계산 로직
+        // startOption에 따라 시작일 계산
+        LocalDate calculatedStartDate = calculateStartDate(request.getStartOption());
+
         // status 자동 계산 (시작일과 종료일 기준)
-        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
+        String calculatedStatus = Challenge.calculateStatus(calculatedStartDate, request.getEndDate());
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
-                .startDate(request.getStartDate())
+                .startDate(calculatedStartDate)
                 .endDate(request.getEndDate())
                 .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
@@ -145,6 +149,39 @@ public class ChallengeService {
                 .penaltyAmount(challenge.getPenaltyAmount())
                 .remainingTimeFormatted(remainingTimeFormatted)
                 .build();
+    }
+
+    /**
+     * 시작 옵션에 따라 챌린지 시작일을 계산합니다.
+     *
+     * @param startOption "tomorrow" (내일부터 시작하기) 또는 "nextWeek" (다음주부터 시작하기)
+     * @return 계산된 시작일
+     */
+    private LocalDate calculateStartDate(String startOption) {
+        LocalDate today = LocalDate.now();
+        
+        if ("tomorrow".equals(startOption)) {
+            // 내일부터 시작하기
+            return today.plusDays(1);
+        } else if ("nextWeek".equals(startOption)) {
+            // 다음주 월요일부터 시작하기
+            DayOfWeek currentDayOfWeek = today.getDayOfWeek();
+            int daysUntilNextMonday;
+            
+            if (currentDayOfWeek == DayOfWeek.MONDAY) {
+                // 오늘이 월요일이면 다음주 월요일 (7일 후)
+                daysUntilNextMonday = 7;
+            } else {
+                // 오늘이 화~일요일이면 다음주 월요일까지의 일수 계산
+                // MONDAY는 1, TUESDAY는 2, ..., SUNDAY는 7
+                int currentDayValue = currentDayOfWeek.getValue();
+                daysUntilNextMonday = 8 - currentDayValue; // 다음주 월요일까지의 일수
+            }
+            
+            return today.plusDays(daysUntilNextMonday);
+        } else {
+            throw new IllegalArgumentException("잘못된 시작 옵션입니다. 'tomorrow' 또는 'nextWeek'만 사용 가능합니다.");
+        }
     }
 
     /**

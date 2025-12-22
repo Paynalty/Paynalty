@@ -21,8 +21,9 @@ public class ChallengeRequest {
     @Size(max = 50, message = "챌린지명은 50자 이하여야 합니다")
     private String title;
 
-    @NotNull(message = "시작 날짜는 필수입니다")
-    private LocalDate startDate;
+    @Schema(description = "시작 옵션 - \"tomorrow\" (내일부터 시작하기) 또는 \"nextWeek\" (다음주부터 시작하기)", example = "tomorrow", required = true)
+    @NotBlank(message = "시작 옵션은 필수입니다")
+    private String startOption;
 
     @NotNull(message = "종료 날짜는 필수입니다")
     private LocalDate endDate;
