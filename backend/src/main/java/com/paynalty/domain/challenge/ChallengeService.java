@@ -30,16 +30,30 @@ public class ChallengeService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
 
+        // frequency 자동 계산 로직
+        // 1. designatedDays가 있으면 그 크기로 frequency 계산 (예: ["월", "수", "목", "토"] → frequency = 4)
+        // 2. designatedDays가 null이거나 비어있으면 request의 frequency 값 사용
+        int calculatedFrequency;
+        if (request.getDesignatedDays() != null && !request.getDesignatedDays().isEmpty()) {
+            calculatedFrequency = request.getDesignatedDays().size();
+        } else {
+            if (request.getFrequency() == null) {
+                throw new IllegalArgumentException("designatedDays가 없을 때는 frequency 값이 필수입니다");
+            }
+            calculatedFrequency = request.getFrequency();
+        }
+
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .frequency(request.getFrequency())
+                .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
+                .designatedDays(request.getDesignatedDays())
                 .build();
 
         Challenge saved = challengeRepository.save(challenge);

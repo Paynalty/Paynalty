@@ -74,7 +74,8 @@ public class Challenge extends BaseTimeEntity {
             , Integer penaltyAmount, String status
             , VerificationType verificationType
             , User user
-            , LocalTime verifyStartAt, LocalTime verifyEndAt){
+            , LocalTime verifyStartAt, LocalTime verifyEndAt
+            , List<String> designatedDays){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -85,6 +86,7 @@ public class Challenge extends BaseTimeEntity {
         this.verificationType = verificationType;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
+        this.designatedDays = designatedDays;
     }
 
     // 관계 설정

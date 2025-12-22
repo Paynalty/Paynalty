@@ -27,8 +27,11 @@ public class ChallengeRequest {
     @NotNull(message = "종료 날짜는 필수입니다")
     private LocalDate endDate;
 
-    @Schema(description = "인증 주기", example = "3", required = true)
-    private int frequency;
+    @Schema(description = "인증 주기 - designatedDays가 null일 때만 사용 (주에 몇 번 인증할지)", example = "3")
+    private Integer frequency;
+
+    @Schema(description = "지정된 요일 목록 (예: [\"월\", \"수\", \"목\", \"토\"]) - 이 값이 있으면 frequency는 자동 계산됨", example = "[\"월\", \"수\", \"목\", \"토\"]")
+    private List<String> designatedDays;
 
     @Schema(description = "패널티 금액", example = "10000", required = true)
     private int penaltyAmount;
