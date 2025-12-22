@@ -1,11 +1,13 @@
 import {View, StyleSheet} from 'react-native';
-import {Spacing} from '@granite-js/react-native';
+import {Spacing, useNavigation} from '@granite-js/react-native';
 import {Badge, Top, TextButton} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Challenge, ChallengeStatus} from './types';
+import {setSelectedChallengeId} from '../../stores/challengeStore';
 
 export function ChallengeCard({challenge}: { challenge: Challenge }) {
     const adaptive = useAdaptive();
+    const navigation = useNavigation();
 
     // 상태에 따른 배지 생성
     const getStatusBadge = (status: ChallengeStatus) => {
@@ -55,13 +57,14 @@ export function ChallengeCard({challenge}: { challenge: Challenge }) {
                             color={adaptive.blue500}
                             fontWeight="semibold"
                             onPress={() => {
-                                // TODO: 챌린지 상세 화면으로 이동
+                                setSelectedChallengeId(challenge.id);
+                                navigation.navigate('/challenge-detail');
                             }}
                         >
                             자세히 보기
                         </TextButton>
 
-                        <Spacing size={8} />
+                        <Spacing size={8}/>
 
                         <Badge size="small" type="blue" badgeStyle="weak">
                             {challenge.participants}
