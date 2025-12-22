@@ -43,12 +43,16 @@ public class ChallengeService {
             calculatedFrequency = request.getFrequency();
         }
 
+        // status 자동 계산 (시작일과 종료일 기준)
+        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
+
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
+                .status(calculatedStatus)
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())

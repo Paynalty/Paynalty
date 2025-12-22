@@ -112,6 +112,18 @@ public class Challenge extends BaseTimeEntity {
      * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
      */
     public String calculateStatus() {
+        return calculateStatus(this.startDate, this.endDate);
+    }
+
+    /**
+     * 챌린지의 현재 상태를 시작일과 종료일을 기준으로 자동 계산합니다 (static 메서드).
+     * 인스턴스 생성 전에도 사용 가능합니다.
+     * 
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
+     */
+    public static String calculateStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
         
         if (today.isBefore(startDate)) {
