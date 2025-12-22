@@ -1,5 +1,5 @@
 import {
-    Asset, Txt, ListHeader, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Top, TextButton, BarChart
+    Asset, Txt, ListHeader, FixedBottomCTA, FixedBottomCTAProvider, Top, BarChart
 } from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {createRoute, Spacing} from "@granite-js/react-native";
@@ -90,7 +90,7 @@ function Page() {
                 <View style={styles.userSection}>
                     <Asset.Image
                         frameShape={{width: 32, height: 32}}
-                        source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
+                        source={{uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png'}}
                     />
                     <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
                         지은
@@ -99,7 +99,7 @@ function Page() {
                 <View style={styles.imageSection}>
                     <Asset.Image
                         frameShape={{width: 300, height: 300}}
-                        source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
+                        source={{uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png'}}
                     />
                 </View>
                 <View style={styles.bottomSection}>
@@ -111,7 +111,6 @@ function Page() {
                     </Txt>
                 </View>
             </View>
-
             <ListHeader
                 title={
                     <ListHeader.TitleParagraph
@@ -149,6 +148,93 @@ function Page() {
                         fontWeight="bold"
                         typography="t5"
                     >
+                        챌린저 규칙
+                    </ListHeader.TitleParagraph>
+                }
+                right={
+                    <ListHeader.RightArrow
+                        typography="t7"
+                        color={adaptive.grey600}>
+                        수정하기
+                    </ListHeader.RightArrow>
+                }
+            />
+            <View style={styles.rulesCard}>
+                <View style={styles.gridCell}>
+                    <Txt color={adaptive.grey600} typography="t6" fontWeight="medium">
+                        마감일
+                    </Txt>
+                    <Txt color={adaptive.grey900} typography="t5" fontWeight="bold">
+                        2025년 1월 15일
+                    </Txt>
+                </View>
+                <View style={styles.gridRow}>
+                    <View style={styles.gridCell}>
+                        <Asset.Icon
+                            frameShape={{width: 24, height: 24}}
+                            name="icon-clock-mono"
+                            color={adaptive.grey600}
+                        />
+                        <Txt color={adaptive.grey600} typography="t7" fontWeight="medium">
+                            인증 시간
+                        </Txt>
+                        <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
+                            14:00 ~ 23:00
+                        </Txt>
+                    </View>
+                    <View style={styles.gridDivider}/>
+                    <View style={styles.gridCell}>
+                        <Asset.Icon
+                            frameShape={{width: 24, height: 24}}
+                            name="icon-repeat-mono"
+                            color={adaptive.grey600}
+                        />
+                        <Txt color={adaptive.grey600} typography="t7" fontWeight="medium">
+                            인증 주기
+                        </Txt>
+                        <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
+                            월, 화, 목 / 3회
+                        </Txt>
+                    </View>
+                </View>
+                <View style={styles.gridHorizontalDivider}/>
+                <View style={styles.gridRow}>
+                    <View style={styles.gridCell}>
+                        <Asset.Icon
+                            frameShape={{width: 24, height: 24}}
+                            name="icon-camera-mono"
+                            color={adaptive.grey600}
+                        />
+                        <Txt color={adaptive.grey600} typography="t7" fontWeight="medium">
+                            인증 방법
+                        </Txt>
+                        <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
+                            사진
+                        </Txt>
+                    </View>
+                    <View style={styles.gridDivider}/>
+                    <View style={styles.gridCell}>
+                        <Asset.Icon
+                            frameShape={{width: 24, height: 24}}
+                            name="icon-won-mono"
+                            color={adaptive.grey600}
+                        />
+                        <Txt color={adaptive.grey600} typography="t7" fontWeight="medium">
+                            패널티
+                        </Txt>
+                        <Txt color={adaptive.grey900} typography="t5" fontWeight="bold">
+                            5000원
+                        </Txt>
+                    </View>
+                </View>
+            </View>
+            <ListHeader
+                title={
+                    <ListHeader.TitleParagraph
+                        color={adaptive.grey800}
+                        fontWeight="bold"
+                        typography="t5"
+                    >
                         패널티 이력 보기
                     </ListHeader.TitleParagraph>
                 }
@@ -178,90 +264,6 @@ function Page() {
                     </ListHeader.RightArrow>
                 }
             />
-            <ListHeader
-                title={
-                    <ListHeader.TitleParagraph
-                        color={adaptive.grey800}
-                        fontWeight="bold"
-                        typography="t5"
-                    >
-                        챌린저 규칙
-                    </ListHeader.TitleParagraph>
-                }
-                right={
-                    <ListHeader.RightArrow
-                        typography="t7"
-                        color={adaptive.grey600}>
-                        수정하기
-                    </ListHeader.RightArrow>
-                }
-            />
-            <List rowSeparator="none">
-                <ListRow
-                    left={<ListRow.LeftText color={adaptive.blue600}>언제</ListRow.LeftText>}
-                    contents={
-                        <ListRow.Texts
-                            type="1RowTypeA"
-                            top=""
-                        />
-                    }
-                    right={
-                        <ListRow.RightTexts
-                            type="1RowTypeA"
-                            top="14:00~ 23:00"
-                        />
-                    }
-                    verticalPadding="large"
-                />
-                <ListRow
-                    left={<ListRow.LeftText color={adaptive.blue600}>주기</ListRow.LeftText>}
-                    contents={
-                        <ListRow.Texts
-                            type="1RowTypeA"
-                            top=""
-                        />
-                    }
-                    right={
-                        <ListRow.RightTexts
-                            type="1RowTypeA"
-                            top="월, 화, 목"
-                        />
-                    }
-                    verticalPadding="large"
-                />
-                <ListRow
-                    left={<ListRow.LeftText color={adaptive.blue600}>방법</ListRow.LeftText>}
-                    contents={
-                        <ListRow.Texts
-                            type="1RowTypeA"
-                            top=""
-                        />
-                    }
-                    right={
-                        <ListRow.RightTexts
-                            type="1RowTypeA"
-                            top="사진 인증"
-                        />
-                    }
-                    verticalPadding="large"
-                />
-                <ListRow
-                    left={<ListRow.LeftText color={adaptive.blue600}>패널티</ListRow.LeftText>}
-                    contents={
-                        <ListRow.Texts
-                            type="1RowTypeA"
-                            top=""
-                        />
-                    }
-                    right={
-                        <ListRow.RightTexts
-                            type="1RowTypeA"
-                            top="5000원"
-                        />
-                    }
-                    verticalPadding="large"
-                />
-            </List>
             <FixedBottomCTAProvider>
                 <FixedBottomCTA loading={false}>
                     바로 인증하기
@@ -300,5 +302,29 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 12,
+    },
+    rulesCard: {
+        padding: 0,
+        marginHorizontal: 16,
+        marginVertical: 8,
+        overflow: 'hidden',
+    },
+    gridRow: {
+        flexDirection: 'row',
+        alignItems: 'stretch',
+    },
+    gridCell: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 12,
+        gap: 6,
+    },
+    gridDivider: {
+        width: 1,
+    },
+    gridHorizontalDivider: {
+        height: 1,
     },
 });
