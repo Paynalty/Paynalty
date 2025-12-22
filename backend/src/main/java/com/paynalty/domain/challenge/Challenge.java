@@ -69,7 +69,7 @@ public class Challenge extends BaseTimeEntity {
     private User user;
 
     @Builder
-    public Challenge(String title, String description, String category
+    public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
             , Integer penaltyAmount, String status
             , VerificationType verificationType
