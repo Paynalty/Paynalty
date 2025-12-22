@@ -2,7 +2,6 @@ package com.paynalty.domain.user;
 
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
-import com.paynalty.domain.penalty.Penalty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -50,7 +49,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Penalty> penalties = new ArrayList<>();
+    // Penalty는 이제 ChallengeMember를 통해 접근하므로 User와의 직접 관계 제거
+    // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
 }
 
