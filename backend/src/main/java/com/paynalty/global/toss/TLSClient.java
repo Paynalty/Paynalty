@@ -1,5 +1,7 @@
 package com.paynalty.global.toss;
 
+import org.springframework.core.io.Resource;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -17,9 +19,9 @@ import java.util.stream.Collectors;
 
 public class TLSClient {
 
-    public static SSLContext createSSLContext(String certPath, String keyPath) throws Exception {
-        X509Certificate cert = loadCertificate(certPath);
-        PrivateKey key = loadPrivateKey(keyPath);
+    public static SSLContext createSSLContext(Resource certResource, Resource keyResource) throws Exception {
+        X509Certificate cert = loadCertificate(certResource);
+        PrivateKey key = loadPrivateKey(keyResource);
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, null);
@@ -42,8 +44,8 @@ public class TLSClient {
         return sslContext;
     }
 
-    private static X509Certificate loadCertificate(String path) throws Exception {
-        String content = readFile(path)
+    private static X509Certificate loadCertificate(Resource resource) throws Exception {
+        String content = readResource(resource)
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "")
                 .replaceAll("\\s", "");
@@ -55,8 +57,8 @@ public class TLSClient {
                         .generateCertificate(new ByteArrayInputStream(decoded));
     }
 
-    private static PrivateKey loadPrivateKey(String path) throws Exception {
-        String content = readFile(path)
+    private static PrivateKey loadPrivateKey(Resource resource) throws Exception {
+        String content = readResource(resource)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
@@ -67,8 +69,8 @@ public class TLSClient {
         return KeyFactory.getInstance("RSA").generatePrivate(spec);
     }
 
-    private static String readFile(String path) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
+    private static String readResource(Resource resource) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
