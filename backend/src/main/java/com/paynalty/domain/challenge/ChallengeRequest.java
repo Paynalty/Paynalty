@@ -40,7 +40,7 @@ public class ChallengeRequest {
                     "- 형식: YYYY-MM-DD (예: 2024-12-31)\n" +
                     "- 오늘 날짜보다 이후여야 함 (오늘 포함 불가)\n" +
                     "- 시작일보다 이후여야 함",
-            example = "2024-12-31",
+            example = "2025-12-31",
             required = true
     )
     @NotNull(message = "종료 날짜는 필수입니다")
@@ -52,7 +52,7 @@ public class ChallengeRequest {
                     "- designatedDays가 null이거나 빈 배열일 때만 사용\n" +
                     "- designatedDays가 있으면 이 값은 무시되고 자동 계산됨\n" +
                     "- 예: 4 (요일 상관없이 주에 4회 인증)",
-            example = "4"
+            example = "null"
     )
     private Integer frequency;
 
