@@ -1,6 +1,6 @@
 import {View, StyleSheet} from 'react-native';
 import {Spacing, useNavigation} from '@granite-js/react-native';
-import {Badge, Top, TextButton} from '@toss/tds-react-native';
+import {Badge, Top, TextButton, ListHeader} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Challenge, ChallengeStatus} from './types';
 import {setSelectedChallengeId} from '../../stores/challengeStore';
@@ -50,25 +50,25 @@ export function ChallengeCard({challenge}: { challenge: Challenge }) {
                     <Top.SubtitleBadges items={badges}/>
                 }
                 right={
-                    <View style={{alignItems: "flex-end"}}>
-                        <TextButton
-                            variant="arrow"
-                            typography="t5"
-                            color={adaptive.blue500}
-                            fontWeight="semibold"
-                            onPress={() => {
-                                setSelectedChallengeId(challenge.id);
-                                navigation.navigate('/challenge-detail');
-                            }}
-                        >
-                            자세히 보기
-                        </TextButton>
-
+                    <View style={{flexDirection: 'column', alignItems: 'flex-end'}}>
+                        <View>
+                            <ListHeader.RightArrow
+                                typography="t7"
+                                color={adaptive.blue500}
+                                onPress={() => {
+                                    setSelectedChallengeId(challenge.id);
+                                    navigation.navigate('/challenge-detail');
+                                }}>
+                                자세히 보기
+                            </ListHeader.RightArrow>
+                        </View>
                         <Spacing size={8}/>
 
-                        <Badge size="small" type="blue" badgeStyle="weak">
-                            {challenge.participants}
-                        </Badge>
+                        <View>
+                            <Badge size="small" type="blue" badgeStyle="weak">
+                                {challenge.participants}
+                            </Badge>
+                        </View>
                     </View>
                 }
             />

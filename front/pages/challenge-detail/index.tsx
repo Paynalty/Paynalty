@@ -3,7 +3,7 @@ import {
 } from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {createRoute, Spacing} from "@granite-js/react-native";
-import {ScrollView} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {getSelectedChallenge, setSelectedChallengeId} from '../../src/stores/challengeStore';
 
 export const Route = createRoute('/challenge-detail', {
@@ -50,18 +50,15 @@ function Page() {
                 lowerGap={0}
             />
             <Top
-                title={
-                    <Top.TitleParagraph></Top.TitleParagraph>
-                }
                 subtitle1={
                     <Top.SubtitleParagraph>남은 시간 : 5시간 31분</Top.SubtitleParagraph>
                 }
                 subtitle2={
                     <Top.SubtitleBadges
                         items={[
-                            {text: '지금 할 차례에요', type: 'yellow', style: 'weak'},
-                            {text: '3/7', type: 'yellow', style: 'weak'},
-                            {text: '5000원', type: 'blue', style: 'weak'},
+                            {label: '지금 할 차례에요', type: 'yellow', style: 'weak'},
+                            {label: '3/7', type: 'yellow', style: 'weak'},
+                            {label: '5000원', type: 'blue', style: 'weak'},
                         ]}
                     />
                 }
@@ -84,32 +81,37 @@ function Page() {
                     </ListHeader.RightArrow>
                 }
             />
-            <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-                2025년 8월 15일 월요일
-            </Txt>
-            <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
-                지은
-            </Txt>
-            <>
-                <Asset.Image
-                    frameShape={Asset.frameShape.CleanW32}
-                    source={{
-                        uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png',
-                    }}
-                />
-            </>
-            <>
-                <Asset.Icon
-                    frameShape={{width: 250}}
-                    name="icon-document-folder-yellow"
-                />
-            </>
-            <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                이의제기
-            </Txt>
-            <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                오전 10:58
-            </Txt>
+            <View style={styles.verificationCard}>
+                <View style={styles.dateSection}>
+                    <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                        2025년 8월 15일 월요일
+                    </Txt>
+                </View>
+                <View style={styles.userSection}>
+                    <Asset.Image
+                        frameShape={{width: 32, height: 32}}
+                        source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
+                    />
+                    <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
+                        지은
+                    </Txt>
+                </View>
+                <View style={styles.imageSection}>
+                    <Asset.Image
+                        frameShape={{width: 300, height: 300}}
+                        source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
+                    />
+                </View>
+                <View style={styles.bottomSection}>
+                    <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
+                        이의제기
+                    </Txt>
+                    <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
+                        오전 10:58
+                    </Txt>
+                </View>
+            </View>
+
             <ListHeader
                 title={
                     <ListHeader.TitleParagraph
@@ -120,9 +122,7 @@ function Page() {
                         주간 인증 현황
                     </ListHeader.TitleParagraph>
                 }
-            />
-            <ListHeader
-                title={
+                right={
                     <ListHeader.TitleSelector
                         typography="t7"
                         color={adaptive.grey800}
@@ -134,13 +134,13 @@ function Page() {
             />
             <BarChart
                 data={[
-                    { xAxisLabel: '나', value: 2 },
-                    { xAxisLabel: '길동', value: 3 },
-                    { xAxisLabel: '형욱', value: 3 },
-                    { xAxisLabel: '지은', value: 2 },
-                    { xAxisLabel: '은채', value: 1 },
+                    {xAxisLabel: '나', value: 2},
+                    {xAxisLabel: '길동', value: 3},
+                    {xAxisLabel: '형욱', value: 3},
+                    {xAxisLabel: '지은', value: 2},
+                    {xAxisLabel: '은채', value: 1},
                 ]}
-                fill={{ type: 'all-bar', theme:'blue'}}
+                fill={{type: 'all-bar', theme: 'blue'}}
             />
             <ListHeader
                 title={
@@ -198,7 +198,7 @@ function Page() {
             />
             <List rowSeparator="none">
                 <ListRow
-                    left={<ListRow.LeftText>언제</ListRow.LeftText>}
+                    left={<ListRow.LeftText color={adaptive.blue600}>언제</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
@@ -209,13 +209,12 @@ function Page() {
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="14:00~ 23:00"
-                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText>주기</ListRow.LeftText>}
+                    left={<ListRow.LeftText color={adaptive.blue600}>주기</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
@@ -226,13 +225,12 @@ function Page() {
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="월, 화, 목"
-                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText>방법</ListRow.LeftText>}
+                    left={<ListRow.LeftText color={adaptive.blue600}>방법</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
@@ -243,13 +241,12 @@ function Page() {
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="사진 인증"
-                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
                 />
                 <ListRow
-                    left={<ListRow.LeftText>패널티</ListRow.LeftText>}
+                    left={<ListRow.LeftText color={adaptive.blue600}>패널티</ListRow.LeftText>}
                     contents={
                         <ListRow.Texts
                             type="1RowTypeA"
@@ -260,7 +257,6 @@ function Page() {
                         <ListRow.RightTexts
                             type="1RowTypeA"
                             top="5000원"
-                            topProps={{color: adaptive.grey700}}
                         />
                     }
                     verticalPadding="large"
@@ -274,3 +270,35 @@ function Page() {
         </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    verificationCard: {
+        padding: 16,
+        marginHorizontal: 16,
+        marginVertical: 8,
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    dateSection: {
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    userSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 16,
+    },
+    imageSection: {
+        alignItems: 'center',
+        marginVertical: 16,
+    },
+    bottomSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 12,
+    },
+});
