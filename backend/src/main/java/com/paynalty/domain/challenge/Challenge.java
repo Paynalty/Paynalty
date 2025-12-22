@@ -28,7 +28,7 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "title", length = 50, nullable = false)
     private String title;
 
-    // 시작 일
+    // 시작 일 - 종료일 + startOption에 의해 값 설정
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 

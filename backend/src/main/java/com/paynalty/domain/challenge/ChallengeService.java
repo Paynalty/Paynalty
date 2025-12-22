@@ -46,6 +46,12 @@ public class ChallengeService {
         // 마감일 유효성 검사
         validateEndDate(request.getEndDate());
 
+        // 인증 시간 유효성 검사
+        // 프론트에서 디폴트 값(시작: 00:00, 마감: 23:59) 또는 사용자가 변경한 값을 전달
+        if (request.getVerifyStartAt() != null && request.getVerifyEndAt() != null) {
+            validateVerificationTime(request.getVerifyStartAt(), request.getVerifyEndAt());
+        }
+
         // 시작일 자동 계산 로직
         // startOption에 따라 시작일 계산
         LocalDate calculatedStartDate = calculateStartDate(request.getStartOption());
@@ -161,19 +167,36 @@ public class ChallengeService {
 
 
 
-     // 마감일이 이미 지난 날인지 확인
-     // 마감일이 오늘인지 확인
-    private void validateEndDate(LocalDate endDate) {
-        LocalDate today = LocalDate.now();
+      // 마감일이 이미 지난 날인지 확인
+      // 마감일이 오늘인지 확인
+     private void validateEndDate(LocalDate endDate) {
+         LocalDate today = LocalDate.now();
 
-        if (endDate.isBefore(today)) {
-            throw new IllegalArgumentException("마감일은 이미 지난 날짜일 수 없습니다.");
-        }
+         if (endDate.isBefore(today)) {
+             throw new IllegalArgumentException("마감일은 이미 지난 날짜일 수 없습니다.");
+         }
 
-        if (endDate.isEqual(today)) {
-            throw new IllegalArgumentException("마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
-        }
-    }
+         if (endDate.isEqual(today)) {
+             throw new IllegalArgumentException("마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+         }
+     }
+
+     /**
+      * 인증 시작 시간과 마감 시간에 대한 유효성 검사를 수행합니다.
+      * 사용자가 디폴트 값이 아닌 다른 값을 입력한 경우에만 호출됩니다.
+      * - 시작 시간이 마감 시간보다 이전인지 확인
+      * - 시작 시간과 마감 시간이 같으면 안됨
+      *
+      * @param verifyStartAt 인증 시작 시간
+      * @param verifyEndAt 인증 마감 시간
+      * @throws IllegalArgumentException 인증 시간이 유효하지 않은 경우
+      */
+     private void validateVerificationTime(LocalTime verifyStartAt, LocalTime verifyEndAt) {
+         // 시작 시간이 마감 시간보다 이후이거나 같으면 오류
+         if (verifyStartAt.isAfter(verifyEndAt) || verifyStartAt.equals(verifyEndAt)) {
+             throw new IllegalArgumentException("인증 시작 시간은 마감 시간보다 이전이어야 합니다.");
+         }
+     }
 
     /**
      * 시작 옵션에 따라 챌린지 시작일을 계산합니다.
