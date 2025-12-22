@@ -77,6 +77,23 @@ public class ChallengeService {
     }
 
     /**
+     * 사용자가 진행중인 챌린지 목록의 상세 정보를 조회합니다.
+     * 진행중인 챌린지 목록을 가져온 후, 각 챌린지에 대해 상세 정보를 생성합니다.
+     *
+     * @param userId 사용자 ID
+     * @return 진행중인 챌린지 상세 정보 목록
+     */
+    public List<ChallengeDetailResponse> getMyProgressChallengesDetail(Long userId) {
+        // 1단계: 진행중인 챌린지 목록 조회
+        List<ChallengeResponse> progressChallenges = findByStatus(userId, "progress");
+
+        // 2단계: 각 챌린지에 대해 상세 정보 생성
+        return progressChallenges.stream()
+                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getId(), userId))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * 챌린지 상세 정보를 조회합니다.
      * 반환 정보:
      * 1. 현재 주간 인증 횟수 / 주간 총 인증 횟수

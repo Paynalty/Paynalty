@@ -37,7 +37,8 @@ public class ChallengeController {
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
     @Operation(
-            summary = "참여중인 챌린지 목록 불러오기"
+            summary = "진행 상황에 따른 챌린지 목록 불러오기",
+            description = "시작전 챌린지 : pending , 진행중 챌린지 : progress "
     )
     @GetMapping("/{userId}/{status}")
     public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getByStatus(
@@ -60,6 +61,20 @@ public class ChallengeController {
         Long userId = 1L;
         
         ChallengeDetailResponse response = challengeService.getMyChallengeDetail(challengeId, userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @Operation(
+            summary = "진행중인 챌린지 목록 상세 정보 조회",
+            description = "사용자가 참여 중인 진행중인 챌린지 목록을 조회하고, 각 챌린지의 일부 정보를 반환\n" +
+                    "각 챌린지의 주간 인증 현황, 벌금, 남은 시간 정보를 포함"
+    )
+    @GetMapping("/myProgressChallenges/{userId}")
+    public ResponseEntity<ApiResponse<List<ChallengeDetailResponse>>> getMyProgressChallengesDetail(
+            @Parameter(description = "사용자 ID", required = true, example = "1")
+            @PathVariable Long userId
+    ) {
+        List<ChallengeDetailResponse> response = challengeService.getMyProgressChallengesDetail(userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
