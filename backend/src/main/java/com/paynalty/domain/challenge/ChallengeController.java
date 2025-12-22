@@ -50,7 +50,8 @@ public class ChallengeController {
         List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
+
+    // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
     @GetMapping("/{challengeId}/myChallenge/detail")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
             @Parameter(description = "챌린지 ID", required = true, example = "1")

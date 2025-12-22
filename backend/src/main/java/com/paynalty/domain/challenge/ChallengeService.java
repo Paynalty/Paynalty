@@ -43,9 +43,17 @@ public class ChallengeService {
             calculatedFrequency = request.getFrequency();
         }
 
+        // 마감일 유효성 검사
+        validateEndDate(request.getEndDate());
+
         // 시작일 자동 계산 로직
         // startOption에 따라 시작일 계산
         LocalDate calculatedStartDate = calculateStartDate(request.getStartOption());
+
+        // 마감일이 시작일보다 이후인지 확인
+        if (request.getEndDate().isBefore(calculatedStartDate) || request.getEndDate().isEqual(calculatedStartDate)) {
+            throw new IllegalArgumentException("마감일은 시작일보다 이후여야 합니다.");
+        }
 
         // status 자동 계산 (시작일과 종료일 기준)
         String calculatedStatus = Challenge.calculateStatus(calculatedStartDate, request.getEndDate());
@@ -149,6 +157,22 @@ public class ChallengeService {
                 .penaltyAmount(challenge.getPenaltyAmount())
                 .remainingTimeFormatted(remainingTimeFormatted)
                 .build();
+    }
+
+
+
+     // 마감일이 이미 지난 날인지 확인
+     // 마감일이 오늘인지 확인
+    private void validateEndDate(LocalDate endDate) {
+        LocalDate today = LocalDate.now();
+
+        if (endDate.isBefore(today)) {
+            throw new IllegalArgumentException("마감일은 이미 지난 날짜일 수 없습니다.");
+        }
+
+        if (endDate.isEqual(today)) {
+            throw new IllegalArgumentException("마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+        }
     }
 
     /**
