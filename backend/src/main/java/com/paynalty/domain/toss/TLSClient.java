@@ -1,4 +1,4 @@
-package com.paynalty.global.toss;
+package com.paynalty.domain.toss;
 
 import org.springframework.core.io.Resource;
 

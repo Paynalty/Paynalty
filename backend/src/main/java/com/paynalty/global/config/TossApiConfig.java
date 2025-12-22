@@ -1,6 +1,6 @@
 package com.paynalty.global.config;
 
-import com.paynalty.global.toss.TLSClient;
+import com.paynalty.domain.toss.TLSClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
