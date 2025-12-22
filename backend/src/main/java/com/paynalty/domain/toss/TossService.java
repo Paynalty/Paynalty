@@ -14,7 +14,7 @@ public class TossService {
     public String refreshToken() throws Exception {
         String body = "{}";
 
-        return TLSClient.postJson(
+        return TossApiClient.postJson(
                 "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/generate-token",
                 sslContext,
                 body
