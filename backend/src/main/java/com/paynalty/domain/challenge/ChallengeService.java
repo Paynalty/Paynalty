@@ -27,7 +27,7 @@ public class ChallengeService {
     private final ChallengeVerificationRepository challengeVerificationRepository;
 
     @Transactional
-    public ChallengeResponse create(ChallengeRequest request,Long userId) {
+    public ChallengeResponse create(ChallengeRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
 
@@ -81,11 +81,9 @@ public class ChallengeService {
                 .designatedDays(request.getDesignatedDays())
                 .build();
 
+        Challenge savedChallenge = challengeRepository.save(challenge);
 
-
-        Challenge saved = challengeRepository.save(challenge);
-
-        return ChallengeResponse.from(saved);
+        return ChallengeResponse.from(savedChallenge);
     }
 
 

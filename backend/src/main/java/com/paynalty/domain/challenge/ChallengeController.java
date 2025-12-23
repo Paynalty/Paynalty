@@ -39,7 +39,7 @@ public class ChallengeController {
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request) {
         Long userId = 1L;
-        ChallengeResponse response = challengeService.create(request,userId);
+        ChallengeResponse response = challengeService.create(request, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
