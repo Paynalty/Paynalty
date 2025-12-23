@@ -54,8 +54,8 @@ public class ChallengeController {
     public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getByStatus(
             @Parameter(description = "사용자 userId", required = true, example = "1")
             @PathVariable Long userId,
-            @Parameter(description = "챌린지 상태", required = true, example = "progress")
-            @PathVariable String status
+            @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
+            @PathVariable ChallengeStatus status
     ) {
         List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));

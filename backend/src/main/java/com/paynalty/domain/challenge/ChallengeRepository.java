@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     @Query("SELECT c FROM Challenge c JOIN FETCH c.user u WHERE u.id = :id AND c.status = :status")
-    List<Challenge> findByEmailAndStatus(@Param("id") Long id, @Param("status") String status);
+    List<Challenge> findByEmailAndStatus(@Param("id") Long id, @Param("status") ChallengeStatus status);
 
 
 }

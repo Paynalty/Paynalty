@@ -59,7 +59,7 @@ public class ChallengeService {
         }
 
         // status 자동 계산 (시작일과 종료일 기준)
-        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
+        ChallengeStatus status = Challenge.calculateStatus(request.getStartDate(),request.getEndDate());
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
@@ -67,12 +67,12 @@ public class ChallengeService {
                 .endDate(request.getEndDate())
                 .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
-                .status(calculatedStatus)
+                .status(status)
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
-                .dayOfWeeks(request.getDayOfWeeks())
+                .daysOfWeeks(request.getDayOfWeeks())
                 .build();
 
         Challenge savedChallenge = challengeRepository.save(challenge);
@@ -81,7 +81,7 @@ public class ChallengeService {
     }
 
 
-    public List<ChallengeResponse> findByStatus(Long userId,String status){
+    public List<ChallengeResponse> findByStatus(Long userId,ChallengeStatus status){
         // status 상태,사용자가 참여 중인 : 조건에 맞는 challenge 불러오기
         List<Challenge> challenges = challengeRepository.findByEmailAndStatus(userId,status);
 
@@ -98,7 +98,7 @@ public class ChallengeService {
      */
     public List<ChallengeDetailResponse> getMyProgressChallengesDetail(Long userId) {
         // 1단계: 진행중인 챌린지 목록 조회
-        List<ChallengeResponse> progressChallenges = findByStatus(userId, "progress");
+        List<ChallengeResponse> progressChallenges = findByStatus(userId, ChallengeStatus.ACTIVE);
 
         // 2단계: 각 챌린지에 대해 상세 정보 생성
         return progressChallenges.stream()

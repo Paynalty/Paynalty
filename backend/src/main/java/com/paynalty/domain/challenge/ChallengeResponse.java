@@ -18,7 +18,7 @@ public class ChallengeResponse {
     private LocalDate endDate;
     private int frequency;
     private Long penaltyAmount;
-    private String status;
+    private ChallengeStatus status;
     private LocalTime verifyStartAt;
     private LocalTime verifyEndAt;
     private VerificationType verificationType;
@@ -38,7 +38,7 @@ public class ChallengeResponse {
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
                 .verificationType(challenge.getVerificationType())
-                .dayOfWeeks(challenge.getDayOfWeeks())
+                .dayOfWeeks(challenge.getDaysOfWeeks())
                 .build();
     }
 }
