@@ -2,7 +2,7 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
-import { getCreateGoalData, resetCreateGoalData } from '../../src/stores/createGoalStore';
+import { getCreateChellengeData, resetCreateGoalData } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
 
 export const Route = createRoute('/create-goal/complete', {
@@ -17,7 +17,7 @@ export default function Page() {
   type StartType = 'nextWeek' | 'tomorrow';
 
   // 저장된 데이터 가져오기
-  const goalData = getCreateGoalData();
+  const challengeData = getCreateChellengeData();
 
   // startDate 계산 함수
   const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
@@ -35,7 +35,7 @@ export default function Page() {
   };
 
   // API로 목표 생성 요청
-  const handleCreateGoal = async (option: 'tomorrow' | 'nextWeek') => {
+  const handleCreateChallenge = async (option: 'tomorrow' | 'nextWeek') => {
     try {
       setLoading(option);
 
@@ -43,16 +43,16 @@ export default function Page() {
 
       // API 요청
       await createChallenge({
-        title: goalData.goalTitle || '',
+        title: challengeData.title || '',
         startDate: startDate,
-        endDate: goalData.deadline || '',
+        endDate: challengeData.endDate || '',
         penaltyAmount:
-          goalData.penaltyAmount === 'custom' ? Number(goalData.customAmount) : Number(goalData.penaltyAmount),
-        frequency: goalData.frequency,
-        dayOfWeek: goalData.dayOfWeek as any,
-        verifyStartAt: goalData.startTime,
-        verifyEndAt: goalData.endTime,
-        verificationType: goalData.verificationMethod as any,
+          challengeData.penaltyAmount === 'custom' ? Number(challengeData.customAmount) : Number(challengeData.penaltyAmount),
+        frequency: challengeData.frequency,
+        dayOfWeek: challengeData.dayOfWeek as any,
+        verifyStartAt: challengeData.verifyStartAt,
+        verifyEndAt: challengeData.verifyEndAt,
+        verificationType: challengeData.verificationType as any,
       });
 
       // 성공 시 데이터 초기화
@@ -100,7 +100,7 @@ export default function Page() {
               type="2RowTypeD"
               top="목표"
               topProps={{ color: adaptive.grey600 }}
-              bottom={goalData.goalTitle}
+              bottom={challengeData.title}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -121,7 +121,7 @@ export default function Page() {
               type="2RowTypeD"
               top="마감일"
               topProps={{ color: adaptive.grey600 }}
-              bottom={goalData.deadline}
+              bottom={challengeData.endDate}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -142,7 +142,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${goalData.period} \n${goalData.startTime} ~ ${goalData.endTime}`}
+              bottom={`${challengeData.period} \n${challengeData.verifyStartAt} ~ ${challengeData.verifyEndAt === '23:59:59' ? '24:00' : challengeData.verifyEndAt}`}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -163,7 +163,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 방법"
               topProps={{ color: adaptive.grey600 }}
-              bottom={goalData.verificationMethod}
+              bottom={challengeData.verificationType}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -185,9 +185,9 @@ export default function Page() {
               top="벌금"
               topProps={{ color: adaptive.grey600 }}
               bottom={
-                goalData.penaltyAmount === 'custom'
-                  ? `${Number(goalData.customAmount).toLocaleString()}원`
-                  : `${Number(goalData.penaltyAmount).toLocaleString()}원`
+                challengeData.penaltyAmount === 'custom'
+                  ? `${Number(challengeData.customAmount).toLocaleString()}원`
+                  : `${Number(challengeData.penaltyAmount).toLocaleString()}원`
               }
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
@@ -204,7 +204,7 @@ export default function Page() {
               display="block"
               disabled={loading !== null}
               loading={loading === 'nextWeek'}
-              onPress={() => handleCreateGoal('nextWeek')}
+              onPress={() => handleCreateChallenge('nextWeek')}
             >
               다음주부터 시작하기
             </Button>
@@ -216,7 +216,7 @@ export default function Page() {
               display="block"
               disabled={loading !== null}
               loading={loading === 'tomorrow'}
-              onPress={() => handleCreateGoal('tomorrow')}
+              onPress={() => handleCreateChallenge('tomorrow')}
             >
               내일부터 시작하기
             </Button>

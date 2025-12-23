@@ -267,7 +267,7 @@ function Page() {
                 // 데이터 저장
                 const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 updateCreateGoalData({
-                  deadline: isoDate,
+                  endDate: isoDate,
                 });
                 // 다음 단계로 이동
                 navigation.navigate('/create-goal/step4');

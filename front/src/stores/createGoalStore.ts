@@ -1,15 +1,15 @@
 // 목표 생성 데이터 타입
 export interface CreateGoalData {
-  goalTitle?: string;
-  verificationMethod?: string;
+  title?: string;
+  verificationType?: string;
   period?: string;
-  selectionType?: 'day' | 'count';
+  startDate?: 'day' | 'count';
   penaltyAmount?: number | string;
   customAmount?: string;
-  deadline?: string;
-  startTime?: string;
-  endTime?: string;
-  dayOfWeek?: string[]; // 영문 요일 (MON, TUE, ...)
+  endDate?: string;
+  verifyStartAt?: string;
+  verifyEndAt?: string;
+  dayOfWeeks?: string[]; // 영문 요일 (MON, TUE, ...)
   frequency?: number; // 주 n회
 }
 
@@ -17,7 +17,7 @@ export interface CreateGoalData {
 let createGoalData: CreateGoalData = {};
 
 // 데이터 가져오기
-export const getCreateGoalData = (): CreateGoalData => {
+export const getCreateChellengeData = (): CreateGoalData => {
   return createGoalData;
 };
 

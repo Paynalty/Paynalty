@@ -1,13 +1,5 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import {
-  Button,
-  Carousel,
-  FixedBottomCTA,
-  FixedBottomCTAProvider,
-  ProgressBar,
-  Top,
-  Txt,
-} from '@toss/tds-react-native';
+import {Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Txt,} from '@toss/tds-react-native';
 import { useAdaptive, Paragraph } from '@toss/tds-react-native/private';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useState } from 'react';
@@ -159,12 +151,13 @@ function Page() {
                   일: 'SUN',
                 };
                 const periodValue = selectionType === 'count' ? selectedCount : selectedDays.join(', ');
+                const mappedDays = selectionType === 'day' ? selectedDays.map((d) => dayMapping[d] || 'MON') : undefined;
 
                 updateCreateGoalData({
                   period: periodValue,
-                  selectionType: selectionType,
-                  dayOfWeek: selectionType === 'day' ? selectedDays.map((d) => dayMapping[d] || 'MON') : undefined,
-                  frequency: selectionType === 'count' ? Number(selectedCount.replace('회', '')) : undefined,
+                  startDate: selectionType,
+                  dayOfWeek: mappedDays,
+                  frequency: selectionType === 'day' ? mappedDays?.length : Number(selectedCount.replace('회', '')),
                 });
                 navigation.navigate('/create-goal/step5');
               }}

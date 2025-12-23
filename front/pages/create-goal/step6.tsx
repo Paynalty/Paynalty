@@ -113,7 +113,7 @@ export default function Page() {
                   체크: 'VOTE',
                 };
                 updateCreateGoalData({
-                  verificationMethod: methodMapping[selectedMethod],
+                  verificationType: methodMapping[selectedMethod],
                 });
                 navigation.navigate('/create-goal/step7');
               }}
