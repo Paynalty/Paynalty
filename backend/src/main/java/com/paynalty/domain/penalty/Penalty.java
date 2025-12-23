@@ -1,21 +1,18 @@
 package com.paynalty.domain.penalty;
 
-import com.paynalty.domain.challenge.Challenge;
-import com.paynalty.domain.user.User;
+import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "penalty")
+@Table(name = "penalties")
 @Getter
 @Setter
-@NoArgsConstructor                                  
+@NoArgsConstructor
 public class Penalty extends BaseTimeEntity {
 
     @Id
@@ -23,18 +20,16 @@ public class Penalty extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "challenge_member_id", nullable = false)
+    private ChallengeMember challengeMember;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "challenge_id", nullable = false)
-    private Challenge challenge;
+    @Column(nullable = false)
+    private Long fixedAmount;
 
-    @Column(name = "amount", nullable = false)
-    private Integer amount;
-
-    @Column(name = "reason", length = 255)
-    private String reason;
-
+    @Builder
+    public Penalty(ChallengeMember challengeMember, Long fixedAmount) {
+        this.challengeMember = challengeMember;
+        this.fixedAmount = fixedAmount;
+    }
 }
 

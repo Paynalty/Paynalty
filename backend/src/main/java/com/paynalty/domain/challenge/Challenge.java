@@ -3,7 +3,6 @@ package com.paynalty.domain.challenge;
 import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
-import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -11,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -22,6 +22,11 @@ import java.util.List;
 @NoArgsConstructor
 public class Challenge extends BaseTimeEntity {
 
+    // 챌린지 상태 상수
+    public static final String STATUS_PENDING = "pending";      // 시작 전
+    public static final String STATUS_ACTIVE = "active";        // 진행 중
+    public static final String STATUS_COMPLETE = "complete";  // 완료됨
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,13 +34,8 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "title", length = 50, nullable = false)
     private String title;
 
-    @Column(name = "description", length = 255)
-    private String description;
-
-    @Column(name = "category", length = 30)
-    private String category;
-
-    // 시작 일
+    // 시작 일 - 종료일 + startOption에 의해 값 설정
+    // 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -45,14 +45,19 @@ public class Challenge extends BaseTimeEntity {
 
 
     @Column(name = "penalty_amount")
-    private int penaltyAmount;
+    private Long penaltyAmount;
 
     @Column(name = "status", length = 20)
     private String status;
 
+
+    // 요일 목록 (MON, TUE, WED, THU, FRI, SAT, SUN)
+    @Column
+    private List<DayOfWeekType> dayOfWeeks;
+
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
-    private int frequency;
+    private Integer frequency;
 
     // 인증 가능 시작 시간 (시/분만 사용)
     @Column(name = "verify_start_at")
@@ -62,10 +67,7 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "verify_end_at")
     private LocalTime verifyEndAt;
 
-    @Column(name = "verify_count")
-    private int verifyCount;
-
-    // 인증 방식. (사진,텍스트,체크)
+    // 인증 타입 (PHOTO, TEXT, VOTE)
     @Enumerated(EnumType.STRING)
     @Column(name = "verification_type", length = 20)
     private VerificationType verificationType;
@@ -75,24 +77,24 @@ public class Challenge extends BaseTimeEntity {
     private User user;
 
     @Builder
-    public Challenge(String title, String description, String category
+    public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
-            , Integer penaltyAmount, String status
+            , Long penaltyAmount, String status
             , VerificationType verificationType
             , User user
-            , LocalTime verifyStartAt, LocalTime verifyEndAt){
+            , LocalTime verifyStartAt, LocalTime verifyEndAt
+            , List<DayOfWeekType> dayOfWeeks){
         this.title = title;
-        this.description = description;
-        this.category = category;
         this.startDate = startDate;
         this.endDate = endDate;
         this.frequency = frequency;
         this.penaltyAmount = penaltyAmount;
         this.status = status;
-        this.user = user;
         this.verificationType = verificationType;
+        this.user = user;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
+        this.dayOfWeeks = dayOfWeeks;
     }
 
     // 관계 설정
@@ -106,11 +108,39 @@ public class Challenge extends BaseTimeEntity {
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
-    // 첼린지가 삭제되더라고 자신이 여태 지불한 벌금 내역이 알고싶다면 orphanRemoval 설정 필요
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
-    private List<Penalty> penalties = new ArrayList<>();
+    // Penalty는 이제 ChallengeMember를 통해 접근하므로 Challenge와의 직접 관계 제거
+    // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
 
     @OneToOne(mappedBy = "challenge", cascade = CascadeType.ALL)
     private ChallengeBank challengeBank;
+
+    /**
+     * 챌린지의 현재 상태를 시작일과 종료일을 기준으로 자동 계산합니다.
+     * 
+     * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
+     */
+    public String calculateStatus() {
+        return calculateStatus(this.startDate, this.endDate);
+    }
+
+    /**
+     * 챌린지의 현재 상태를 시작일과 종료일을 기준으로 자동 계산합니다 (static 메서드).
+     * 인스턴스 생성 전에도 사용 가능합니다.
+     * 
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @return STATUS_PENDING (시작 전), STATUS_ACTIVE (진행 중), STATUS_COMPLETED (완료됨)
+     */
+    public static String calculateStatus(LocalDate startDate, LocalDate endDate) {
+        LocalDate today = LocalDate.now();
+        
+        if (today.isBefore(startDate)) {
+            return STATUS_PENDING;  // 시작 전
+        } else if (today.isAfter(endDate)) {
+            return STATUS_COMPLETE;  // 완료됨
+        } else {
+            return STATUS_ACTIVE;  // 진행 중
+        }
+    }
 
 }

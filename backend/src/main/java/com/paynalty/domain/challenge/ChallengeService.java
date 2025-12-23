@@ -26,28 +26,58 @@ public class ChallengeService {
     private final ChallengeVerificationRepository challengeVerificationRepository;
 
     @Transactional
-    public ChallengeResponse create(ChallengeRequest request,Long userId) {
+    public ChallengeResponse create(ChallengeRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
 
+        // frequency 자동 계산 로직
+        int calculatedFrequency;
+        if (request.getDayOfWeeks() != null && !request.getDayOfWeeks().isEmpty()) {
+            // 요일 지정 모드: 지정된 요일 수만큼 frequency 계산
+            calculatedFrequency = request.getDayOfWeeks().size();
+        } else {
+            // frequency 직접 지정 모드: dayOfweeks가 null이거나 빈 리스트인 경우
+            if (request.getFrequency() == null || request.getFrequency() <= 0) {
+                throw new IllegalArgumentException("dayOfWeeks가 없을 때는 frequency 값(양수)이 필수입니다");
+            }
+            calculatedFrequency = request.getFrequency();
+        }
+
+        // 시작일 유효성 검사
+        validateStartDate(request.getStartDate());
+
+        // 마감일 유효성 검사
+        validateEndDate(request.getEndDate());
+
+        // 시작일과 마감일 관계 유효성 검사
+        validateDateRange(request.getStartDate(), request.getEndDate());
+
+        // 인증 시간 유효성 검사
+        // 프론트에서 디폴트 값(시작: 00:00, 마감: 23:59) 또는 사용자가 변경한 값을 전달
+        if (request.getVerifyStartAt() != null && request.getVerifyEndAt() != null) {
+            validateVerificationTime(request.getVerifyStartAt(), request.getVerifyEndAt());
+        }
+
+        // status 자동 계산 (시작일과 종료일 기준)
+        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
+
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
-                .description(request.getDescription())
-                .category(request.getCategory())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .frequency(request.getFrequency())
+                .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
-                .status(request.getStatus())
+                .status(calculatedStatus)
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
+                .dayOfWeeks(request.getDayOfWeeks())
                 .build();
 
-        Challenge saved = challengeRepository.save(challenge);
+        Challenge savedChallenge = challengeRepository.save(challenge);
 
-        return ChallengeResponse.from(saved);
+        return ChallengeResponse.from(savedChallenge);
     }
 
 
@@ -57,6 +87,23 @@ public class ChallengeService {
 
         return challenges.stream().map(ChallengeResponse::from).collect(Collectors.toList());
 
+    }
+
+    /**
+     * 사용자가 진행중인 챌린지 목록의 상세 정보를 조회합니다.
+     * 진행중인 챌린지 목록을 가져온 후, 각 챌린지에 대해 상세 정보를 생성합니다.
+     *
+     * @param userId 사용자 ID
+     * @return 진행중인 챌린지 상세 정보 목록
+     */
+    public List<ChallengeDetailResponse> getMyProgressChallengesDetail(Long userId) {
+        // 1단계: 진행중인 챌린지 목록 조회
+        List<ChallengeResponse> progressChallenges = findByStatus(userId, "progress");
+
+        // 2단계: 각 챌린지에 대해 상세 정보 생성
+        return progressChallenges.stream()
+                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getId(), userId))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -112,6 +159,80 @@ public class ChallengeService {
                 .remainingTimeFormatted(remainingTimeFormatted)
                 .build();
     }
+
+
+    // ---------------------------------------- 유효성 검사 -----------------------------------------------------
+
+
+     /**
+      * 시작일이 유효한지 확인합니다.
+      * - 시작일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      *
+      * @param startDate 시작일
+      * @throws IllegalArgumentException 시작일이 유효하지 않은 경우
+      */
+     private void validateStartDate(LocalDate startDate) {
+         LocalDate today = LocalDate.now();
+
+         if (startDate.isBefore(today)) {
+             throw new IllegalArgumentException("시작일은 이미 지난 날짜일 수 없습니다.");
+         }
+
+         if (startDate.isEqual(today)) {
+             throw new IllegalArgumentException("시작일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+         }
+     }
+
+     /**
+      * 마감일이 유효한지 확인합니다.
+      * - 마감일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      *
+      * @param endDate 마감일
+      * @throws IllegalArgumentException 마감일이 유효하지 않은 경우
+      */
+     private void validateEndDate(LocalDate endDate) {
+         LocalDate today = LocalDate.now();
+
+         if (endDate.isBefore(today)) {
+             throw new IllegalArgumentException("마감일은 이미 지난 날짜일 수 없습니다.");
+         }
+
+         if (endDate.isEqual(today)) {
+             throw new IllegalArgumentException("마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+         }
+     }
+
+     /**
+      * 시작일과 마감일의 관계가 유효한지 확인합니다.
+      * - 마감일이 시작일보다 이후여야 함
+      * 챌린지 시작일,마감일 유효성
+      * @param startDate 시작일
+      * @param endDate 마감일
+      * @throws IllegalArgumentException 날짜 범위가 유효하지 않은 경우
+      */
+     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
+         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+             throw new IllegalArgumentException("마감일은 시작일보다 이후여야 합니다.");
+         }
+     }
+
+     /**
+      * 인증 시작 시간과 마감 시간에 대한 유효성 검사를 수행합니다.
+      * 사용자가 디폴트 값이 아닌 다른 값을 입력한 경우에만 호출됩니다.
+      * - 시작 시간이 마감 시간보다 이전인지 확인
+      * - 시작 시간과 마감 시간이 같으면 안됨
+      *
+      * @param verifyStartAt 인증 시작 시간
+      * @param verifyEndAt 인증 마감 시간
+      * @throws IllegalArgumentException 인증 시간이 유효하지 않은 경우
+      */
+     private void validateVerificationTime(LocalTime verifyStartAt, LocalTime verifyEndAt) {
+         // 시작 시간이 마감 시간보다 이후이거나 같으면 오류
+         if (verifyStartAt.isAfter(verifyEndAt) || verifyStartAt.equals(verifyEndAt)) {
+             throw new IllegalArgumentException("인증 시작 시간은 마감 시간보다 이전이어야 합니다.");
+         }
+     }
+
 
     /**
      * Duration을 "시:분:초" 형식의 문자열로 변환합니다.

@@ -18,10 +18,18 @@ export default function Page() {
             setLoading(true);
             const { authorizationCode, referrer } = await appLogin();
 
-            // TODO: authorizationCode를 서버로 전달하여 JWT 토큰 발급
             console.log('Login Success:', { authorizationCode, referrer });
+            await fetch('https://localhost:8080/api/auth/toss/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    authorizationCode,
+                    referrer,
+                }),
+            });
 
-            // 로그인 성공 후 메인 페이지로 이동
             navigation.navigate('/');
         } catch (error) {
             console.error('Login Failed:', error);

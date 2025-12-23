@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -13,35 +14,31 @@ public class ChallengeResponse {
 
     private Long id;
     private String title;
-    private String description;
-    private String category;
     private LocalDate startDate;
     private LocalDate endDate;
     private int frequency;
-    private int penaltyAmount;
+    private Long penaltyAmount;
     private String status;
     private LocalTime verifyStartAt;
     private LocalTime verifyEndAt;
-    private int verifyCount;
     private VerificationType verificationType;
-    private LocalDateTime createdAt;
+
+    // 인증 하는 요일 (MON, TUE, WED, THU, FRI, SAT, SUN)
+    private List<DayOfWeekType> dayOfWeeks;
 
     public static ChallengeResponse from(Challenge challenge) {
         return ChallengeResponse.builder()
                 .id(challenge.getId())
                 .title(challenge.getTitle())
-                .description(challenge.getDescription())
-                .category(challenge.getCategory())
                 .startDate(challenge.getStartDate())
                 .endDate(challenge.getEndDate())
                 .frequency(challenge.getFrequency())
                 .penaltyAmount(challenge.getPenaltyAmount())
-                .status(challenge.getStatus())
+                .status(challenge.calculateStatus())  // 자동 계산된 status 사용
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
-                .verifyCount(challenge.getVerifyCount())
                 .verificationType(challenge.getVerificationType())
-                .createdAt(challenge.getCreatedAt())
+                .dayOfWeeks(challenge.getDayOfWeeks())
                 .build();
     }
 }

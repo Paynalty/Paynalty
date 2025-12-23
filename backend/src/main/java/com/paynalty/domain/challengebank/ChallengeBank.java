@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "challenge_bank")
+@Table(name = "challenge_banks")
 @Getter
 @Setter
 @NoArgsConstructor
