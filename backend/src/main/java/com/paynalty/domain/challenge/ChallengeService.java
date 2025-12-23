@@ -1,5 +1,8 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
@@ -14,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +28,9 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
+    private final ChallengeMemberService challengeMemberService;
+    private final ChallengeMemberRepository challengeMemberRepository;
+
 
     @Transactional
     public ChallengeResponse create(ChallengeRequest request, Long userId) {
@@ -74,10 +81,43 @@ public class ChallengeService {
                 .verifyEndAt(request.getVerifyEndAt())
                 .daysOfWeeks(request.getDayOfWeeks())
                 .build();
-
+        
         Challenge savedChallenge = challengeRepository.save(challenge);
 
+        //challengeMember 생성 부분
+        // 1. 생성자 본인 추가
+        createChallengeMemberIfNotExists(user, savedChallenge);
+
+        // 2. 초대된 친구들 추가
+        if (request.getInviteFriends() != null) {
+            for (ChallengeRequest.InviteFriend inviteFriend : request.getInviteFriends()) {
+                // 이름과 전화번호로 사용자 찾기
+                Optional<User> friendOptional = userRepository.findByNameAndPhoneNum(inviteFriend.getName(), inviteFriend.getPhoneNumber());
+                
+                if (friendOptional.isPresent()) {
+                    User friend = friendOptional.get();
+                    createChallengeMemberIfNotExists(friend, savedChallenge);
+                }
+                // 친구가 가입되어 있지 않은 경우에 대한 처리는 현재 요구사항에 없으므로 건너뜀 (추후 필요시 추가 가능)
+            }
+        }
+
         return ChallengeResponse.from(savedChallenge);
+    }
+
+    private void createChallengeMemberIfNotExists(User user, Challenge challenge) {
+        // 이미 챌린지 멤버인지 확인
+        boolean isAlreadyMember = challengeMemberRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId()).isPresent();
+        
+        if (!isAlreadyMember) {
+            ChallengeMember challengeMember = ChallengeMember.builder()
+                    .user(user)
+                    .challenge(challenge)
+                    .isSuccess("PENDING") // 초기 상태 설정 (필요에 따라 변경)
+                    .endAt(challenge.getEndDate())
+                    .build();
+            challengeMemberRepository.save(challengeMember);
+        }
     }
 
 

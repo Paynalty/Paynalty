@@ -23,7 +23,11 @@ public class UserService {
         User saved = userRepository.save(user);
 
         return UserResponse.from(saved);
+    }
 
+    public User findByNameAndPhoneNum(String name, String phoneNum){
+        User user = userRepository.findByNameAndPhoneNum(name,phoneNum).orElseThrow();
+        return user;
     }
 
 }

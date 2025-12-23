@@ -39,11 +39,12 @@ public class ChallengeMember {
     private LocalDate endAt;
 
     @Builder
-    public ChallengeMember(User user, Challenge challenge,String isSuccess){
+    public ChallengeMember(User user, Challenge challenge,String isSuccess, LocalDate endAt){
         this.user = user;
         this.challenge = challenge;
         this.joinedAt = LocalDateTime.now();
         this.isSuccess = isSuccess;
+        this.endAt = endAt;
     }
 }
 

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +21,18 @@ public class ChallengeMemberService {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeRepository challengeRepository;
     private final UserService userService;
+
+    public ChallengeMember create(String name , String phoneNum , Long challengeId){
+      User user = userService.findByNameAndPhoneNum(name ,phoneNum);
+      Challenge challenge = challengeRepository.findById(challengeId).orElseThrow();
+      ChallengeMember challengeMember = ChallengeMember.builder()
+              .user(user)
+              .challenge(challenge)
+              .endAt(challenge.getEndDate())
+              .build();
+      return challengeMemberRepository.save(challengeMember);
+
+    }
 
 
 }
