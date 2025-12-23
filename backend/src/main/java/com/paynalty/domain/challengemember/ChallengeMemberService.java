@@ -22,16 +22,11 @@ public class ChallengeMemberService {
     private final ChallengeRepository challengeRepository;
     private final UserService userService;
 
-    public ChallengeMember create(String name , String phoneNum , Long challengeId){
-      User user = userService.findByNameAndPhoneNum(name ,phoneNum);
-      Challenge challenge = challengeRepository.findById(challengeId).orElseThrow();
-      ChallengeMember challengeMember = ChallengeMember.builder()
-              .user(user)
-              .challenge(challenge)
-              .endAt(challenge.getEndDate())
-              .build();
-      return challengeMemberRepository.save(challengeMember);
-
+    public List<ChallengeMemberResponse> getMembersByChallengeId(Long challengeId) {
+        List<ChallengeMember> members = challengeMemberRepository.findByChallengeId(challengeId);
+        return members.stream()
+                .map(ChallengeMemberResponse::from)
+                .collect(Collectors.toList());
     }
 
 

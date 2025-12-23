@@ -92,13 +92,9 @@ public class ChallengeService {
         if (request.getInviteFriends() != null) {
             for (ChallengeRequest.InviteFriend inviteFriend : request.getInviteFriends()) {
                 // 이름과 전화번호로 사용자 찾기
-                Optional<User> friendOptional = userRepository.findByNameAndPhoneNum(inviteFriend.getName(), inviteFriend.getPhoneNumber());
-                
-                if (friendOptional.isPresent()) {
-                    User friend = friendOptional.get();
-                    createChallengeMemberIfNotExists(friend, savedChallenge);
-                }
-                // 친구가 가입되어 있지 않은 경우에 대한 처리는 현재 요구사항에 없으므로 건너뜀 (추후 필요시 추가 가능)
+                // 모든 친구는 이미 User 테이블에 존재한다는 가정
+                userRepository.findByNameAndPhoneNum(inviteFriend.getName(), inviteFriend.getPhoneNumber())
+                        .ifPresent(friend -> createChallengeMemberIfNotExists(friend, savedChallenge));
             }
         }
 

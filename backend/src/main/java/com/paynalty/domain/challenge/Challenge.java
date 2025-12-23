@@ -72,9 +72,6 @@ public class Challenge extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 초대 목록
-    private List<ChallengeRequest.InviteFriend> inviteFriends;
-
     @Builder
     public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
@@ -82,8 +79,7 @@ public class Challenge extends BaseTimeEntity {
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<DayOfWeekType> daysOfWeeks
-            ,List<ChallengeRequest.InviteFriend> inviteFriends){
+            , List<DayOfWeekType> daysOfWeeks){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -95,7 +91,6 @@ public class Challenge extends BaseTimeEntity {
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
         this.daysOfWeeks = daysOfWeeks;
-        this.inviteFriends = inviteFriends;
     }
 
     // 관계 설정
