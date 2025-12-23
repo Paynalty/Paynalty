@@ -33,18 +33,14 @@ export function useVerificationModal() {
               <Pressable
                 onPress={async () => {
                   try {
-                    // 공식 문서 시그니처에 따라 maxWidth 추가
                     const result = await openCamera({ base64: true, maxWidth: 1024 });
                     console.log('Camera Success:', result.id);
                     close();
                   } catch (error) {
                     if (error instanceof OpenCameraPermissionError) {
                       Alert.alert('권한 오류', '카메라 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.');
-                    } else {
-                      console.error('Camera Error:', error);
-                      // 권한이 설정 파일에 반영되지 않았을 가능성이 높음
-                      Alert.alert('오류', '카메라를 실행할 수 없습니다. 터미널에서 npm run dev를 다시 실행해보세요.');
                     }
+                    console.error('사진을 가져오는 데 실패했어요:', error);
                   }
                 }}
               >
@@ -71,7 +67,6 @@ export function useVerificationModal() {
               <Pressable
                 onPress={async () => {
                   try {
-                    // 공식 문서 시그니처에 따라 옵션 추가
                     const result = await fetchAlbumPhotos({
                       maxCount: 1,
                       maxWidth: 1024,
@@ -83,8 +78,7 @@ export function useVerificationModal() {
                     if (error instanceof FetchAlbumPhotosPermissionError) {
                       Alert.alert('권한 오류', '사진첩 접근 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.');
                     } else {
-                      console.error('Album Error:', error);
-                      Alert.alert('오류', '사진첩을 열 수 없습니다. 터미널에서 npm run dev를 다시 실행해보세요.');
+                      console.error('앨범을 가져오는 데 실패했어요:', error);
                     }
                   }
                 }}
