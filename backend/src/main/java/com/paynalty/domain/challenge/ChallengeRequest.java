@@ -24,20 +24,21 @@ public class ChallengeRequest {
     private String title;
 
     @Schema(
-            description = "시작 옵션 (필수)\n" +
-                    "- \"tomorrow\": 내일 00:00부터 시작\n" +
-                    "- \"nextWeek\": 다음주 월요일 00:00부터 시작\n" +
-                    "※ 대소문자 구분 없음 (tomorrow, Tomorrow, TOMORROW 모두 가능)",
-            example = "tomorrow",
-            required = true,
-            allowableValues = {"tomorrow", "nextWeek"}
+            description = "챌린지 시작 날짜 (필수)\n" +
+                    "- 형식: YYYY-MM-DD (예: 2025-01-01)\n" +
+                    "- 오늘 날짜 이후여야 함 (오늘 포함 불가)\n" +
+                    "- 프론트에서 계산된 날짜를 전달\n" +
+                    "  * 내일 시작: 오늘 기준 +1일\n" +
+                    "  * 다음주 시작: 오늘 기준 다음주 월요일",
+            example = "2025-01-01",
+            required = true
     )
-    @NotBlank(message = "시작 옵션은 필수입니다")
-    private String startOption;
+    @NotNull(message = "시작 날짜는 필수입니다")
+    private LocalDate startDate;
 
     @Schema(
             description = "챌린지 종료 날짜 (필수)\n" +
-                    "- 형식: YYYY-MM-DD (예: 2024-12-31)\n" +
+                    "- 형식: YYYY-MM-DD (예: 2025-12-31)\n" +
                     "- 오늘 날짜보다 이후여야 함 (오늘 포함 불가)\n" +
                     "- 시작일보다 이후여야 함",
             example = "2025-12-31",
