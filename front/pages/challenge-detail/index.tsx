@@ -3,8 +3,9 @@ import {
 } from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {createRoute, Spacing} from "@granite-js/react-native";
-import {ScrollView, StyleSheet, View} from 'react-native';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
 import {getSelectedChallenge, setSelectedChallengeId} from '../../src/stores/challengeStore';
+import {useVerificationModal} from '../../src/hooks/useVerificationModal';
 
 export const Route = createRoute('/challenge-detail', {
     component: Page,
@@ -14,6 +15,7 @@ function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
     const selectedChallenge = getSelectedChallenge();
+    const {open: openVerificationModal} = useVerificationModal();
 
     if (!selectedChallenge) {
         return (
@@ -62,6 +64,7 @@ function Page() {
                         ]}
                     />
                 }
+                upperGap={0}
             />
             <ListHeader
                 title={
@@ -74,11 +77,13 @@ function Page() {
                     </ListHeader.TitleParagraph>
                 }
                 right={
-                    <ListHeader.RightArrow
-                        typography="t7"
-                        color={adaptive.grey600}>
-                        자세히 보기
-                    </ListHeader.RightArrow>
+                    <Pressable onPress={() => navigation.navigate('/challenge-detail/verification-history')}>
+                        <ListHeader.RightArrow
+                            typography="t7"
+                            color={adaptive.grey600}>
+                            자세히 보기
+                        </ListHeader.RightArrow>
+                    </Pressable>
                 }
             />
             <View style={styles.verificationCard}>
@@ -161,6 +166,11 @@ function Page() {
             />
             <View style={styles.rulesCard}>
                 <View style={styles.gridCell}>
+                    <Asset.Icon
+                        frameShape={{width: 28, height: 28}}
+                        name="icon-calendar-gradient-mono"
+                        color={adaptive.grey600}
+                    />
                     <Txt color={adaptive.grey600} typography="t6" fontWeight="medium">
                         마감일
                     </Txt>
@@ -265,7 +275,7 @@ function Page() {
                 }
             />
             <FixedBottomCTAProvider>
-                <FixedBottomCTA loading={false}>
+                <FixedBottomCTA loading={false} onPress={openVerificationModal}>
                     바로 인증하기
                 </FixedBottomCTA>
             </FixedBottomCTAProvider>
