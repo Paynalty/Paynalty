@@ -52,6 +52,9 @@ dependencies {
         // Test
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.springframework.security:spring-security-test")
+
+        // BouncyCastle (데이터 복호화)
+        implementation("org.bouncycastle:bcprov-jdk15on:1.70")
     }
 
 }
