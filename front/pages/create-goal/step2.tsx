@@ -83,7 +83,7 @@ function Page() {
                             loading={false}
                             onPress={() => {
                                 // 데이터 저장
-                                updateCreateGoalData({ goalTitle: goalTitle.trim() });
+                                updateCreateGoalData({ title: goalTitle.trim() });
                                 // 다음 단계로 이동
                                 navigation.navigate('/create-goal/step3');
                             }}

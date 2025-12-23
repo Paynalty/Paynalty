@@ -18,7 +18,7 @@ function Page() {
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
 
-    const hours = Array.from({length: 24}, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    const hours = Array.from({length: 25}, (_, i) => i === 24 ? '24:00' : `${String(i).padStart(2, '0')}:00`);
 
     const handleSelectStartTime = (time: string) => {
         setStartTime(time);
@@ -31,9 +31,12 @@ function Page() {
     };
 
     const handleNext = () => {
+        // endTime이 24:00이면 23:59:59로 변환
+        const normalizedEndTime = endTime === '24:00' ? '23:59:59' : endTime;
+
         updateCreateGoalData({
-            startTime,
-            endTime,
+            verifyStartAt: startTime,
+            verifyEndAt: normalizedEndTime,
         });
         navigation.navigate("/create-goal/step6");
     };
