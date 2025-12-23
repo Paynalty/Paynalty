@@ -18,26 +18,27 @@ import java.util.List;
 @Schema(description = "챌린지 생성 요청")
 public class ChallengeRequest {
 
-    @Schema(description = "챌린지명 (필수, 최대 50자)", example = "매일 운동하기", required = true)
+    @Schema(description = "챌린지명 (필수, 최대 50자)", example = "String", required = true)
     @NotBlank(message = "챌린지명은 필수입니다")
     @Size(max = 50, message = "챌린지명은 50자 이하여야 합니다")
     private String title;
 
     @Schema(
-            description = "시작 옵션 (필수)\n" +
-                    "- \"tomorrow\": 내일 00:00부터 시작\n" +
-                    "- \"nextWeek\": 다음주 월요일 00:00부터 시작\n" +
-                    "※ 대소문자 구분 없음 (tomorrow, Tomorrow, TOMORROW 모두 가능)",
-            example = "tomorrow",
-            required = true,
-            allowableValues = {"tomorrow", "nextWeek"}
+            description = "챌린지 시작 날짜 (필수)\n" +
+                    "- 형식: YYYY-MM-DD (예: 2025-01-01)\n" +
+                    "- 오늘 날짜 이후여야 함 (오늘 포함 불가)\n" +
+                    "- 프론트에서 계산된 날짜를 전달\n" +
+                    "  * 내일 시작: 오늘 기준 +1일\n" +
+                    "  * 다음주 시작: 오늘 기준 다음주 월요일",
+            example = "2025-12-29",
+            required = true
     )
-    @NotBlank(message = "시작 옵션은 필수입니다")
-    private String startOption;
+    @NotNull(message = "시작 날짜는 필수입니다")
+    private LocalDate startDate;
 
     @Schema(
             description = "챌린지 종료 날짜 (필수)\n" +
-                    "- 형식: YYYY-MM-DD (예: 2024-12-31)\n" +
+                    "- 형식: YYYY-MM-DD (예: 2025-12-31)\n" +
                     "- 오늘 날짜보다 이후여야 함 (오늘 포함 불가)\n" +
                     "- 시작일보다 이후여야 함",
             example = "2025-12-31",
@@ -58,14 +59,15 @@ public class ChallengeRequest {
 
     @Schema(
             description = "지정된 요일 목록\n" +
-                    "⚠️ designatedDays와 frequency는 둘 중 하나만 사용 가능\n" +
+                    "⚠️ dayOfWeeks와 frequency는 둘 중 하나만 사용 가능\n" +
                     "- 이 값이 있으면 frequency는 자동으로 요일 개수로 계산됨\n" +
-                    "- 예: [\"월\", \"수\", \"목\", \"토\"] → frequency = 4 (자동 계산)\n" +
+                    "- 예: [\"MON\", \"WED\", \"FRI\"] → frequency = 3 (자동 계산)\n" +
                     "- null이거나 빈 배열이면 frequency 값을 사용\n" +
-                    "- 가능한 요일 값: \"월\", \"화\", \"수\", \"목\", \"금\", \"토\", \"일\"",
-            example = "[\"월\", \"수\", \"목\", \"토\"]"
+                    "- 가능한 요일 값: MON, TUE, WED, THU, FRI, SAT, SUN",
+            example = "[\"MON\", \"WED\", \"FRI\"]",
+            allowableValues = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"}
     )
-    private List<String> designatedDays;
+    private List<DayOfWeekType> dayOfWeeks;
 
     @Schema(description = "벌금 금액 (필수, 양수)", example = "10000", required = true)
     @NotNull(message = "패널티 금액은 필수입니다")
@@ -90,16 +92,16 @@ public class ChallengeRequest {
     private LocalTime verifyEndAt;
 
     @Schema(
-            description = "인증 방식 (필수)\n" +
-                    "- PHOTO: 사진 인증 (이미지 URL)\n" +
+            description = "인증 타입 (필수)\n" +
+                    "- PHOTO: 사진 인증\n" +
                     "- TEXT: 텍스트 인증\n" +
-                    "- CHECKBOX: 체크박스 인증",
+                    "- VOTE: 투표 인증",
             example = "PHOTO",
             required = true,
-            allowableValues = {"PHOTO", "TEXT", "CHECKBOX"}
+            allowableValues = {"PHOTO", "TEXT", "VOTE"}
     )
-    @NotNull(message = "인증 방식은 사진 인증만 사용합니다")
-    private String photoUrl;
+    @NotNull(message = "인증 타입은 필수입니다")
+    private VerificationType verificationType;
 
 }
 

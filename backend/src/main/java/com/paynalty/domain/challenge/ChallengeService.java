@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,22 +31,26 @@ public class ChallengeService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
 
         // frequency 자동 계산 로직
-        // 1. designatedDays가 null이 아니고 비어있지 않으면 그 크기로 frequency 계산 (예: ["월", "수", "목", "토"] → frequency = 4)
-        // 2. designatedDays가 null이거나 비어있으면 request의 frequency 값 사용 (요일 상관없이 주에 N회 인증)
         int calculatedFrequency;
-        if (request.getDesignatedDays() != null && !request.getDesignatedDays().isEmpty()) {
+        if (request.getDayOfWeeks() != null && !request.getDayOfWeeks().isEmpty()) {
             // 요일 지정 모드: 지정된 요일 수만큼 frequency 계산
-            calculatedFrequency = request.getDesignatedDays().size();
+            calculatedFrequency = request.getDayOfWeeks().size();
         } else {
-            // frequency 직접 지정 모드: designatedDays가 null이거나 빈 리스트인 경우
+            // frequency 직접 지정 모드: dayOfweeks가 null이거나 빈 리스트인 경우
             if (request.getFrequency() == null || request.getFrequency() <= 0) {
-                throw new IllegalArgumentException("designatedDays가 없을 때는 frequency 값(양수)이 필수입니다");
+                throw new IllegalArgumentException("dayOfWeeks가 없을 때는 frequency 값(양수)이 필수입니다");
             }
             calculatedFrequency = request.getFrequency();
         }
 
+        // 시작일 유효성 검사
+        validateStartDate(request.getStartDate());
+
         // 마감일 유효성 검사
         validateEndDate(request.getEndDate());
+
+        // 시작일과 마감일 관계 유효성 검사
+        validateDateRange(request.getStartDate(), request.getEndDate());
 
         // 인증 시간 유효성 검사
         // 프론트에서 디폴트 값(시작: 00:00, 마감: 23:59) 또는 사용자가 변경한 값을 전달
@@ -55,30 +58,21 @@ public class ChallengeService {
             validateVerificationTime(request.getVerifyStartAt(), request.getVerifyEndAt());
         }
 
-        // 시작일 자동 계산 로직
-        // startOption에 따라 시작일 계산
-        LocalDate calculatedStartDate = calculateStartDate(request.getStartOption());
-
-        // 마감일이 시작일보다 이후인지 확인
-        if (request.getEndDate().isBefore(calculatedStartDate) || request.getEndDate().isEqual(calculatedStartDate)) {
-            throw new IllegalArgumentException("마감일은 시작일보다 이후여야 합니다.");
-        }
-
         // status 자동 계산 (시작일과 종료일 기준)
-        String calculatedStatus = Challenge.calculateStatus(calculatedStartDate, request.getEndDate());
+        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
-                .startDate(calculatedStartDate)
+                .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
                 .status(calculatedStatus)
                 .user(user)
-                .photoUrl(request.getPhotoUrl())
+                .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
-                .designatedDays(request.getDesignatedDays())
+                .dayOfWeeks(request.getDayOfWeeks())
                 .build();
 
         Challenge savedChallenge = challengeRepository.save(challenge);
@@ -167,9 +161,35 @@ public class ChallengeService {
     }
 
 
+    // ---------------------------------------- 유효성 검사 -----------------------------------------------------
 
-      // 마감일이 이미 지난 날인지 확인
-      // 마감일이 오늘인지 확인
+
+     /**
+      * 시작일이 유효한지 확인합니다.
+      * - 시작일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      *
+      * @param startDate 시작일
+      * @throws IllegalArgumentException 시작일이 유효하지 않은 경우
+      */
+     private void validateStartDate(LocalDate startDate) {
+         LocalDate today = LocalDate.now();
+
+         if (startDate.isBefore(today)) {
+             throw new IllegalArgumentException("시작일은 이미 지난 날짜일 수 없습니다.");
+         }
+
+         if (startDate.isEqual(today)) {
+             throw new IllegalArgumentException("시작일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+         }
+     }
+
+     /**
+      * 마감일이 유효한지 확인합니다.
+      * - 마감일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      *
+      * @param endDate 마감일
+      * @throws IllegalArgumentException 마감일이 유효하지 않은 경우
+      */
      private void validateEndDate(LocalDate endDate) {
          LocalDate today = LocalDate.now();
 
@@ -179,6 +199,20 @@ public class ChallengeService {
 
          if (endDate.isEqual(today)) {
              throw new IllegalArgumentException("마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요.");
+         }
+     }
+
+     /**
+      * 시작일과 마감일의 관계가 유효한지 확인합니다.
+      * - 마감일이 시작일보다 이후여야 함
+      * 챌린지 시작일,마감일 유효성
+      * @param startDate 시작일
+      * @param endDate 마감일
+      * @throws IllegalArgumentException 날짜 범위가 유효하지 않은 경우
+      */
+     private void validateDateRange(LocalDate startDate, LocalDate endDate) {
+         if (endDate.isBefore(startDate) || endDate.isEqual(startDate)) {
+             throw new IllegalArgumentException("마감일은 시작일보다 이후여야 합니다.");
          }
      }
 
@@ -199,31 +233,6 @@ public class ChallengeService {
          }
      }
 
-    /**
-     * 시작 옵션에 따라 챌린지 시작일을 계산합니다.
-     *
-     * @param startOption "tomorrow" (내일부터 시작하기) 또는 "nextWeek" (다음주부터 시작하기)
-     * @return 계산된 시작일
-     * @throws IllegalArgumentException 잘못된 startOption 값인 경우
-     */
-    private LocalDate calculateStartDate(String startOption) {
-        if (startOption == null || startOption.trim().isEmpty()) {
-            throw new IllegalArgumentException("시작 옵션은 필수입니다. 'tomorrow' 또는 'nextWeek'를 입력해주세요.");
-        }
-        
-        LocalDate today = LocalDate.now();
-        
-        if ("tomorrow".equalsIgnoreCase(startOption.trim())) {
-            // 내일부터 시작하기
-            return today.plusDays(1);
-        } else if ("nextWeek".equalsIgnoreCase(startOption.trim())) {
-            // 다음주 월요일부터 시작하기
-            // TemporalAdjusters.next()는 오늘이 해당 요일이면 다음주 해당 요일을 반환
-            return today.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-        } else {
-            throw new IllegalArgumentException("잘못된 시작 옵션입니다. 'tomorrow' 또는 'nextWeek'만 사용 가능합니다. 입력된 값: " + startOption);
-        }
-    }
 
     /**
      * Duration을 "시:분:초" 형식의 문자열로 변환합니다.
