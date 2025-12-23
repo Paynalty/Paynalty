@@ -18,10 +18,10 @@ public class ChallengeDetailResponse {
     private String challengeTitle;
 
     @Schema(description = "현재 주간 인증 횟수", example = "3")
-    private int currentWeeklyVerificationCount;
+    private Integer currentWeeklyVerificationCount;
 
     @Schema(description = "주간 총 인증 횟수 (목표)", example = "7")
-    private int weeklyRequiredVerificationCount;
+    private Integer weeklyRequiredVerificationCount;
 
     @Schema(description = "인증 실패 시 벌금", example = "10000")
     private Long penaltyAmount;

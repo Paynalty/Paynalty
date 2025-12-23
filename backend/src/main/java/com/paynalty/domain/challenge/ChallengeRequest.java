@@ -98,8 +98,8 @@ public class ChallengeRequest {
             required = true,
             allowableValues = {"PHOTO", "TEXT", "CHECKBOX"}
     )
-    @NotNull(message = "인증 방식은 필수입니다")
-    private VerificationType verificationType;
+    @NotNull(message = "인증 방식은 사진 인증만 사용합니다")
+    private String photoUrl;
 
 }
 

@@ -49,7 +49,7 @@ public class Challenge extends BaseTimeEntity {
 
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
-    private int frequency;
+    private Integer frequency;
 
     // 인증 가능 시작 시간 (시/분만 사용)
     @Column(name = "verify_start_at")
@@ -59,10 +59,9 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "verify_end_at")
     private LocalTime verifyEndAt;
 
-    // 인증 방식. (사진,텍스트,체크)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "verification_type", length = 20)
-    private VerificationType verificationType;
+    // 인증 방식. 사진 인증 방식만 사용
+    @Column(name = "verification_type", length = 225)
+    private String photoUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -72,7 +71,7 @@ public class Challenge extends BaseTimeEntity {
     public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
             , Long penaltyAmount, String status
-            , VerificationType verificationType
+            , String photoUrl
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
             , List<String> designatedDays){
@@ -83,7 +82,7 @@ public class Challenge extends BaseTimeEntity {
         this.penaltyAmount = penaltyAmount;
         this.status = status;
         this.user = user;
-        this.verificationType = verificationType;
+        this.photoUrl = photoUrl;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
         this.designatedDays = designatedDays;
