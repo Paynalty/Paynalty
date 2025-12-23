@@ -21,6 +21,8 @@ spring:
       write-dates-as-timestamps: false
     time-zone: Asia/Seoul
     default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false # DTO에 없는 필드가 JSON에 있어도 에러 발생 X
 
 # 서버 설정
 server:
@@ -61,10 +63,11 @@ logging:
 toss:
   api:
     base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im}
+    redirect-uri:
 
     # mTLS 인증서 경로 (classpath 리소스)
     mtls:
       client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/test-mTLS_public.crt}
       client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/test-mTLS_private.key}
-      # 인증서 비밀번호 (있는 경우만)
+      # 인증서 비밀번호
       key-password: ${TOSS_KEY_PASSWORD:}

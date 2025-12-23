@@ -55,3 +55,10 @@ springdoc:
     enabled: false
   api-docs:
     enabled: false
+
+# Toss 설정
+toss:
+  api:
+    api-key: ${TOSS_API_KEY}
+    data-secret-key: ${TOSS_DATA_SECRET_KEY}
+    referrer: "DEFAULT"
