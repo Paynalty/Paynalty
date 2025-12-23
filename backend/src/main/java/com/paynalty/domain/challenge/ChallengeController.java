@@ -26,11 +26,11 @@ public class ChallengeController {
             summary = "챌린지 생성",
             description = "새로운 챌린지를 생성합니다.\n\n" +
                     "📌 주요 규칙:\n" +
-                    "1. startOption: \"tomorrow\" 또는 \"nextWeek\"만 가능 (대소문자 구분 없음)\n" +
-                    "2. endDate: 오늘보다 이후여야 함 (오늘 포함 불가)\n" +
-                    "3. designatedDays와 frequency: 둘 중 하나만 사용\n" +
-                    "   - designatedDays가 있으면 → frequency는 자동 계산 (요일 개수)\n" +
-                    "   - designatedDays가 null이면 → frequency 값 필수\n" +
+                    "1. startDate: 오늘보다 이후여야 함 (오늘 포함 불가)\n" +
+                    "2. endDate: startDate보다 이후여야 함\n" +
+                    "3. dayOfWeeks와 frequency: 둘 중 하나만 사용\n" +
+                    "   - dayOfWeeks가 있으면 → frequency는 자동 계산 (요일 개수)\n" +
+                    "   - dayOfWeeks가 null이거나 빈 리스트이면 → frequency 값 필수\n" +
                     "4. verifyStartAt/verifyEndAt: 둘 다 null이면 기본값(00:00, 23:59) 사용\n" +
                     "5. verifyStartAt은 verifyEndAt보다 이전이어야 함\n\n" +
                     "✅ 성공 시: 201 Created (response body 없음)\n" +
@@ -62,6 +62,10 @@ public class ChallengeController {
     }
 
     // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
+    @Operation(
+            summary = "챌린지 상세 정보 조회",
+            description = "특정 챌린지의 상세 정보(주간 인증 현황, 벌금, 남은 시간 등)를 조회합니다."
+    )
     @GetMapping("/{challengeId}/myChallenge/detail")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
@@ -90,4 +94,3 @@ public class ChallengeController {
     }
 
 }
-

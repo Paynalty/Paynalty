@@ -30,7 +30,7 @@ public class ChallengeRequest {
                     "- 프론트에서 계산된 날짜를 전달\n" +
                     "  * 내일 시작: 오늘 기준 +1일\n" +
                     "  * 다음주 시작: 오늘 기준 다음주 월요일",
-            example = "2025-01-01",
+            example = "2025-12-29",
             required = true
     )
     @NotNull(message = "시작 날짜는 필수입니다")
