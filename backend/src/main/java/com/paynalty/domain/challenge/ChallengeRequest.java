@@ -78,7 +78,7 @@ public class ChallengeRequest {
                     "- 형식: HH:mm (예: 06:00)\n" +
                     "- null이면 기본값 00:00 사용\n" +
                     "- verifyEndAt보다 이전이어야 함",
-            example = "00:00"
+            example = "00:00:00"
     )
     private LocalTime verifyStartAt;
 
@@ -87,7 +87,7 @@ public class ChallengeRequest {
                     "- 형식: HH:mm (예: 23:59)\n" +
                     "- null이면 기본값 23:59 사용\n" +
                     "- verifyStartAt보다 이후여야 함",
-            example = "23:59"
+            example = "23:59:59"
     )
     private LocalTime verifyEndAt;
 
