@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "penalties")
+@Table(name = "penaltys")
 @Getter
 @Setter
 @NoArgsConstructor
