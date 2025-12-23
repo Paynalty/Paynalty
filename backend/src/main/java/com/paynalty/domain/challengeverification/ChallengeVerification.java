@@ -9,7 +9,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "challenge_verification")
+@Table(name = "challenge_verifications")
 @Getter
 @NoArgsConstructor  
 public class ChallengeVerification extends BaseTimeEntity {
