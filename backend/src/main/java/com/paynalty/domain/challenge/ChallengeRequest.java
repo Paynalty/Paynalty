@@ -56,17 +56,17 @@ public class ChallengeRequest {
     )
     private Integer frequency;
 
-    //enum 타입으로 받기
     @Schema(
             description = "지정된 요일 목록\n" +
-                    "⚠️ designatedDays와 frequency는 둘 중 하나만 사용 가능\n" +
+                    "⚠️ dayOfWeeks와 frequency는 둘 중 하나만 사용 가능\n" +
                     "- 이 값이 있으면 frequency는 자동으로 요일 개수로 계산됨\n" +
-                    "- 예: [\"월\", \"수\", \"목\", \"토\"] → frequency = 4 (자동 계산)\n" +
+                    "- 예: [\"MON\", \"WED\", \"FRI\"] → frequency = 3 (자동 계산)\n" +
                     "- null이거나 빈 배열이면 frequency 값을 사용\n" +
-                    "- 가능한 요일 값: \"월\", \"화\", \"수\", \"목\", \"금\", \"토\", \"일\"",
-            example = "[\"월\", \"수\", \"목\", \"토\"]"
+                    "- 가능한 요일 값: MON, TUE, WED, THU, FRI, SAT, SUN",
+            example = "[\"MON\", \"WED\", \"FRI\"]",
+            allowableValues = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"}
     )
-    private List<String> designatedDays;
+    private List<DayOfWeekType> dayOfWeeks;
 
     @Schema(description = "벌금 금액 (필수, 양수)", example = "10000", required = true)
     @NotNull(message = "패널티 금액은 필수입니다")

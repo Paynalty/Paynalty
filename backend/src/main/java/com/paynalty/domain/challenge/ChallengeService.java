@@ -32,16 +32,14 @@ public class ChallengeService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
 
         // frequency 자동 계산 로직
-        // 1. designatedDays가 null이 아니고 비어있지 않으면 그 크기로 frequency 계산 (예: ["월", "수", "목", "토"] → frequency = 4)
-        // 2. designatedDays가 null이거나 비어있으면 request의 frequency 값 사용 (요일 상관없이 주에 N회 인증)
         int calculatedFrequency;
-        if (request.getDesignatedDays() != null && !request.getDesignatedDays().isEmpty()) {
+        if (request.getDayOfWeeks() != null && !request.getDayOfWeeks().isEmpty()) {
             // 요일 지정 모드: 지정된 요일 수만큼 frequency 계산
-            calculatedFrequency = request.getDesignatedDays().size();
+            calculatedFrequency = request.getDayOfWeeks().size();
         } else {
-            // frequency 직접 지정 모드: designatedDays가 null이거나 빈 리스트인 경우
+            // frequency 직접 지정 모드: dayOfweeks가 null이거나 빈 리스트인 경우
             if (request.getFrequency() == null || request.getFrequency() <= 0) {
-                throw new IllegalArgumentException("designatedDays가 없을 때는 frequency 값(양수)이 필수입니다");
+                throw new IllegalArgumentException("dayOfWeeks가 없을 때는 frequency 값(양수)이 필수입니다");
             }
             calculatedFrequency = request.getFrequency();
         }
@@ -78,7 +76,7 @@ public class ChallengeService {
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
-                .designatedDays(request.getDesignatedDays())
+                .dayOfWeeks(request.getDayOfWeeks())
                 .build();
 
         Challenge savedChallenge = challengeRepository.save(challenge);

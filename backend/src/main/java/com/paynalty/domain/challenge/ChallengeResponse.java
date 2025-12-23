@@ -6,6 +6,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -22,6 +23,9 @@ public class ChallengeResponse {
     private LocalTime verifyEndAt;
     private VerificationType verificationType;
 
+    // 인증 하는 요일 (MON, TUE, WED, THU, FRI, SAT, SUN)
+    private List<DayOfWeekType> dayOfWeeks;
+
     public static ChallengeResponse from(Challenge challenge) {
         return ChallengeResponse.builder()
                 .id(challenge.getId())
@@ -34,6 +38,7 @@ public class ChallengeResponse {
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
                 .verificationType(challenge.getVerificationType())
+                .dayOfWeeks(challenge.getDayOfWeeks())
                 .build();
     }
 }
