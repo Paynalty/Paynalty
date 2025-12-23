@@ -15,8 +15,9 @@ public class UserService {
     public UserResponse create(UserRequest request){
         User user = User.builder()
                 .tossId(request.getTossId())
+                .name(request.getName())
                 .email(request.getEmail())
-                .profileImageUrl(request.getProfileImageUrl())
+                .phoneNum(request.getPhoneNum())
                 .build();
 
         User saved = userRepository.save(user);
