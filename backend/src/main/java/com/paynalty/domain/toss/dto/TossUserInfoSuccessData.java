@@ -7,13 +7,14 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TossUserInfoData { //이름, 이메일, 성별, 생년월일, 전화번호
+public class TossUserInfoSuccessData {
     private Long userKey;
     private String scope;
-    private List<List<String>> agreedTerms;
+    private List<String> agreedTerms;
     private String name;
-    private String email;
-    private String gender;
-    private String birthday;
     private Long phone;
+    private String birthday;
+    private String ci;
+    private String gender;
+    private String email;
 }
