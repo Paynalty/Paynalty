@@ -18,7 +18,7 @@ import java.util.List;
 @Schema(description = "챌린지 생성 요청")
 public class ChallengeRequest {
 
-    @Schema(description = "챌린지명 (필수, 최대 50자)", example = "매일 운동하기", required = true)
+    @Schema(description = "챌린지명 (필수, 최대 50자)", example = "String", required = true)
     @NotBlank(message = "챌린지명은 필수입니다")
     @Size(max = 50, message = "챌린지명은 50자 이하여야 합니다")
     private String title;
@@ -56,6 +56,7 @@ public class ChallengeRequest {
     )
     private Integer frequency;
 
+    //enum 타입으로 받기
     @Schema(
             description = "지정된 요일 목록\n" +
                     "⚠️ designatedDays와 frequency는 둘 중 하나만 사용 가능\n" +
@@ -90,16 +91,16 @@ public class ChallengeRequest {
     private LocalTime verifyEndAt;
 
     @Schema(
-            description = "인증 방식 (필수)\n" +
-                    "- PHOTO: 사진 인증 (이미지 URL)\n" +
+            description = "인증 타입 (필수)\n" +
+                    "- PHOTO: 사진 인증\n" +
                     "- TEXT: 텍스트 인증\n" +
-                    "- CHECKBOX: 체크박스 인증",
+                    "- VOTE: 투표 인증",
             example = "PHOTO",
             required = true,
-            allowableValues = {"PHOTO", "TEXT", "CHECKBOX"}
+            allowableValues = {"PHOTO", "TEXT", "VOTE"}
     )
-    @NotNull(message = "인증 방식은 사진 인증만 사용합니다")
-    private String photoUrl;
+    @NotNull(message = "인증 타입은 필수입니다")
+    private VerificationType verificationType;
 
 }
 

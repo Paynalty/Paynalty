@@ -75,7 +75,7 @@ public class ChallengeService {
                 .penaltyAmount(request.getPenaltyAmount())
                 .status(calculatedStatus)
                 .user(user)
-                .photoUrl(request.getPhotoUrl())
+                .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
                 .designatedDays(request.getDesignatedDays())

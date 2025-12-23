@@ -20,7 +20,7 @@ public class ChallengeResponse {
     private String status;
     private LocalTime verifyStartAt;
     private LocalTime verifyEndAt;
-    private String photoUrl;
+    private VerificationType verificationType;
 
     public static ChallengeResponse from(Challenge challenge) {
         return ChallengeResponse.builder()
@@ -33,7 +33,7 @@ public class ChallengeResponse {
                 .status(challenge.calculateStatus())  // 자동 계산된 status 사용
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
-                .photoUrl(challenge.getPhotoUrl())
+                .verificationType(challenge.getVerificationType())
                 .build();
     }
 }
