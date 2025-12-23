@@ -58,3 +58,6 @@ Thumbs.db
 *.p12
 *.jks
 !**/src/test/**/*.pem
+
+# === Local Configuration & Secrets ===
+application-local.yml
