@@ -63,7 +63,6 @@ logging:
 toss:
   api:
     base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im}
-    redirect-uri:
 
     # mTLS 인증서 경로 (classpath 리소스)
     mtls:
