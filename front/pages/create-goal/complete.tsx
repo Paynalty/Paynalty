@@ -3,6 +3,7 @@ import {Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, To
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState} from 'react';
 import {getCreateGoalData, resetCreateGoalData} from '../../src/stores/createGoalStore';
+import {createChallenge} from '../../src/api/challenges';
 
 export const Route = createRoute('/create-goal/complete', {
     component: Page,
@@ -19,44 +20,50 @@ export default function Page() {
     const goalData = getCreateGoalData();
 
 
+    // startDate 계산 함수
+    const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
+        const today = new Date();
+        const date = new Date(today);
+
+        if (option === 'tomorrow') {
+            date.setDate(date.getDate() + 1);
+        } else if (option === 'nextWeek') {
+            date.setDate(date.getDate() + 7);
+        }
+
+        // ISO date string (YYYY-MM-DD)
+        return date.toISOString().split('T')[0];
+    };
+
     // API로 목표 생성 요청
-    const handleCreateGoal = async (startDate: 'tomorrow' | 'nextWeek') => {
+    const handleCreateGoal = async (option: 'tomorrow' | 'nextWeek') => {
         try {
-            setLoading(startDate);
+            setLoading(option);
+
+            const startDate = calculateStartDate(option);
 
             // API 요청
-            const response = await fetch('https://your-api.com/api/goals', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    goalTitle: goalData.goalTitle,
-                    verificationMethod: goalData.verificationMethod,
-                    penaltyAmount: goalData.penaltyAmount === 'custom'
+            await createChallenge({
+                title: goalData.goalTitle,
+                startDate: startDate,
+                endDate: goalData.deadline,
+                penaltyAmount:
+                    goalData.penaltyAmount === 'custom'
                         ? Number(goalData.customAmount)
-                        : goalData.penaltyAmount,
-                    startDate: startDate,
-                    // ... 다른 필드들
-                }),
+                        : Number(goalData.penaltyAmount),
+                verifyStartAt: goalData.startTime,
+                verifyEndAt: goalData.endTime,
+                verificationType: goalData.verificationMethod as 'PHOTO' | 'TEXT' | 'VOTE',
             });
 
-            const result = await response.json();
+            // 성공 시 데이터 초기화
+            resetCreateGoalData();
 
-            if (response.ok) {
-                // 성공 시 데이터 초기화
-                resetCreateGoalData();
-
-                // 메인 페이지로 이동
-                navigation.navigate('/');
-            } else {
-                // 에러 처리
-                console.error('목표 생성 실패:', result);
-                alert('목표 생성에 실패했습니다.');
-            }
+            // 메인 페이지로 이동
+            navigation.navigate('/');
         } catch (error) {
-            console.error('API 요청 에러:', error);
-            alert('네트워크 오류가 발생했습니다.');
+            console.error('목표 생성 실패:', error);
+            alert('목표 생성에 실패했습니다.');
         } finally {
             setLoading(null);
         }

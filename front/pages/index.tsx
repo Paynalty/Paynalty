@@ -5,7 +5,6 @@ import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState, useEffect, useMemo} from 'react';
 import {Storage} from '@apps-in-toss/framework';
 import {ChallengeCard} from 'components/challenge/ChallengeCard';
-import {Challenge} from 'components/challenge/types';
 import {getChallenges} from '../src/stores/challengeStore';
 
 export const Route = createRoute('/', {
