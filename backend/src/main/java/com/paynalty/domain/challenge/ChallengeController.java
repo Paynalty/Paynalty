@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,15 +33,16 @@ public class ChallengeController {
                     "   - designatedDays가 null이면 → frequency 값 필수\n" +
                     "4. verifyStartAt/verifyEndAt: 둘 다 null이면 기본값(00:00, 23:59) 사용\n" +
                     "5. verifyStartAt은 verifyEndAt보다 이전이어야 함\n\n" +
+                    "✅ 성공 시: 201 Created (response body 없음)\n" +
                     "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
     )
     @PostMapping()
-    public ResponseEntity<ApiResponse<ChallengeResponse>> createChallenge(
+    public ResponseEntity<Void> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request) {
         Long userId = 1L;
-        ChallengeResponse response = challengeService.create(request, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        challengeService.create(request, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
