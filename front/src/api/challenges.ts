@@ -22,7 +22,7 @@ export interface CreateChallengeResponse {
 }
 
 export const createChallenge = (data: CreateChallengeRequest) => {
-  return apiFetch<CreateChallengeResponse>('/challenges', {
+  return apiFetch<CreateChallengeResponse>('/api/challenge', {
     method: 'POST',
     body: JSON.stringify(data),
   });

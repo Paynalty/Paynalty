@@ -1,229 +1,228 @@
-import {createRoute, Spacing} from '@granite-js/react-native';
-import {Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top} from '@toss/tds-react-native';
-import {useAdaptive} from '@toss/tds-react-native/private';
-import {useState} from 'react';
-import {getCreateGoalData, resetCreateGoalData} from '../../src/stores/createGoalStore';
-import {createChallenge} from '../../src/api/challenges';
+import { createRoute, Spacing } from '@granite-js/react-native';
+import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
+import { useAdaptive } from '@toss/tds-react-native/private';
+import { useState } from 'react';
+import { getCreateGoalData, resetCreateGoalData } from '../../src/stores/createGoalStore';
+import { createChallenge } from '../../src/api/challenges';
 
 export const Route = createRoute('/create-goal/complete', {
-    component: Page,
-})
+  component: Page,
+});
 
 export default function Page() {
-    const adaptive = useAdaptive();
-    const navigation = Route.useNavigation();
-    const [loading, setLoading] = useState<StartType | null>(null);
+  const adaptive = useAdaptive();
+  const navigation = Route.useNavigation();
+  const [loading, setLoading] = useState<StartType | null>(null);
 
-    type StartType = 'nextWeek' | 'tomorrow';
+  type StartType = 'nextWeek' | 'tomorrow';
 
-    // 저장된 데이터 가져오기
-    const goalData = getCreateGoalData();
+  // 저장된 데이터 가져오기
+  const goalData = getCreateGoalData();
 
+  // startDate 계산 함수
+  const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
+    const today = new Date();
+    const date = new Date(today);
 
-    // startDate 계산 함수
-    const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
-        const today = new Date();
-        const date = new Date(today);
+    if (option === 'tomorrow') {
+      date.setDate(date.getDate() + 1);
+    } else if (option === 'nextWeek') {
+      date.setDate(date.getDate() + 7);
+    }
 
-        if (option === 'tomorrow') {
-            date.setDate(date.getDate() + 1);
-        } else if (option === 'nextWeek') {
-            date.setDate(date.getDate() + 7);
+    // ISO date string (YYYY-MM-DD)
+    return date.toISOString().split('T')[0];
+  };
+
+  // API로 목표 생성 요청
+  const handleCreateGoal = async (option: 'tomorrow' | 'nextWeek') => {
+    try {
+      setLoading(option);
+
+      const startDate = calculateStartDate(option);
+
+      // API 요청
+      await createChallenge({
+        title: goalData.goalTitle || '',
+        startDate: startDate,
+        endDate: goalData.deadline || '',
+        penaltyAmount:
+          goalData.penaltyAmount === 'custom' ? Number(goalData.customAmount) : Number(goalData.penaltyAmount),
+        frequency: goalData.frequency,
+        dayOfWeek: goalData.dayOfWeek as any,
+        verifyStartAt: goalData.startTime,
+        verifyEndAt: goalData.endTime,
+        verificationType: goalData.verificationMethod as any,
+      });
+
+      // 성공 시 데이터 초기화
+      resetCreateGoalData();
+
+      // 메인 페이지로 이동
+      navigation.navigate('/');
+    } catch (error) {
+      console.error('목표 생성 실패:', error);
+      alert('목표 생성에 실패했습니다.');
+    } finally {
+      setLoading(null);
+    }
+  };
+  return (
+    <>
+      <Spacing size={30} />
+      <Top
+        upper={
+          <Top.UpperAssetContent
+            content={
+              <Asset.Lottie
+                frameShape={Asset.frameShape.SquareLarge}
+                scale={1}
+                src="https://static.toss.im/lotties-common/check-blue-spot.json"
+              />
+            }
+          />
         }
-
-        // ISO date string (YYYY-MM-DD)
-        return date.toISOString().split('T')[0];
-    };
-
-    // API로 목표 생성 요청
-    const handleCreateGoal = async (option: 'tomorrow' | 'nextWeek') => {
-        try {
-            setLoading(option);
-
-            const startDate = calculateStartDate(option);
-
-            // API 요청
-            await createChallenge({
-                title: goalData.goalTitle,
-                startDate: startDate,
-                endDate: goalData.deadline,
-                penaltyAmount:
-                    goalData.penaltyAmount === 'custom'
-                        ? Number(goalData.customAmount)
-                        : Number(goalData.penaltyAmount),
-                verifyStartAt: goalData.startTime,
-                verifyEndAt: goalData.endTime,
-                verificationType: goalData.verificationMethod as 'PHOTO' | 'TEXT' | 'VOTE',
-            });
-
-            // 성공 시 데이터 초기화
-            resetCreateGoalData();
-
-            // 메인 페이지로 이동
-            navigation.navigate('/');
-        } catch (error) {
-            console.error('목표 생성 실패:', error);
-            alert('목표 생성에 실패했습니다.');
-        } finally {
-            setLoading(null);
-        }
-    };
-    return (
-        <>
-            <Spacing size={30}/>
-            <Top
-                upper={
-                    <Top.UpperAssetContent
-                        content={
-                            <Asset.Lottie
-                                frameShape={Asset.frameShape.SquareLarge}
-                                scale={1}
-                                src="https://static.toss.im/lotties-common/check-blue-spot.json"
-                            />
-                        }
-                    />
-                }
-                title={<Top.TitleParagraph size={28}>목표를 만들었어요</Top.TitleParagraph>}
+        title={<Top.TitleParagraph size={28}>목표를 만들었어요</Top.TitleParagraph>}
+      />
+      <List rowSeparator="none">
+        <ListRow
+          left={
+            <ListRow.Image
+              type="circle"
+              source={{
+                uri: 'https://static.toss.im/ml-product/square-salt-topped-saltbread.png',
+              }}
+              hideBorder={true}
             />
-            <List rowSeparator="none">
-                <ListRow
-                    left={
-                        <ListRow.Image
-                            type="circle"
-                            source={{
-                                uri: 'https://static.toss.im/ml-product/square-salt-topped-saltbread.png',
-                            }}
-                            hideBorder={true}
-                        />
-                    }
-                    contents={
-                        <ListRow.Texts
-                            type="2RowTypeD"
-                            top="목표"
-                            topProps={{color: adaptive.grey600}}
-                            bottom={goalData.goalTitle}
-                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                        />
-                    }
-                    verticalPadding="small"
-                />
-                <ListRow
-                    left={
-                        <ListRow.Image
-                            type="circle"
-                            source={{
-                                uri: 'https://static.toss.im/ml-product/yellow-slippers.png',
-                            }}
-                            hideBorder={true}
-                        />
-                    }
-                    contents={
-                        <ListRow.Texts
-                            type="2RowTypeD"
-                            top="마감일"
-                            topProps={{color: adaptive.grey600}}
-                            bottom={goalData.deadline}
-                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                        />
-                    }
-                    verticalPadding="small"
-                />
-                <ListRow
-                    left={
-                        <ListRow.Image
-                            type="circle"
-                            source={{
-                                uri: 'https://static.toss.im/ml-product/workgloves-constructiongloves.png',
-                            }}
-                            hideBorder={true}
-                        />
-                    }
-                    contents={
-                        <ListRow.Texts
-                            type="2RowTypeD"
-                            top="인증 주기"
-                            topProps={{color: adaptive.grey600}}
-                            bottom={`${goalData.period} \n${goalData.startTime} ~ ${goalData.endTime}`}
-                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                        />
-                    }
-                    verticalPadding="small"
-                />
-                <ListRow
-                    left={
-                        <ListRow.Image
-                            type="circle"
-                            source={{
-                                uri: 'https://static.toss.im/ml-product/rubber-duck.png',
-                            }}
-                            hideBorder={true}
-                        />
-                    }
-                    contents={
-                        <ListRow.Texts
-                            type="2RowTypeD"
-                            top="인증 방법"
-                            topProps={{color: adaptive.grey600}}
-                            bottom={goalData.verificationMethod}
-                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                        />
-                    }
-                    verticalPadding="small"
-                />
-                <ListRow
-                    left={
-                        <ListRow.Image
-                            type="circle"
-                            source={{
-                                uri: 'https://static.toss.im/ml-product/squirrel-sitting-left.png',
-                            }}
-                            hideBorder={true}
-                        />
-                    }
-                    contents={
-                        <ListRow.Texts
-                            type="2RowTypeD"
-                            top="벌금"
-                            topProps={{color: adaptive.grey600}}
-                            bottom={
-                                goalData.penaltyAmount === 'custom'
-                                    ? `${Number(goalData.customAmount).toLocaleString()}원`
-                                    : `${Number(goalData.penaltyAmount).toLocaleString()}원`
-                            }
-                            bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                        />
-                    }
-                    verticalPadding="small"
-                />
-            </List>
-            <FixedBottomCTAProvider>
-                <FixedBottomCTA.Double
-                    leftButton={
-                        <Button
-                            type="dark"
-                            style="weak"
-                            display="block"
-                            disabled={loading !== null}
-                            loading={loading === 'nextWeek'}
-                            onPress={() => handleCreateGoal('nextWeek')}
-                        >
-                            다음주부터 시작하기
-                        </Button>
-                    }
-                    rightButton={
-                        <Button
-                            type="primary"
-                            style="fill"
-                            display="block"
-                            disabled={loading !== null}
-                            loading={loading === 'tomorrow'}
-                            onPress={() => handleCreateGoal('tomorrow')}
-                        >
-                            내일부터 시작하기
-                        </Button>
-                    }
-                />
-            </FixedBottomCTAProvider>
-        </>
-    );
+          }
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="목표"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={goalData.goalTitle}
+              bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+            />
+          }
+          verticalPadding="small"
+        />
+        <ListRow
+          left={
+            <ListRow.Image
+              type="circle"
+              source={{
+                uri: 'https://static.toss.im/ml-product/yellow-slippers.png',
+              }}
+              hideBorder={true}
+            />
+          }
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="마감일"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={goalData.deadline}
+              bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+            />
+          }
+          verticalPadding="small"
+        />
+        <ListRow
+          left={
+            <ListRow.Image
+              type="circle"
+              source={{
+                uri: 'https://static.toss.im/ml-product/workgloves-constructiongloves.png',
+              }}
+              hideBorder={true}
+            />
+          }
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="인증 주기"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={`${goalData.period} \n${goalData.startTime} ~ ${goalData.endTime}`}
+              bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+            />
+          }
+          verticalPadding="small"
+        />
+        <ListRow
+          left={
+            <ListRow.Image
+              type="circle"
+              source={{
+                uri: 'https://static.toss.im/ml-product/rubber-duck.png',
+              }}
+              hideBorder={true}
+            />
+          }
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="인증 방법"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={goalData.verificationMethod}
+              bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+            />
+          }
+          verticalPadding="small"
+        />
+        <ListRow
+          left={
+            <ListRow.Image
+              type="circle"
+              source={{
+                uri: 'https://static.toss.im/ml-product/squirrel-sitting-left.png',
+              }}
+              hideBorder={true}
+            />
+          }
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="벌금"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={
+                goalData.penaltyAmount === 'custom'
+                  ? `${Number(goalData.customAmount).toLocaleString()}원`
+                  : `${Number(goalData.penaltyAmount).toLocaleString()}원`
+              }
+              bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
+            />
+          }
+          verticalPadding="small"
+        />
+      </List>
+      <FixedBottomCTAProvider>
+        <FixedBottomCTA.Double
+          leftButton={
+            <Button
+              type="dark"
+              style="weak"
+              display="block"
+              disabled={loading !== null}
+              loading={loading === 'nextWeek'}
+              onPress={() => handleCreateGoal('nextWeek')}
+            >
+              다음주부터 시작하기
+            </Button>
+          }
+          rightButton={
+            <Button
+              type="primary"
+              style="fill"
+              display="block"
+              disabled={loading !== null}
+              loading={loading === 'tomorrow'}
+              onPress={() => handleCreateGoal('tomorrow')}
+            >
+              내일부터 시작하기
+            </Button>
+          }
+        />
+      </FixedBottomCTAProvider>
+    </>
+  );
 }

@@ -1,130 +1,128 @@
 import {
-    Asset, ProgressBar, Top, Button, ListRow, TextField, FixedBottomCTA, FixedBottomCTAProvider
+  Asset,
+  ProgressBar,
+  Top,
+  Button,
+  ListRow,
+  TextField,
+  FixedBottomCTA,
+  FixedBottomCTAProvider,
 } from '@toss/tds-react-native';
-import {createRoute, Spacing} from '@granite-js/react-native';
-import {useAdaptive} from '@toss/tds-react-native/private';
-import {View} from "react-native";
-import {useState} from "react";
-import {updateCreateGoalData} from "../../src/stores/createGoalStore";
+import { createRoute, Spacing } from '@granite-js/react-native';
+import { useAdaptive } from '@toss/tds-react-native/private';
+import { View } from 'react-native';
+import { useState } from 'react';
+import { updateCreateGoalData } from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step6', {
-    component: Page,
-})
+  component: Page,
+});
 
 export default function Page() {
-    const adaptive = useAdaptive();
-    const navigation = Route.useNavigation();
+  const adaptive = useAdaptive();
+  const navigation = Route.useNavigation();
 
-    const [selectedMethod, setSelectedMethod] = useState('사진');
+  const [selectedMethod, setSelectedMethod] = useState('사진');
 
-    return (
-        <>
-            <Spacing size={30}/>
-            <ProgressBar progress={60} color="#3182f6" size="normal"/>
-            <Top
-                title={
-                    <Top.TitleParagraph color={adaptive.grey900}>
-                        어떻게 인증할까요?
-                    </Top.TitleParagraph>
-                }
-                subtitle1={<Top.SubtitleBadges items={[]}/>}
-                subtitle2={
-                    <Top.SubtitleParagraph>
-                        가장 부담 없는 방식이면 충분해요{'\n'}
-                        증명보다 지속이 중요해요
-                    </Top.SubtitleParagraph>
-                }
-            />
-            <View style={{flexDirection: 'row', alignSelf: 'center', gap: 12}}>
-                <Button
-                    size="large"
-                    style={selectedMethod === '사진' ? 'fill' : 'weak'}
-                    type={selectedMethod === '사진' ? 'primary' : 'dark'}
-                    onPress={() => setSelectedMethod('사진')}
-                >
-                    사진
-                </Button>
-                <Button
-                    size="large"
-                    style={selectedMethod === '텍스트' ? 'fill' : 'weak'}
-                    type={selectedMethod === '텍스트' ? 'primary' : 'dark'}
-                    onPress={() => setSelectedMethod('텍스트')}
-                >
-                    텍스트
-                </Button>
-                <Button
-                    size="large"
-                    style={selectedMethod === '체크' ? 'fill' : 'weak'}
-                    type={selectedMethod === '체크' ? 'primary' : 'dark'}
-                    onPress={() => setSelectedMethod('체크')}
-                >
-                    체크
-                </Button>
-            </View>
-            <Spacing size={40}/>
-            <ListRow
-                left={
-                    <ListRow.ImageContainer type="square" style={{}} hideBorder={true}/>
-                }
-                contents={
-                    <ListRow.Texts
-                        type="1RowTypeA"
-                        top="가이드라인을 정하시겠어요 ?"
-                        topProps={{color: adaptive.grey700}}
-                    />
-                }
-                verticalPadding={4}
-            />
-            <TextField
-                variant="box"
-                label=""
-                labelOption="sustain"
-                value=""
-                placeholder="사진/텍스트"
-                editable={false}
-                right={
-                    <>
-                        <Asset.Icon
-                            frameShape={Asset.frameShape.CleanW24}
-                            name="icon-arrow-down-mono"
-                            color={adaptive.grey400}
-                        />
-                    </>
-                }
-            />
-            <FixedBottomCTAProvider>
-                <FixedBottomCTA.Double
-                    leftButton={
-                        <Button
-                            type="dark"
-                            style="weak"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step5')}
-                        >
-                            이전
-                        </Button>
-                    }
-                    rightButton={
-                        <Button
-                            type="primary"
-                            style="fill"
-                            display="block"
-                            disabled={false}
-                            loading={false}
-                            onPress={() => {
-                                updateCreateGoalData({
-                                    verificationMethod: selectedMethod
-                                });
-                                navigation.navigate('/create-goal/step7')}
-                            }
-                        >
-                            다음
-                        </Button>
-                    }
-                />
-            </FixedBottomCTAProvider>
-        </>
-    );
+  return (
+    <>
+      <Spacing size={30} />
+      <ProgressBar progress={60} color="#3182f6" size="normal" />
+      <Top
+        title={<Top.TitleParagraph color={adaptive.grey900}>어떻게 인증할까요?</Top.TitleParagraph>}
+        subtitle1={<Top.SubtitleBadges items={[]} />}
+        subtitle2={
+          <Top.SubtitleParagraph>
+            가장 부담 없는 방식이면 충분해요{'\n'}
+            증명보다 지속이 중요해요
+          </Top.SubtitleParagraph>
+        }
+      />
+      <View style={{ flexDirection: 'row', alignSelf: 'center', gap: 12 }}>
+        <Button
+          size="large"
+          style={selectedMethod === '사진' ? 'fill' : 'weak'}
+          type={selectedMethod === '사진' ? 'primary' : 'dark'}
+          onPress={() => setSelectedMethod('사진')}
+        >
+          사진
+        </Button>
+        <Button
+          size="large"
+          style={selectedMethod === '텍스트' ? 'fill' : 'weak'}
+          type={selectedMethod === '텍스트' ? 'primary' : 'dark'}
+          onPress={() => setSelectedMethod('텍스트')}
+        >
+          텍스트
+        </Button>
+        <Button
+          size="large"
+          style={selectedMethod === '체크' ? 'fill' : 'weak'}
+          type={selectedMethod === '체크' ? 'primary' : 'dark'}
+          onPress={() => setSelectedMethod('체크')}
+        >
+          체크
+        </Button>
+      </View>
+      <Spacing size={40} />
+      <ListRow
+        left={<ListRow.ImageContainer type="square" style={{}} />}
+        contents={
+          <ListRow.Texts type="1RowTypeA" top="가이드라인을 정하시겠어요 ?" topProps={{ color: adaptive.grey700 }} />
+        }
+        verticalPadding={8}
+      />
+      <TextField
+        variant="box"
+        label=""
+        labelOption="sustain"
+        value=""
+        placeholder="사진/텍스트"
+        editable={false}
+        right={
+          <>
+            <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-down-mono" color={adaptive.grey400} />
+          </>
+        }
+      />
+      <FixedBottomCTAProvider>
+        <FixedBottomCTA.Double
+          leftButton={
+            <Button
+              type="dark"
+              style="weak"
+              display="block"
+              disabled={false}
+              loading={false}
+              onPress={() => navigation.navigate('/create-goal/step5')}
+            >
+              이전
+            </Button>
+          }
+          rightButton={
+            <Button
+              type="primary"
+              style="fill"
+              display="block"
+              disabled={false}
+              loading={false}
+              onPress={() => {
+                const methodMapping: { [key: string]: string } = {
+                  사진: 'PHOTO',
+                  텍스트: 'TEXT',
+                  체크: 'VOTE',
+                };
+                updateCreateGoalData({
+                  verificationMethod: methodMapping[selectedMethod],
+                });
+                navigation.navigate('/create-goal/step7');
+              }}
+            >
+              다음
+            </Button>
+          }
+        />
+      </FixedBottomCTAProvider>
+    </>
+  );
 }
