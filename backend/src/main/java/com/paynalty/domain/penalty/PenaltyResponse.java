@@ -16,7 +16,7 @@ public class PenaltyResponse {
     private Long amount;
 
     // 결제 관련 정보
-    private boolean paid;
+    private Boolean paid;
     private LocalDateTime paidAt;
     private String paymentOrderId;
 
