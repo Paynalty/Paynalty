@@ -21,6 +21,11 @@ import java.util.List;
 @NoArgsConstructor
 public class Challenge extends BaseTimeEntity {
 
+    // 챌린지 상태 상수
+    public static final String STATUS_PENDING = "pending";      // 시작 전
+    public static final String STATUS_ACTIVE = "active";        // 진행 중
+    public static final String STATUS_COMPLETE = "complete";  // 완료됨
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -120,17 +125,17 @@ public class Challenge extends BaseTimeEntity {
      * 
      * @param startDate 시작일
      * @param endDate 종료일
-     * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
+     * @return STATUS_PENDING (시작 전), STATUS_ACTIVE (진행 중), STATUS_COMPLETED (완료됨)
      */
     public static String calculateStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
         
         if (today.isBefore(startDate)) {
-            return "pending";  // 시작 전
+            return STATUS_PENDING;  // 시작 전
         } else if (today.isAfter(endDate)) {
-            return "completed";  // 완료됨
+            return STATUS_COMPLETE;  // 완료됨
         } else {
-            return "progress";  // 진행 중
+            return STATUS_ACTIVE;  // 진행 중
         }
     }
 
