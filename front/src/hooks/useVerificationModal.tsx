@@ -1,7 +1,13 @@
 import { BottomSheet, List, ListRow, Asset } from '@toss/tds-react-native';
 import { useOverlay, useAdaptive } from '@toss/tds-react-native/private';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Alert } from 'react-native';
 import { getSelectedChallenge } from '../stores/challengeStore';
+import {
+  openCamera,
+  fetchAlbumPhotos,
+  OpenCameraPermissionError,
+  FetchAlbumPhotosPermissionError,
+} from '@apps-in-toss/framework';
 
 export function useVerificationModal() {
   const overlay = useOverlay();
@@ -25,9 +31,21 @@ export function useVerificationModal() {
           <View style={{ paddingVertical: 8, paddingBottom: 32 }}>
             <List rowSeparator="none">
               <Pressable
-                onPress={() => {
-                  console.log('Camera');
-                  close();
+                onPress={async () => {
+                  try {
+                    // 공식 문서 시그니처에 따라 maxWidth 추가
+                    const result = await openCamera({ base64: true, maxWidth: 1024 });
+                    console.log('Camera Success:', result.id);
+                    close();
+                  } catch (error) {
+                    if (error instanceof OpenCameraPermissionError) {
+                      Alert.alert('권한 오류', '카메라 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.');
+                    } else {
+                      console.error('Camera Error:', error);
+                      // 권한이 설정 파일에 반영되지 않았을 가능성이 높음
+                      Alert.alert('오류', '카메라를 실행할 수 없습니다. 터미널에서 npm run dev를 다시 실행해보세요.');
+                    }
+                  }
                 }}
               >
                 <ListRow
@@ -51,9 +69,24 @@ export function useVerificationModal() {
                 />
               </Pressable>
               <Pressable
-                onPress={() => {
-                  console.log('Album');
-                  close();
+                onPress={async () => {
+                  try {
+                    // 공식 문서 시그니처에 따라 옵션 추가
+                    const result = await fetchAlbumPhotos({
+                      maxCount: 1,
+                      maxWidth: 1024,
+                      base64: true,
+                    });
+                    console.log('Album Success:', result?.[0]?.id || 'no images');
+                    close();
+                  } catch (error) {
+                    if (error instanceof FetchAlbumPhotosPermissionError) {
+                      Alert.alert('권한 오류', '사진첩 접근 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.');
+                    } else {
+                      console.error('Album Error:', error);
+                      Alert.alert('오류', '사진첩을 열 수 없습니다. 터미널에서 npm run dev를 다시 실행해보세요.');
+                    }
+                  }
                 }}
               >
                 <ListRow
