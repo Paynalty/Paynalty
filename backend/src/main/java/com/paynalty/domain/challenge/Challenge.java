@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class Challenge extends BaseTimeEntity {
     private String title;
 
     // 시작 일 - 종료일 + startOption에 의해 값 설정
+    // 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -49,8 +51,9 @@ public class Challenge extends BaseTimeEntity {
     private String status;
 
 
+    // 요일 목록 (MON, TUE, WED, THU, FRI, SAT, SUN)
     @Column
-    private List<String> designatedDays;
+    private List<DayOfWeekType> dayOfWeeks;
 
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
@@ -64,9 +67,10 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "verify_end_at")
     private LocalTime verifyEndAt;
 
-    // 인증 방식. 사진 인증 방식만 사용
-    @Column(name = "verification_type", length = 225)
-    private String photoUrl;
+    // 인증 타입 (PHOTO, TEXT, VOTE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verification_type", length = 20)
+    private VerificationType verificationType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -76,21 +80,21 @@ public class Challenge extends BaseTimeEntity {
     public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
             , Long penaltyAmount, String status
-            , String photoUrl
+            , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<String> designatedDays){
+            , List<DayOfWeekType> dayOfWeeks){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.frequency = frequency;
         this.penaltyAmount = penaltyAmount;
         this.status = status;
+        this.verificationType = verificationType;
         this.user = user;
-        this.photoUrl = photoUrl;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
-        this.designatedDays = designatedDays;
+        this.dayOfWeeks = dayOfWeeks;
     }
 
     // 관계 설정
