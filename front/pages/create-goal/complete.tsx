@@ -1,9 +1,11 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
+import { View } from 'react-native';
 import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
-import { getCreateChellengeData, resetCreateGoalData } from '../../src/stores/createGoalStore';
+import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
+import { LottieView } from '@granite-js/native/lottie-react-native';
 
 export const Route = createRoute('/create-goal/complete', {
   component: Page,
@@ -12,12 +14,10 @@ export const Route = createRoute('/create-goal/complete', {
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  type StartType = 'nextWeek' | 'tomorrow';
   const [loading, setLoading] = useState<StartType | null>(null);
 
-  type StartType = 'nextWeek' | 'tomorrow';
-
-  // 저장된 데이터 가져오기
-  const challengeData = getCreateChellengeData();
+  const { data: challengeData, resetData: resetCreateGoalData } = useCreateGoalStore();
 
   // startDate 계산 함수
   const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
@@ -47,7 +47,9 @@ export default function Page() {
         startDate: startDate,
         endDate: challengeData.endDate || '',
         penaltyAmount:
-          challengeData.penaltyAmount === 'custom' ? Number(challengeData.customAmount) : Number(challengeData.penaltyAmount),
+          challengeData.penaltyAmount === 'custom'
+            ? Number(challengeData.customAmount)
+            : Number(challengeData.penaltyAmount),
         frequency: challengeData.frequency,
         dayOfWeek: challengeData.dayOfWeek as any,
         verifyStartAt: challengeData.verifyStartAt,
@@ -69,6 +71,26 @@ export default function Page() {
   };
   return (
     <>
+      {/* 전체 화면 Lottie 배경 */}
+      <LottieView
+        source={{ uri: 'https://lottie.host/0b55994f-12f5-4c62-9509-d3110975bcba/XjKjAF4jXq.lottie' }}
+        autoPlay
+        loop={false}
+        renderMode="SOFTWARE"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          height: '50%',
+          zIndex: 100,
+        }}
+        pointerEvents="none"
+      />
+
+      {/* 컨텐츠 */}
       <Spacing size={30} />
       <Top
         upper={
@@ -77,6 +99,8 @@ export default function Page() {
               <Asset.Lottie
                 frameShape={Asset.frameShape.SquareLarge}
                 scale={1}
+                autoPlay={true}
+                loop={false}
                 src="https://static.toss.im/lotties-common/check-blue-spot.json"
               />
             }
@@ -92,7 +116,6 @@ export default function Page() {
               source={{
                 uri: 'https://static.toss.im/ml-product/square-salt-topped-saltbread.png',
               }}
-              hideBorder={true}
             />
           }
           contents={
@@ -113,7 +136,6 @@ export default function Page() {
               source={{
                 uri: 'https://static.toss.im/ml-product/yellow-slippers.png',
               }}
-              hideBorder={true}
             />
           }
           contents={
@@ -134,7 +156,6 @@ export default function Page() {
               source={{
                 uri: 'https://static.toss.im/ml-product/workgloves-constructiongloves.png',
               }}
-              hideBorder={true}
             />
           }
           contents={
@@ -155,7 +176,6 @@ export default function Page() {
               source={{
                 uri: 'https://static.toss.im/ml-product/rubber-duck.png',
               }}
-              hideBorder={true}
             />
           }
           contents={
@@ -176,7 +196,6 @@ export default function Page() {
               source={{
                 uri: 'https://static.toss.im/ml-product/squirrel-sitting-left.png',
               }}
-              hideBorder={true}
             />
           }
           contents={

@@ -3,7 +3,7 @@ import { Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Asset
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { updateCreateGoalData } from '../../src/stores/createGoalStore';
+import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step3', {
   component: Page,
@@ -12,6 +12,7 @@ export const Route = createRoute('/create-goal/step3', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  const updateData = useCreateGoalStore((s) => s.updateData);
 
   const currentDate = new Date();
   const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
@@ -266,7 +267,7 @@ function Page() {
               onPress={() => {
                 // 데이터 저장
                 const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                updateCreateGoalData({
+                updateData({
                   endDate: isoDate,
                 });
                 // 다음 단계로 이동

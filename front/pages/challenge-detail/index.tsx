@@ -2,7 +2,7 @@ import { Asset, Txt, ListHeader, FixedBottomCTA, FixedBottomCTAProvider, Top, Ba
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { getSelectedChallenge, setSelectedChallengeId } from '../../src/stores/challengeStore';
+import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 
 export const Route = createRoute('/challenge-detail', {
@@ -12,7 +12,7 @@ export const Route = createRoute('/challenge-detail', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const selectedChallenge = getSelectedChallenge();
+  const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
 
   if (!selectedChallenge) {
@@ -159,7 +159,7 @@ function Page() {
               인증 시간
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationTime}
+              {selectedChallenge.verifyEndAt}
             </Txt>
           </View>
           <View style={styles.gridDivider} />
@@ -181,7 +181,7 @@ function Page() {
               인증 방법
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationMethod}
+              {selectedChallenge.verificationType}
             </Txt>
           </View>
           <View style={styles.gridDivider} />

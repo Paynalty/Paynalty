@@ -12,7 +12,7 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { View } from 'react-native';
 import { useState } from 'react';
-import { updateCreateGoalData } from '../../src/stores/createGoalStore';
+import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step6', {
   component: Page,
@@ -21,6 +21,7 @@ export const Route = createRoute('/create-goal/step6', {
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  const updateData = useCreateGoalStore((s) => s.updateData);
 
   const [selectedMethod, setSelectedMethod] = useState('사진');
 
@@ -112,7 +113,7 @@ export default function Page() {
                   텍스트: 'TEXT',
                   체크: 'VOTE',
                 };
-                updateCreateGoalData({
+                updateData({
                   verificationType: methodMapping[selectedMethod],
                 });
                 navigation.navigate('/create-goal/step7');
