@@ -7,6 +7,7 @@ import { Storage } from '@apps-in-toss/framework';
 import { ChallengeCard } from 'components/challenge/ChallengeCard';
 import { getMyProgressChallenges } from '../src/api/challenges';
 import { Challenge } from '../src/components/challenge/types';
+import { LottieView } from '@granite-js/native/lottie-react-native';
 
 export const Route = createRoute('/', {
   component: Page,
@@ -302,6 +303,15 @@ function OnboardingView({
 
   return (
     <View style={styles.onboardingContainer}>
+      <View style={{ marginTop: -80, marginBottom: -60 }} pointerEvents="none">
+        <LottieView
+          source={{ uri: 'https://lottie.host/ab39ffda-09a1-44fe-ade6-1236d48e6720/AixS7quFKd.lottie' }}
+          autoPlay
+          loop
+          renderMode="SOFTWARE"
+          style={{ width: 200, height: 200 }}
+        />
+      </View>
       <Txt typography="t5" fontWeight="bold" color={adaptive.grey800} style={{ textAlign: 'center' }}>
         {message.title}
       </Txt>
