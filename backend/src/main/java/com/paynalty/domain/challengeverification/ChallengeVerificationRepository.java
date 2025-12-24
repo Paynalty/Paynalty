@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Repository
 public interface ChallengeVerificationRepository extends JpaRepository<ChallengeVerification, Long> {
@@ -31,4 +32,6 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
             @Param("weekStart") LocalDate weekStart,
             @Param("weekEnd") LocalDate weekEnd
     );
+
+    Optional<ChallengeVerification> findTopByChallengeIdAndUserIdOrderByDateDesc(Long challengeId, Long userId);
 }

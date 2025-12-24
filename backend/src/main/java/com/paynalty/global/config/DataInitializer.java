@@ -282,15 +282,6 @@ public class DataInitializer {
                                 .status(VerificationStatus.SUCCESS)
                                 .build()
                 );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,24))
-                                .user(users.getFirst())
-                                .challenge(challenges.get(1))
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
 
                 //userId = 2;
                 challengeVerificationRepository.save(
