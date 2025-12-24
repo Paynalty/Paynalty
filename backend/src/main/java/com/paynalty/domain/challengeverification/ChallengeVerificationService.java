@@ -42,4 +42,6 @@ public class ChallengeVerificationService {
     public Boolean checkVerification(Long challengeId, Long userId){
         return challengeRepository.findByChallengeIdAndUserId(challengeId, userId);
     }
+
+    // 특정 유저 , 헤당 챌린지 에서 이루어진 인증 횟수 구하기
 }

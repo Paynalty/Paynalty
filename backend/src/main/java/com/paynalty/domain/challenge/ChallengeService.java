@@ -187,36 +187,43 @@ public class ChallengeService {
 
         String remainingTimeFormatted = formatDuration(remainingDuration);
 
-        // 인증 상태 확인
-        DayOfWeek todayVerification = LocalDate.now().getDayOfWeek();
-        if(challenge.getDaysOfWeek().contains(todayVerification)){
-            // 오늘이 인증 요일이면 해당 챌린지 인증 정보 조회 -> 있다,없다
-            // 있으면 인증 상태 완료됨 표시, 없으면 진행 해야함 표시
-            if(challengeVerificationService.checkVerification(challengeId,userId)){
-                String verification = "참여완";
-                // 4단계: ChallengeDetailResponse 생성 및 반환
-                return ChallengeDetailResponse.builder()
-                        .challengeId(challenge.getId())
-                        .challengeTitle(challenge.getTitle())
-                        .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
-                        .weeklyRequiredVerificationCount(challenge.getFrequency())
-                        .penaltyAmount(challenge.getPenaltyAmount())
-                        .remainingTimeFormatted(remainingTimeFormatted)
-                        .verificationStatus(verification)
-                        .build();
-            }
+        // 인증 상태 확인 - daysOfWeek 가 null 아닐때. daysOfWeek 가 null 이고 frequency값만 받았을떄 실행 할 로직도 필요
+       // if(challenge.getDaysOfWeek() != null) {
+            DayOfWeek todayVerification = LocalDate.now().getDayOfWeek();
+            if (challenge.getDaysOfWeek().contains(todayVerification)) {
+                // 오늘이 인증 요일이면 해당 챌린지 인증 정보 조회 -> 있다,없다
+                // 있으면 인증 상태 완료됨 표시, 없으면 진행 해야함 표시
+                if (challengeVerificationService.checkVerification(challengeId, userId)) {
+                    String verification = "참여완";
+                    // 4단계: ChallengeDetailResponse 생성 및 반환
+                    return ChallengeDetailResponse.builder()
+                            .challengeId(challenge.getId())
+                            .challengeTitle(challenge.getTitle())
+                            .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
+                            .weeklyRequiredVerificationCount(challenge.getFrequency())
+                            .penaltyAmount(challenge.getPenaltyAmount())
+                            .remainingTimeFormatted(remainingTimeFormatted)
+                            .verificationStatus(verification)
+                            .build();
+                }
 
-        }
-        String verification = "미참여";
-        return ChallengeDetailResponse.builder()
-                .challengeId(challenge.getId())
-                .challengeTitle(challenge.getTitle())
-                .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
-                .weeklyRequiredVerificationCount(challenge.getFrequency())
-                .penaltyAmount(challenge.getPenaltyAmount())
-                .remainingTimeFormatted(remainingTimeFormatted)
-                .verificationStatus(verification)
-                .build();
+            }
+            String verification = "미참여";
+            return ChallengeDetailResponse.builder()
+                    .challengeId(challenge.getId())
+                    .challengeTitle(challenge.getTitle())
+                    .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
+                    .weeklyRequiredVerificationCount(challenge.getFrequency())
+                    .penaltyAmount(challenge.getPenaltyAmount())
+                    .remainingTimeFormatted(remainingTimeFormatted)
+                    .verificationStatus(verification)
+                    .build();
+        //}
+        // 현재 인증한 횟수 < 주간 인증횟수 frequency 이고 오늘 인증을 하지 않았다면 미완료
+
+        // 인증 횟수가 주간 인증회수를 채웠다. 인증안함
+        // 인증 횟수가 주간 인증횟수는 못채웠지만 당일 인증이 데이터가 있다. 인증함
+
 
     }
 
