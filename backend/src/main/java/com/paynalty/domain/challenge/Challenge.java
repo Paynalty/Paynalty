@@ -2,7 +2,6 @@ package com.paynalty.domain.challenge;
 
 import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
-import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -49,7 +48,7 @@ public class Challenge extends BaseTimeEntity {
 
     // 요일 목록 (MON, TUE, WED, THU, FRI, SAT, SUN)
     @Column
-    private List<DayOfWeekType> daysOfWeeks;
+    private List<DayOfWeekType> daysOfWeek;
 
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
@@ -79,7 +78,7 @@ public class Challenge extends BaseTimeEntity {
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<DayOfWeekType> daysOfWeeks){
+            , List<DayOfWeekType> daysOfWeek){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -90,7 +89,7 @@ public class Challenge extends BaseTimeEntity {
         this.user = user;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
-        this.daysOfWeeks = daysOfWeeks;
+        this.daysOfWeek = daysOfWeek;
     }
 
     // 관계 설정
