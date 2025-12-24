@@ -38,4 +38,8 @@ public class ChallengeVerificationService {
 
         return ChallengeVerificationResponse.from(saved);
     }
+
+    public Boolean checkVerification(Long challengeId, Long userId){
+        return challengeRepository.findByChallengeIdAndUserId(challengeId, userId);
+    }
 }

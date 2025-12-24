@@ -4,6 +4,7 @@ import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.global.error.CustomException;
@@ -30,6 +31,7 @@ public class ChallengeService {
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final ChallengeMemberService challengeMemberService;
     private final ChallengeMemberRepository challengeMemberRepository;
+    private final ChallengeVerificationService challengeVerificationService;
 
 
     @Transactional
@@ -185,7 +187,27 @@ public class ChallengeService {
 
         String remainingTimeFormatted = formatDuration(remainingDuration);
 
-        // 4단계: ChallengeDetailResponse 생성 및 반환
+        // 인증 상태 확인
+        DayOfWeek todayVerification = LocalDate.now().getDayOfWeek();
+        if(challenge.getDaysOfWeek().contains(todayVerification)){
+            // 오늘이 인증 요일이면 해당 챌린지 인증 정보 조회 -> 있다,없다
+            // 있으면 인증 상태 완료됨 표시, 없으면 진행 해야함 표시
+            if(challengeVerificationService.checkVerification(challengeId,userId)){
+                String verification = "참여완";
+                // 4단계: ChallengeDetailResponse 생성 및 반환
+                return ChallengeDetailResponse.builder()
+                        .challengeId(challenge.getId())
+                        .challengeTitle(challenge.getTitle())
+                        .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
+                        .weeklyRequiredVerificationCount(challenge.getFrequency())
+                        .penaltyAmount(challenge.getPenaltyAmount())
+                        .remainingTimeFormatted(remainingTimeFormatted)
+                        .verificationStatus(verification)
+                        .build();
+            }
+
+        }
+        String verification = "미참여";
         return ChallengeDetailResponse.builder()
                 .challengeId(challenge.getId())
                 .challengeTitle(challenge.getTitle())
@@ -193,11 +215,14 @@ public class ChallengeService {
                 .weeklyRequiredVerificationCount(challenge.getFrequency())
                 .penaltyAmount(challenge.getPenaltyAmount())
                 .remainingTimeFormatted(remainingTimeFormatted)
+                .verificationStatus(verification)
                 .build();
+
     }
 
 
     // ---------------------------------------- 유효성 검사 -----------------------------------------------------
+
 
 
      /**
