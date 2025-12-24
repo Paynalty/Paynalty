@@ -4,6 +4,8 @@ import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.challenge.ChallengeRepository;
 import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challenge.VerificationType;
+import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
@@ -24,6 +26,7 @@ public class DataInitializer {
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
+    private final ChallengeMemberRepository challengeMemberRepository;
 
     @Bean
     @Profile("!test") // 테스트 환경이 아닐 때만 실행 (선택 사항)
@@ -158,6 +161,42 @@ public class DataInitializer {
                                 .build()
                 );
             }
+
+            if (challengeMemberRepository.count() == 0) {
+
+                List<User> users = userRepository.findAll();
+                List<Challenge> challenges = challengeRepository.findAll();
+
+                for (Challenge challenge : challenges) {
+
+                    // 1️⃣ 챌린지 생성자 (방장)
+                    challengeMemberRepository.save(
+                            ChallengeMember.builder()
+                                    .user(challenge.getUser()) // users.get(0)
+                                    .challenge(challenge)
+                                    .isSuccess(challenge.getStatus())
+                                    .endAt(challenge.getEndDate())
+                                    .build()
+                    );
+
+                    // 2️⃣ 추가 참여자 수 (0~2명)
+                    int additionalCount = (int) (Math.random() * 3); // 0~2
+
+                    for (int i = 1; i <= additionalCount; i++) {
+                        User participant = users.get(i); // users.get(1), (2)
+
+                        challengeMemberRepository.save(
+                                ChallengeMember.builder()
+                                        .user(participant)
+                                        .challenge(challenge)
+                                        .isSuccess(challenge.getStatus())
+                                        .endAt(challenge.getEndDate())
+                                        .build()
+                        );
+                    }
+                }
+            }
+
 
         };
     }

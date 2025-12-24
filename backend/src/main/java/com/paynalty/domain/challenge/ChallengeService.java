@@ -111,7 +111,7 @@ public class ChallengeService {
             ChallengeMember challengeMember = ChallengeMember.builder()
                     .user(user)
                     .challenge(challenge)
-                    .isSuccess("PENDING") // 초기 상태 설정 (필요에 따라 변경)
+                    .isSuccess(challenge.getStatus()) // 초기 상태 설정 (필요에 따라 변경)
                     .endAt(challenge.getEndDate())
                     .build();
             challengeMemberRepository.save(challengeMember);
@@ -228,7 +228,7 @@ public class ChallengeService {
     }
 
 
-    // ---------------------------------------- 유효성 검사 -----------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
 
 
 
