@@ -3,8 +3,6 @@ package com.paynalty.domain.challenge;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public class ChallengeResponse {
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
                 .verificationType(challenge.getVerificationType())
-                .dayOfWeeks(challenge.getDaysOfWeeks())
+                .dayOfWeeks(challenge.getDaysOfWeek())
                 .build();
     }
 }
