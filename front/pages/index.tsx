@@ -1,6 +1,6 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { View, StyleSheet, ScrollView, Pressable, Text } from 'react-native';
-import { Asset, Top, ListRow, ListHeader, Icon, Button, Txt } from '@toss/tds-react-native';
+import { Asset, Top, ListRow, ListHeader, Icon, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState, useEffect, useMemo } from 'react';
 import { Storage } from '@apps-in-toss/framework';
@@ -36,9 +36,9 @@ function Page() {
 
   const [showTooltip, setShowTooltip] = useState(true);
   const [isMissionExpanded, setIsMissionExpanded] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [currentStatus, setCurrentStatus] = useState<'progress' | 'pending' | 'complete'>('progress');
-
   const fetchChallenges = async (status: 'progress' | 'pending' | 'complete') => {
     try {
       const response = await getMyProgressChallenges(1, status);
@@ -129,8 +129,9 @@ function Page() {
               ) : (
                 <View style={{ minHeight: 44, justifyContent: 'center' }}>
                   <Top.SubtitleParagraph color={adaptive.background}>
-                      해야될 미션이 없어요{'\n'}
-                      오늘은 푹 쉬어도 좋아요</Top.SubtitleParagraph>
+                    해야될 미션이 없어요{'\n'}
+                    오늘은 푹 쉬어도 좋아요
+                  </Top.SubtitleParagraph>
                 </View>
               )
             }
@@ -193,12 +194,7 @@ function Page() {
             color={adaptive.grey800}
             fontWeight="bold"
             onPress={() => {
-              const nextStatusMap: Record<'progress' | 'pending' | 'complete', 'progress' | 'pending' | 'complete'> = {
-                progress: 'pending',
-                pending: 'complete',
-                complete: 'progress',
-              };
-              setCurrentStatus(nextStatusMap[currentStatus]);
+              setShowDropdown(!showDropdown);
             }}
           >
             {currentStatus === 'progress'
@@ -209,6 +205,49 @@ function Page() {
           </ListHeader.TitleSelector>
         }
       />
+      {showDropdown && (
+        <View style={styles.dropdownMenu}>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Progress selected');
+              setCurrentStatus('progress');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'progress' ? adaptive.blue500 : adaptive.grey800}>
+              진행중인 챌린지
+            </Txt>
+            {currentStatus === 'progress' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Pending selected');
+              setCurrentStatus('pending');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'pending' ? adaptive.blue500 : adaptive.grey800}>
+              예정된 챌린지
+            </Txt>
+            {currentStatus === 'pending' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Complete selected');
+              setCurrentStatus('complete');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'complete' ? adaptive.blue500 : adaptive.grey800}>
+              완료된 챌린지
+            </Txt>
+            {currentStatus === 'complete' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+        </View>
+      )}
 
       {/* 챌린지 카드 반복 렌더링 */}
       {/*TODO : 무한 스크롤 or  페이징 적용*/}
@@ -316,5 +355,25 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#f2f4f6',
+  },
+  dropdownMenu: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
   },
 });
