@@ -1,7 +1,9 @@
+import { create } from 'zustand';
 import { Challenge } from '../components/challenge/types';
 
 // Mock 데이터
-const MOCK_CHALLENGES: Challenge[] = [
+export const MOCK_CHALLENGES: Challenge[] = [
+  // ... (기존 데이터와 동일)
   {
     id: '1',
     title: '운동 30분 챌린지',
@@ -98,31 +100,34 @@ const MOCK_CHALLENGES: Challenge[] = [
   },
 ];
 
-// 선택된 challenge ID 저장
-let selectedChallengeId: string | null = null;
+interface ChallengeStore {
+  selectedChallengeId: string | null;
+  selectedChallengeObject: Challenge | null;
+  setSelectedChallengeId: (id: string | null) => void;
+  setSelectedChallenge: (challenge: Challenge | null) => void;
+}
 
-// 모든 challenges 조회
-export const getChallenges = (): Challenge[] => {
-  return MOCK_CHALLENGES;
-};
+export const useChallengeStore = create<ChallengeStore>((set) => ({
+  selectedChallengeId: null,
+  selectedChallengeObject: null,
+  setSelectedChallengeId: (id) => set({ selectedChallengeId: id, selectedChallengeObject: null }),
+  setSelectedChallenge: (challenge) =>
+    set({
+      selectedChallengeId: challenge?.id ?? null,
+      selectedChallengeObject: challenge,
+    }),
+}));
 
-// ID로 특정 challenge 조회
-export const getChallengeById = (id: string): Challenge | undefined => {
-  return MOCK_CHALLENGES.find((challenge) => challenge.id === id);
-};
-
-// 선택된 challenge ID 설정
-export const setSelectedChallengeId = (id: string) => {
-  selectedChallengeId = id;
-};
-
-// 선택된 challenge ID 조회
-export const getSelectedChallengeId = (): string | null => {
-  return selectedChallengeId;
-};
-
-// 선택된 challenge 전체 데이터 조회
-export const getSelectedChallenge = (): Challenge | undefined => {
+// 하위 호환성을 위한 헬퍼 함수
+export const getChallenges = (): Challenge[] => MOCK_CHALLENGES;
+export const getChallengeById = (id: string): Challenge | undefined => MOCK_CHALLENGES.find((c) => c.id === id);
+export const setSelectedChallengeId = (id: string | null) => useChallengeStore.getState().setSelectedChallengeId(id);
+export const setSelectedChallenge = (challenge: Challenge | null) =>
+  useChallengeStore.getState().setSelectedChallenge(challenge);
+export const getSelectedChallengeId = () => useChallengeStore.getState().selectedChallengeId;
+export const getSelectedChallenge = () => {
+  const { selectedChallengeObject, selectedChallengeId } = useChallengeStore.getState();
+  if (selectedChallengeObject) return selectedChallengeObject;
   if (!selectedChallengeId) return undefined;
   return getChallengeById(selectedChallengeId);
 };

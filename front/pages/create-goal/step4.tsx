@@ -1,9 +1,17 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import {Button, Carousel, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Txt,} from '@toss/tds-react-native';
+import {
+  Button,
+  Carousel,
+  FixedBottomCTA,
+  FixedBottomCTAProvider,
+  ProgressBar,
+  Top,
+  Txt,
+} from '@toss/tds-react-native';
 import { useAdaptive, Paragraph } from '@toss/tds-react-native/private';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useState } from 'react';
-import { updateCreateGoalData } from '../../src/stores/createGoalStore';
+import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 
 export const Route = createRoute('/create-goal/step4', {
   component: Page,
@@ -12,6 +20,7 @@ export const Route = createRoute('/create-goal/step4', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  const updateData = useCreateGoalStore((state) => state.updateData);
 
   const [selectionType, setSelectionType] = useState<'day' | 'count'>('day');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -151,9 +160,10 @@ function Page() {
                   일: 'SUN',
                 };
                 const periodValue = selectionType === 'count' ? selectedCount : selectedDays.join(', ');
-                const mappedDays = selectionType === 'day' ? selectedDays.map((d) => dayMapping[d] || 'MON') : undefined;
+                const mappedDays =
+                  selectionType === 'day' ? selectedDays.map((d) => dayMapping[d] || 'MON') : undefined;
 
-                updateCreateGoalData({
+                updateData({
                   period: periodValue,
                   startDate: selectionType,
                   dayOfWeek: mappedDays,

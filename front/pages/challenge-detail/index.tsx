@@ -2,7 +2,7 @@ import { Asset, Txt, ListHeader, FixedBottomCTA, FixedBottomCTAProvider, Top, Ba
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { getSelectedChallenge, setSelectedChallengeId } from '../../src/stores/challengeStore';
+import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 
 export const Route = createRoute('/challenge-detail', {
@@ -12,7 +12,7 @@ export const Route = createRoute('/challenge-detail', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const selectedChallenge = getSelectedChallenge();
+  const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
 
   if (!selectedChallenge) {

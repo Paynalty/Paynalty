@@ -2,7 +2,7 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
-import { getCreateChellengeData, resetCreateGoalData } from '../../src/stores/createGoalStore';
+import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
 
 export const Route = createRoute('/create-goal/complete', {
@@ -12,12 +12,10 @@ export const Route = createRoute('/create-goal/complete', {
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  type StartType = 'nextWeek' | 'tomorrow';
   const [loading, setLoading] = useState<StartType | null>(null);
 
-  type StartType = 'nextWeek' | 'tomorrow';
-
-  // 저장된 데이터 가져오기
-  const challengeData = getCreateChellengeData();
+  const { data: challengeData, resetData: resetCreateGoalData } = useCreateGoalStore();
 
   // startDate 계산 함수
   const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
@@ -47,7 +45,9 @@ export default function Page() {
         startDate: startDate,
         endDate: challengeData.endDate || '',
         penaltyAmount:
-          challengeData.penaltyAmount === 'custom' ? Number(challengeData.customAmount) : Number(challengeData.penaltyAmount),
+          challengeData.penaltyAmount === 'custom'
+            ? Number(challengeData.customAmount)
+            : Number(challengeData.penaltyAmount),
         frequency: challengeData.frequency,
         dayOfWeek: challengeData.dayOfWeek as any,
         verifyStartAt: challengeData.verifyStartAt,

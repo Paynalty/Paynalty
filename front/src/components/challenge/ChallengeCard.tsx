@@ -1,15 +1,14 @@
 import {View, StyleSheet} from 'react-native';
 import {Spacing, useNavigation} from '@granite-js/react-native';
-import {Badge, Top, TextButton, ListHeader} from '@toss/tds-react-native';
+import {Badge, Top, ListHeader} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Challenge, ChallengeStatus} from './types';
-import {setSelectedChallengeId} from '../../stores/challengeStore';
+import {setSelectedChallenge} from '../../stores/challengeStore';
 
 export function ChallengeCard({challenge}: { challenge: Challenge }) {
     const adaptive = useAdaptive();
     const navigation = useNavigation();
 
-    // 상태에 따른 배지 생성
     const getStatusBadge = (status: ChallengeStatus) => {
         switch (status) {
             case 'completed':
@@ -25,30 +24,22 @@ export function ChallengeCard({challenge}: { challenge: Challenge }) {
         getStatusBadge(challenge.status),
         {
             label: `${challenge.currentCount}/${challenge.totalCount}`,
-            type: challenge.status === 'completed' ? 'green' : 'yellow',
-            style: 'weak' as const
+            type: (challenge.status === 'completed' ? 'green' : 'yellow') as any,
+            style: 'weak' as const,
         },
-        {label: `${challenge.penaltyAmount}원`, type: 'blue' as const, style: 'weak' as const},
+        {label: `${challenge.penaltyAmount}원`, type: 'blue' as any, style: 'weak' as const},
     ];
 
     return (
         <View style={styles.challengeCard}>
             <Top
-                title={
-                    <Top.TitleParagraph color={adaptive.grey900}>
-                        {challenge.title}
-                    </Top.TitleParagraph>
-                }
+                title={<Top.TitleParagraph color={adaptive.grey900}>{challenge.title}</Top.TitleParagraph>}
                 subtitle1={
                     challenge.remainingTime ? (
-                        <Top.SubtitleParagraph>
-                            남은 시간 : {challenge.remainingTime}
-                        </Top.SubtitleParagraph>
+                        <Top.SubtitleParagraph>남은 시간 : {challenge.remainingTime}</Top.SubtitleParagraph>
                     ) : undefined
                 }
-                subtitle2={
-                    <Top.SubtitleBadges items={badges}/>
-                }
+                subtitle2={<Top.SubtitleBadges items={badges}/>}
                 right={
                     <View style={{flexDirection: 'column', alignItems: 'flex-end'}}>
                         <View>
@@ -56,9 +47,10 @@ export function ChallengeCard({challenge}: { challenge: Challenge }) {
                                 typography="t7"
                                 color={adaptive.blue500}
                                 onPress={() => {
-                                    setSelectedChallengeId(challenge.id);
+                                    setSelectedChallenge(challenge);
                                     navigation.navigate('/challenge-detail');
-                                }}>
+                                }}
+                            >
                                 자세히 보기
                             </ListHeader.RightArrow>
                         </View>
