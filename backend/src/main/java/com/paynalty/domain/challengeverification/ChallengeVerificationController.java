@@ -1,12 +1,15 @@
 package com.paynalty.domain.challengeverification;
 
 import com.paynalty.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Challenge Verification", description = "챌린지 인증 관리 API")
 @RestController
@@ -27,4 +30,35 @@ public class ChallengeVerificationController {
         ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, authEmail, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    // 참여한 챌린지에 대한 본인 최신 인증 내역 불러오기
+    // 사용자 userId =1 을 기준
+    // Todo 사용자 값을 받아 사용자별로 조회 가능하게 추가
+    @Operation(
+            summary = "해당 챌린지에 대한 본인 최신 인증 데이터 가져오기"
+    )
+    @GetMapping("/{challengeId}/my-latest")
+    public ResponseEntity<ApiResponse<ChallengeVerificationResponse>> getMyLatestChallengeVerification(
+            @PathVariable Long challengeId
+    ) {
+        Long userId = 1L;
+        ChallengeVerificationResponse response = challengeVerificationService.findMyLatestVerification(challengeId, userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
+
+    @Operation(
+            summary = "챌린지에 참여한 맴버들 총 인증 횟수 가져오기"
+    )
+    @GetMapping("/{challengeId}/member/verification-count")
+    public ResponseEntity<ApiResponse<List<MembersVerificationCountResponse>>>
+    getChallengeMemberVerificationCounts(@PathVariable Long challengeId) {
+
+        List<MembersVerificationCountResponse> response = challengeVerificationService
+                .getChallengeMemberVerificationCounts(challengeId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+
+
 }

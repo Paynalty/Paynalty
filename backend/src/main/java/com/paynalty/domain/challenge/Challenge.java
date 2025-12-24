@@ -134,7 +134,7 @@ public class Challenge extends BaseTimeEntity {
         if (today.isBefore(startDate)) {
             return ChallengeStatus.PENDING;  // 시작 전
         } else if (today.isAfter(endDate)) {
-            return ChallengeStatus.COMPLETED;  // 완료됨
+            return ChallengeStatus.COMPLETE;  // 완료됨
         } else {
             return ChallengeStatus.ACTIVE;  // 진행 중
         }

@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Builder
 public class UserResponse {
 
-    private Long id;
+    private Long userId;
     private Long tossId;
     private String name;
     private String email;
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .id(user.getId())
+                .userId(user.getId())
                 .tossId(user.getTossId())
                 .name(user.getName())
                 .email(user.getEmail())

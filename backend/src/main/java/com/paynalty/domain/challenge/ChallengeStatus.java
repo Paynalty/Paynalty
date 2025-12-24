@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ChallengeStatus {
     PENDING("시작 전"),
     ACTIVE("진행 중"),
-    COMPLETED("완료됨");
+    COMPLETE("완료됨");
 
     private final String description;
 }
