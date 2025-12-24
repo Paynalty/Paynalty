@@ -21,6 +21,11 @@ spring:
       hibernate:
         format_sql: true
         highlight_sql: true
+        # Bulk Insert
+        jdbc:
+          batch_size: 50
+        order_updates: true
+        order_inserts: true
 
 # Logging 설정 (개발)
 logging:
