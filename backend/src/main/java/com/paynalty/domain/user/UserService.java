@@ -15,14 +15,19 @@ public class UserService {
     public UserResponse create(UserRequest request){
         User user = User.builder()
                 .tossId(request.getTossId())
+                .name(request.getName())
                 .email(request.getEmail())
-                .profileImageUrl(request.getProfileImageUrl())
+                .phoneNum(request.getPhoneNum())
                 .build();
 
         User saved = userRepository.save(user);
 
         return UserResponse.from(saved);
+    }
 
+    public User findByNameAndPhoneNum(String name, String phoneNum){
+        User user = userRepository.findByNameAndPhoneNum(name,phoneNum).orElseThrow();
+        return user;
     }
 
 }

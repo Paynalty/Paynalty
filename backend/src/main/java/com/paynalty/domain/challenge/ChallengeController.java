@@ -54,8 +54,8 @@ public class ChallengeController {
     public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getByStatus(
             @Parameter(description = "사용자 userId", required = true, example = "1")
             @PathVariable Long userId,
-            @Parameter(description = "챌린지 상태", required = true, example = "progress")
-            @PathVariable String status
+            @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
+            @PathVariable ChallengeStatus status
     ) {
         List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));
@@ -79,10 +79,10 @@ public class ChallengeController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+
     @Operation(
-            summary = "진행중인 챌린지 목록 상세 정보 조회",
-            description = "사용자가 참여 중인 진행중인 챌린지 목록을 조회하고, 각 챌린지의 일부 정보를 반환\n" +
-                    "각 챌린지의 주간 인증 현황, 벌금, 남은 시간 정보를 포함"
+            summary = "삭제예정",
+            description = "필요없는 호출"
     )
     @GetMapping("/myProgressChallenges/{userId}")
     public ResponseEntity<ApiResponse<List<ChallengeDetailResponse>>> getMyProgressChallengesDetail(

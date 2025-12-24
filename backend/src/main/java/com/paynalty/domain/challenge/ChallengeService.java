@@ -1,5 +1,8 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
@@ -14,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +28,9 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
+    private final ChallengeMemberService challengeMemberService;
+    private final ChallengeMemberRepository challengeMemberRepository;
+
 
     @Transactional
     public ChallengeResponse create(ChallengeRequest request, Long userId) {
@@ -59,7 +66,7 @@ public class ChallengeService {
         }
 
         // status 자동 계산 (시작일과 종료일 기준)
-        String calculatedStatus = Challenge.calculateStatus(request.getStartDate(), request.getEndDate());
+        ChallengeStatus status = Challenge.calculateStatus(request.getStartDate(),request.getEndDate());
 
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
@@ -67,21 +74,50 @@ public class ChallengeService {
                 .endDate(request.getEndDate())
                 .frequency(calculatedFrequency)
                 .penaltyAmount(request.getPenaltyAmount())
-                .status(calculatedStatus)
+                .status(status)
                 .user(user)
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
-                .dayOfWeeks(request.getDayOfWeeks())
+                .daysOfWeeks(request.getDayOfWeeks())
                 .build();
-
+        
         Challenge savedChallenge = challengeRepository.save(challenge);
+
+        //challengeMember 생성 부분
+        // 1. 생성자 본인 추가
+        createChallengeMemberIfNotExists(user, savedChallenge);
+
+        // 2. 초대된 친구들 추가
+        if (request.getInviteFriends() != null) {
+            for (ChallengeRequest.InviteFriend inviteFriend : request.getInviteFriends()) {
+                // 이름과 전화번호로 사용자 찾기
+                // 모든 친구는 이미 User 테이블에 존재한다는 가정
+                userRepository.findByNameAndPhoneNum(inviteFriend.getName(), inviteFriend.getPhoneNumber())
+                        .ifPresent(friend -> createChallengeMemberIfNotExists(friend, savedChallenge));
+            }
+        }
 
         return ChallengeResponse.from(savedChallenge);
     }
 
+    private void createChallengeMemberIfNotExists(User user, Challenge challenge) {
+        // 이미 챌린지 멤버인지 확인
+        boolean isAlreadyMember = challengeMemberRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId()).isPresent();
+        
+        if (!isAlreadyMember) {
+            ChallengeMember challengeMember = ChallengeMember.builder()
+                    .user(user)
+                    .challenge(challenge)
+                    .isSuccess("PENDING") // 초기 상태 설정 (필요에 따라 변경)
+                    .endAt(challenge.getEndDate())
+                    .build();
+            challengeMemberRepository.save(challengeMember);
+        }
+    }
 
-    public List<ChallengeResponse> findByStatus(Long userId,String status){
+
+    public List<ChallengeResponse> findByStatus(Long userId,ChallengeStatus status){
         // status 상태,사용자가 참여 중인 : 조건에 맞는 challenge 불러오기
         List<Challenge> challenges = challengeRepository.findByEmailAndStatus(userId,status);
 
@@ -98,7 +134,7 @@ public class ChallengeService {
      */
     public List<ChallengeDetailResponse> getMyProgressChallengesDetail(Long userId) {
         // 1단계: 진행중인 챌린지 목록 조회
-        List<ChallengeResponse> progressChallenges = findByStatus(userId, "progress");
+        List<ChallengeResponse> progressChallenges = findByStatus(userId, ChallengeStatus.ACTIVE);
 
         // 2단계: 각 챌린지에 대해 상세 정보 생성
         return progressChallenges.stream()
