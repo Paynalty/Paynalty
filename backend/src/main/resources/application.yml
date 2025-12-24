@@ -14,6 +14,11 @@ spring:
         default_batch_fetch_size: 100
         format_sql: true
         use_sql_comments: true
+        # Bulk Insert
+        jdbc:
+          batch_size: 50
+        order_updates: true
+        order_inserts: true
 
   # Jackson 설정
   jackson:
