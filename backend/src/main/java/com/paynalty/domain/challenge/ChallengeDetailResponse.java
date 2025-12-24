@@ -11,7 +11,7 @@ import java.time.Duration;
 @Builder
 public class ChallengeDetailResponse {
 
-    // challengeDetailResponse(요약정보전달용) 필드 추가(오늘 인증 함? 참여완료 : 미참여)
+    // challengeDetailResponse(요약정보전달용) 필드 수정(오늘 인증 함? 참여완료 : 미참여)
     private String verificationStatus;
 
     @Schema(description = "챌린지 ID", example = "1")
