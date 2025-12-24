@@ -43,7 +43,10 @@ export const createChallenge = (data: CreateChallengeRequest) => {
   });
 };
 
-export const getMyProgressChallenges = (userId: number = 1, status: 'pending' | 'progress' = 'progress') => {
+export const getMyProgressChallenges = (
+  userId: number = 1,
+  status: 'pending' | 'progress' | 'complete' = 'progress'
+) => {
   return apiFetch<ApiResponse<ChallengeDetailResponse[]>>(`/api/challenge/${userId}/${status}`, {
     method: 'GET',
   });
