@@ -1,4 +1,4 @@
-export type ChallengeStatus = 'completed' | 'in_progress' | 'pending';
+export type ChallengeStatus = 'COMPLETE' | 'ACTIVE' | 'PENDING';
 
 export type UserVerification = {
   name: string;
@@ -23,10 +23,10 @@ export type Challenge = {
   participants: string;
   participantCount: number;
   remainingTime?: string;
-  deadline: string;
-  verificationTime: string;
+  verifyStartAt?: string;
+  verifyEndAt: string;
   verificationFrequency: string;
-  verificationMethod: string;
+  verificationType: string;
   guideline?: string;
   recentVerification?: UserVerification;
   weeklyStatus?: WeeklyStatus[];

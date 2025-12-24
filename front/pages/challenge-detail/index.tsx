@@ -159,7 +159,7 @@ function Page() {
               인증 시간
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationTime}
+              {selectedChallenge.verifyEndAt}
             </Txt>
           </View>
           <View style={styles.gridDivider} />
@@ -181,7 +181,7 @@ function Page() {
               인증 방법
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationMethod}
+              {selectedChallenge.verificationType}
             </Txt>
           </View>
           <View style={styles.gridDivider} />

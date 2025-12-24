@@ -39,25 +39,24 @@ function Page() {
   const [isMissionExpanded, setIsMissionExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [currentStatus, setCurrentStatus] = useState<'progress' | 'pending' | 'complete'>('progress');
-  const fetchChallenges = async (status: 'progress' | 'pending' | 'complete') => {
+  const [currentStatus, setCurrentStatus] = useState<'ACTIVE' | 'PENDING' | 'COMPLETE'>('ACTIVE');
+  const fetchChallenges = async (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
     try {
       const response = await getMyProgressChallenges(1, status);
       if (response.success) {
         const mappedChallenges: Challenge[] = response.data.map((item) => ({
-          id: String(item.challengeId),
-          title: item.challengeTitle,
-          status: status === 'progress' ? 'in_progress' : status === 'pending' ? 'pending' : 'completed',
+          id: String(item.id),
+          title: item.title,
+          status: status === 'ACTIVE' ? 'ACTIVE' : status === 'PENDING' ? 'PENDING' : 'COMPLETE',
           currentCount: item.currentWeeklyVerificationCount,
-          totalCount: item.weeklyRequiredVerificationCount,
+          totalCount: item.frequency,
           penaltyAmount: Number(item.penaltyAmount),
           remainingTime: item.remainingTimeFormatted,
-          participants: '',
-          participantCount: 0,
-          deadline: '',
-          verificationTime: '',
+          participants: '기영, 호영',
+          participantCount: 2,
+          verifyEndAt: '',
           verificationFrequency: '',
-          verificationMethod: 'PHOTO',
+          verificationType: 'PHOTO',
         }));
         setChallenges(mappedChallenges);
       }
@@ -70,11 +69,7 @@ function Page() {
     fetchChallenges(currentStatus);
   }, [currentStatus]);
 
-  // 오늘 미션 필터링 (remainingTime이 있는 챌린지)
-  const todayMissions = useMemo(
-    () => challenges.filter((challenge) => challenge.remainingTime !== undefined && challenge.remainingTime !== null),
-    [challenges]
-  );
+  const todayMissions = useMemo(() => challenges.filter((challenge) => challenge.status === 'ACTIVE'), [challenges]);
 
   // 오늘 미션 벌금 합산
   const totalPenalty = useMemo(
@@ -198,9 +193,9 @@ function Page() {
               setShowDropdown(!showDropdown);
             }}
           >
-            {currentStatus === 'progress'
+            {currentStatus === 'ACTIVE'
               ? '진행중인 챌린지'
-              : currentStatus === 'pending'
+              : currentStatus === 'PENDING'
                 ? '예정된 챌린지'
                 : '완료된 챌린지'}
           </ListHeader.TitleSelector>
@@ -211,41 +206,41 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Progress selected');
-              setCurrentStatus('progress');
+              console.log('Active selected');
+              setCurrentStatus('ACTIVE');
               setShowDropdown(false);
             }}
           >
-            <Txt typography="t5" color={currentStatus === 'progress' ? adaptive.blue500 : adaptive.grey800}>
+            <Txt typography="t5" color={currentStatus === 'ACTIVE' ? adaptive.blue500 : adaptive.grey800}>
               진행중인 챌린지
             </Txt>
-            {currentStatus === 'progress' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+            {currentStatus === 'ACTIVE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
           </Pressable>
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
               console.log('Pending selected');
-              setCurrentStatus('pending');
+              setCurrentStatus('PENDING');
               setShowDropdown(false);
             }}
           >
-            <Txt typography="t5" color={currentStatus === 'pending' ? adaptive.blue500 : adaptive.grey800}>
+            <Txt typography="t5" color={currentStatus === 'PENDING' ? adaptive.blue500 : adaptive.grey800}>
               예정된 챌린지
             </Txt>
-            {currentStatus === 'pending' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+            {currentStatus === 'PENDING' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
           </Pressable>
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
               console.log('Complete selected');
-              setCurrentStatus('complete');
+              setCurrentStatus('COMPLETE');
               setShowDropdown(false);
             }}
           >
-            <Txt typography="t5" color={currentStatus === 'complete' ? adaptive.blue500 : adaptive.grey800}>
+            <Txt typography="t5" color={currentStatus === 'COMPLETE' ? adaptive.blue500 : adaptive.grey800}>
               완료된 챌린지
             </Txt>
-            {currentStatus === 'complete' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+            {currentStatus === 'COMPLETE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
           </Pressable>
         </View>
       )}
@@ -277,21 +272,21 @@ function OnboardingView({
 }: {
   adaptive: any;
   onCreateObjective: () => void;
-  currentStatus: 'progress' | 'pending' | 'complete';
+  currentStatus: 'ACTIVE' | 'PENDING' | 'COMPLETE';
 }) {
   const getMessage = () => {
     switch (currentStatus) {
-      case 'progress':
+      case 'ACTIVE':
         return {
           title: '아직 진행 중인 챌린지가 없어요',
           description: '작은 습관 하나가 큰 변화를 만들어요.\n지금 바로 첫 번째 목표를 세워볼까요?',
         };
-      case 'pending':
+      case 'PENDING':
         return {
           title: '예정된 챌린지가 없어요',
           description: '새로운 챌린지를 시작할 준비가 되셨나요?\n목표를 설정하고 시작해보세요!',
         };
-      case 'complete':
+      case 'COMPLETE':
         return {
           title: '완료된 챌린지가 없어요',
           description: '첫 번째 챌린지를 완료하고\n성취감을 느껴보세요!',

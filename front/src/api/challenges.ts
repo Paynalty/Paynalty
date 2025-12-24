@@ -22,10 +22,10 @@ export interface CreateChallengeResponse {
 }
 
 export interface ChallengeDetailResponse {
-  challengeId: number;
-  challengeTitle: string;
+  id: number;
+  title: string;
   currentWeeklyVerificationCount: number;
-  weeklyRequiredVerificationCount: number;
+  frequency: number;
   penaltyAmount: number;
   remainingTimeFormatted: string;
 }
@@ -43,10 +43,7 @@ export const createChallenge = (data: CreateChallengeRequest) => {
   });
 };
 
-export const getMyProgressChallenges = (
-  userId: number = 1,
-  status: 'pending' | 'progress' | 'complete' = 'progress'
-) => {
+export const getMyProgressChallenges = (userId: number = 1, status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
   return apiFetch<ApiResponse<ChallengeDetailResponse[]>>(`/api/challenge/${userId}/${status}`, {
     method: 'GET',
   });
