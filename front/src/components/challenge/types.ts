@@ -14,15 +14,14 @@ export type WeeklyStatus = {
 };
 
 export type Challenge = {
-  id: string;
+  challengeId: string;
+  id?: string;
   title: string;
   status: ChallengeStatus;
   currentCount: number;
-  totalCount: number;
   penaltyAmount: number;
   participants: string;
   participantCount: number;
-  remainingTime?: string;
   verifyStartAt?: string;
   verifyEndAt: string;
   verificationFrequency: string;

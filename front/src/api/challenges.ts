@@ -22,12 +22,16 @@ export interface CreateChallengeResponse {
 }
 
 export interface ChallengeDetailResponse {
-  id: number;
+  challengeId: number;
   title: string;
   currentWeeklyVerificationCount: number;
   frequency: number;
   penaltyAmount: number;
-  remainingTimeFormatted: string;
+  status: string;
+  verifyStartAt: string;
+  verifyEndAt: string;
+  verificationType: string;
+  dayOfWeeks: string[];
 }
 
 export interface ApiResponse<T> {

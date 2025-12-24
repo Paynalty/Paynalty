@@ -45,18 +45,16 @@ function Page() {
       const response = await getMyProgressChallenges(1, status);
       if (response.success) {
         const mappedChallenges: Challenge[] = response.data.map((item) => ({
-          id: String(item.id),
+          challengeId: String(item.challengeId),
           title: item.title,
-          status: status === 'ACTIVE' ? 'ACTIVE' : status === 'PENDING' ? 'PENDING' : 'COMPLETE',
-          currentCount: item.currentWeeklyVerificationCount,
-          totalCount: item.frequency,
+          status: status as any,
+          currentCount: item.currentWeeklyVerificationCount ?? 0,
           penaltyAmount: Number(item.penaltyAmount),
-          remainingTime: item.remainingTimeFormatted,
           participants: '기영, 호영',
           participantCount: 2,
-          verifyEndAt: '',
-          verificationFrequency: '',
-          verificationType: 'PHOTO',
+          verifyEndAt: item.verifyEndAt || '',
+          verificationFrequency: String(item.frequency),
+          verificationType: item.verificationType || 'PHOTO',
         }));
         setChallenges(mappedChallenges);
       }
@@ -111,7 +109,7 @@ function Page() {
                         <Top.SubtitleParagraph color={adaptive.background}>
                           {mission.title}
                           {'\n'}
-                          남은 시간 : {mission.remainingTime}
+                          남은 시간 : {mission.verifyEndAt || '시간 정보 없음'}
                         </Top.SubtitleParagraph>
                       </View>
                     ))}
@@ -119,7 +117,7 @@ function Page() {
                 ) : (
                   <Top.SubtitleParagraph color={adaptive.background}>
                     {todayMissions[0]?.title} {'\n'}
-                    남은 시간 : {todayMissions[0]?.remainingTime}
+                    남은 시간 : {todayMissions[0]?.verifyEndAt}
                   </Top.SubtitleParagraph>
                 )
               ) : (
@@ -249,7 +247,7 @@ function Page() {
       {/*TODO : 무한 스크롤 or  페이징 적용*/}
       {challenges.length > 0 ? (
         challenges.map((challenge, index) => (
-          <View key={challenge.id}>
+          <View key={challenge.challengeId || `challenge-${index}`}>
             {index > 0 && <Spacing size={16} />}
             <ChallengeCard challenge={challenge} />
           </View>

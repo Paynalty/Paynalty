@@ -25,7 +25,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const badges = [
     getStatusBadge(challenge.status),
     {
-      label: `${challenge.currentCount}/${challenge.totalCount}`,
+      label: `${challenge.currentCount}/${challenge.verificationFrequency}`,
       type: (challenge.status === 'COMPLETE' ? 'green' : 'yellow') as any,
       style: 'weak' as const,
     },
@@ -37,8 +37,8 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{challenge.title}</Top.TitleParagraph>}
         subtitle1={
-          challenge.remainingTime ? (
-            <Top.SubtitleParagraph>남은 시간 : {challenge.remainingTime}</Top.SubtitleParagraph>
+          challenge.verifyEndAt ? (
+            <Top.SubtitleParagraph>남은 시간 : {challenge.verifyEndAt}</Top.SubtitleParagraph>
           ) : undefined
         }
         subtitle2={<Top.SubtitleBadges items={badges} />}
