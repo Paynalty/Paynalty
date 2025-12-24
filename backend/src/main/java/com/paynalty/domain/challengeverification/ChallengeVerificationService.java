@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,11 +33,18 @@ public class ChallengeVerificationService {
                 .user(user)
                 .challenge(challenge)
                 .imageUrl(request.getImageUrl())
-                .status(request.getStatus())
+                .status(VerificationStatus.SUCCESS)
+                .date(LocalDate.now())
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);
 
         return ChallengeVerificationResponse.from(saved);
     }
+
+    public Boolean checkVerification(Long challengeId, Long userId){
+        return challengeRepository.findByChallengeIdAndUserId(challengeId, userId);
+    }
+
+    // 특정 유저 , 헤당 챌린지 에서 이루어진 인증 횟수 구하기
 }

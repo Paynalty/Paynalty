@@ -17,7 +17,7 @@ public class ChallengeVerificationResponse {
     private Long challengeId;
     private LocalDate date;
     private String imageUrl;
-    private String status;
+    private VerificationStatus status;
     private LocalDateTime createdAt;
 
     public static ChallengeVerificationResponse from(ChallengeVerification cv) {
@@ -27,7 +27,7 @@ public class ChallengeVerificationResponse {
                 .challengeId(cv.getChallenge().getId())
                 .date(cv.getDate())
                 .imageUrl(cv.getImageUrl())
-                .status(cv.getStatus())
+                .status(VerificationStatus.SUCCESS)
                 .createdAt(cv.getCreatedAt())
                 .build();
     }

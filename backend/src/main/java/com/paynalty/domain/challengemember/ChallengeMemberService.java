@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +21,13 @@ public class ChallengeMemberService {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeRepository challengeRepository;
     private final UserService userService;
+
+    public List<ChallengeMemberResponse> getMembersByChallengeId(Long challengeId) {
+        List<ChallengeMember> members = challengeMemberRepository.findByChallengeId(challengeId);
+        return members.stream()
+                .map(ChallengeMemberResponse::from)
+                .collect(Collectors.toList());
+    }
 
 
 }

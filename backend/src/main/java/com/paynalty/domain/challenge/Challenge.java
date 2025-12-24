@@ -2,7 +2,6 @@ package com.paynalty.domain.challenge;
 
 import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
-import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -21,11 +20,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class Challenge extends BaseTimeEntity {
-
-    // 챌린지 상태 상수
-    public static final String STATUS_PENDING = "pending";      // 시작 전
-    public static final String STATUS_ACTIVE = "active";        // 진행 중
-    public static final String STATUS_COMPLETE = "complete";  // 완료됨
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,13 +41,14 @@ public class Challenge extends BaseTimeEntity {
     @Column(name = "penalty_amount")
     private Long penaltyAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status;
+    private ChallengeStatus status;
 
 
     // 요일 목록 (MON, TUE, WED, THU, FRI, SAT, SUN)
     @Column
-    private List<DayOfWeekType> dayOfWeeks;
+    private List<DayOfWeekType> daysOfWeek;
 
     // 인증 주기 - 주 몇 회
     @Column(name = "frequency")
@@ -79,11 +74,11 @@ public class Challenge extends BaseTimeEntity {
     @Builder
     public Challenge(String title
             , LocalDate startDate, LocalDate endDate, Integer frequency
-            , Long penaltyAmount, String status
+            , Long penaltyAmount, ChallengeStatus status
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<DayOfWeekType> dayOfWeeks){
+            , List<DayOfWeekType> daysOfWeek){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -94,7 +89,7 @@ public class Challenge extends BaseTimeEntity {
         this.user = user;
         this.verifyStartAt = verifyStartAt;
         this.verifyEndAt = verifyEndAt;
-        this.dayOfWeeks = dayOfWeeks;
+        this.daysOfWeek = daysOfWeek;
     }
 
     // 관계 설정
@@ -105,8 +100,10 @@ public class Challenge extends BaseTimeEntity {
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeMember> challengeMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
-    private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
+    // ChallengeVerification은 ChallengeMember와 연관되어 있으며 Challenge와 직접 연결되지 않음
+    // 따라서 아래 필드는 매핑 오류를 유발하므로 주석 처리함
+    // @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    // private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
     // Penalty는 이제 ChallengeMember를 통해 접근하므로 Challenge와의 직접 관계 제거
     // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
@@ -117,9 +114,9 @@ public class Challenge extends BaseTimeEntity {
     /**
      * 챌린지의 현재 상태를 시작일과 종료일을 기준으로 자동 계산합니다.
      * 
-     * @return "pending" (시작 전), "progress" (진행 중), "completed" (완료됨)
+     * @return PENDING (시작 전), ACTIVE (진행 중), COMPLETED (완료됨)
      */
-    public String calculateStatus() {
+    public ChallengeStatus calculateStatus() {
         return calculateStatus(this.startDate, this.endDate);
     }
 
@@ -129,17 +126,17 @@ public class Challenge extends BaseTimeEntity {
      * 
      * @param startDate 시작일
      * @param endDate 종료일
-     * @return STATUS_PENDING (시작 전), STATUS_ACTIVE (진행 중), STATUS_COMPLETED (완료됨)
+     * @return PENDING (시작 전), ACTIVE (진행 중), COMPLETED (완료됨)
      */
-    public static String calculateStatus(LocalDate startDate, LocalDate endDate) {
+    public static ChallengeStatus calculateStatus(LocalDate startDate, LocalDate endDate) {
         LocalDate today = LocalDate.now();
         
         if (today.isBefore(startDate)) {
-            return STATUS_PENDING;  // 시작 전
+            return ChallengeStatus.PENDING;  // 시작 전
         } else if (today.isAfter(endDate)) {
-            return STATUS_COMPLETE;  // 완료됨
+            return ChallengeStatus.COMPLETED;  // 완료됨
         } else {
-            return STATUS_ACTIVE;  // 진행 중
+            return ChallengeStatus.ACTIVE;  // 진행 중
         }
     }
 

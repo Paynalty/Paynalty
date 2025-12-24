@@ -23,7 +23,7 @@ public class ChallengeMemberResponse {
                 .userId(cm.getUser().getId())
                 .challengeId(cm.getChallenge().getId())
                 .joinedAt(cm.getJoinedAt())
-                .isSuccess(cm.getIsSuccess())
+                .isSuccess(cm.getIsSuccess().toString())
                 .endAt(cm.getEndAt())
                 .build();
     }

@@ -78,7 +78,7 @@ public class ChallengeRequest {
                     "- 형식: HH:mm (예: 06:00)\n" +
                     "- null이면 기본값 00:00 사용\n" +
                     "- verifyEndAt보다 이전이어야 함",
-            example = "00:00"
+            example = "00:00:00"
     )
     private LocalTime verifyStartAt;
 
@@ -87,7 +87,7 @@ public class ChallengeRequest {
                     "- 형식: HH:mm (예: 23:59)\n" +
                     "- null이면 기본값 23:59 사용\n" +
                     "- verifyStartAt보다 이후여야 함",
-            example = "23:59"
+            example = "23:59:59"
     )
     private LocalTime verifyEndAt;
 
@@ -103,5 +103,24 @@ public class ChallengeRequest {
     @NotNull(message = "인증 타입은 필수입니다")
     private VerificationType verificationType;
 
-}
+    @Schema(
+            description = "초대할 친구 목록\n" +
+                    "- 이름과 전화번호를 포함하는 객체 리스트\n" +
+                    "- 예: [{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"}, {\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]",
+            example = "[{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"},{\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]"
+    )
+    private List<InviteFriend> inviteFriends;
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @Schema(description = "초대할 친구 정보")
+    public static class InviteFriend {
+        @Schema(description = "친구 이름", example = "홍길동")
+        private String name;
+
+        @Schema(description = "친구 전화번호", example = "010-1111-2222")
+        private String phoneNumber;
+    }
+
+}
