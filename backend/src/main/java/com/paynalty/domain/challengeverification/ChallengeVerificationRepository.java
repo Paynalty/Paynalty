@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -34,4 +35,21 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
     );
 
     Optional<ChallengeVerification> findTopByChallengeIdAndUserIdOrderByDateDesc(Long challengeId, Long userId);
+
+    @Query("""
+    SELECT new com.paynalty.domain.challengeverification
+        .MembersVerificationCountResponse(
+            u.id,
+            u.name,
+            COUNT(cv.id)
+        )
+    FROM ChallengeMember cm
+    JOIN cm.user u
+    LEFT JOIN ChallengeVerification cv
+        ON cv.user = u AND cv.challenge = cm.challenge
+    WHERE cm.challenge.id = :challengeId
+    GROUP BY u.id, u.name
+""")
+    List<MembersVerificationCountResponse>
+    countVerificationByChallengeMembers(@Param("challengeId") Long challengeId);
 }

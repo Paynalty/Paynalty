@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Challenge Verification", description = "챌린지 인증 관리 API")
 @RestController
 @RequiredArgsConstructor
@@ -44,4 +46,19 @@ public class ChallengeVerificationController {
         return ResponseEntity.ok(ApiResponse.success(response));
 
     }
+
+    @Operation(
+            summary = "챌린지에 참여한 맴버들 총 인증 횟수 가져오기"
+    )
+    @GetMapping("/{challengeId}/member/verification-count")
+    public ResponseEntity<ApiResponse<List<MembersVerificationCountResponse>>>
+    getChallengeMemberVerificationCounts(@PathVariable Long challengeId) {
+
+        List<MembersVerificationCountResponse> response = challengeVerificationService
+                .getChallengeMemberVerificationCounts(challengeId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+
+
 }

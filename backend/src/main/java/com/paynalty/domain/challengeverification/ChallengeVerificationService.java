@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,5 +52,11 @@ public class ChallengeVerificationService {
         return ChallengeVerificationResponse.from(cv);
     }
 
-    // 특정 유저 , 헤당 챌린지 에서 이루어진 인증 횟수 구하기
+    public List<MembersVerificationCountResponse> getChallengeMemberVerificationCounts(Long challengeId) {
+
+        return challengeVerificationRepository
+                .countVerificationByChallengeMembers(challengeId);
+    }
+
+
 }
