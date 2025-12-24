@@ -9,8 +9,11 @@ import java.util.Set;
 public interface ChallengeWindowRepository extends JpaRepository<ChallengeWindow, Long> {
 
 
-    List<ChallengeWindow> findByChallengeIdInAndUserIdInAndWindowStartBetween(
-            Set challengeIds, Set userIds, LocalDateTime searchRangeStart, LocalDateTime searchRangeEnd
+    List<ChallengeWindow> findByChallengeIdInAndUserIdInAndChallengeWindowStartBetween(
+            Set<Long> challengeIds,
+            Set<Long> userIds,
+            LocalDateTime searchRangeStart,
+            LocalDateTime searchRangeEnd
     );
 
 }

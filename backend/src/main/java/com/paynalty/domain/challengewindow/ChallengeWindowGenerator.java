@@ -94,7 +94,7 @@ public class ChallengeWindowGenerator {
                         .map(challengeMember -> challengeMember.getUser().getId())
                         .collect(Collectors.toSet());
 
-        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndUserIdInAndWindowStartBetween(
+        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndUserIdInAndChallengeWindowStartBetween(
                                 challengeIds,
                                 userIds,
                                 searchRangeStart,
