@@ -19,8 +19,8 @@ public class ChallengeMemberRequest {
     @NotNull(message = "챌린지 ID는 필수입니다")
     private Long challengeId;
 
-    @Size(max = 20, message = "참여 상태는 20자 이하여야 합니다")
-    private String isSuccess;
+//    @Size(max = 20, message = "참여 상태는 20자 이하여야 합니다")
+//    private String isSuccess;
 
     private LocalDate endAt;
 }

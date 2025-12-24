@@ -20,25 +20,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "profile_image_url", length = 500, nullable = true)
-    private String profileImageUrl;
-
     @Column(name = "toss_id")
     private Long tossId;
 
     @Column
+    private String name;
+
+    @Column
+    private String phoneNum;
+
+    @Column
     private String email;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     @Builder
-    public User(String profileImageUrl,Long tossId, String nickname, String email ){
-        this.profileImageUrl = profileImageUrl;
-        this.tossId = tossId;
+    public User(String email, Long tossId, String name, String phoneNum ){
         this.email = email;
-        this.createdAt = LocalDateTime.now();
+        this.tossId = tossId;
+        this.name = name;
+        this.phoneNum = phoneNum;
+
     }
 
 

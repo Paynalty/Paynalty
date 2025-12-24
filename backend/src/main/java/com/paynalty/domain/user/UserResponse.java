@@ -10,19 +10,17 @@ import java.time.LocalDateTime;
 @Builder
 public class UserResponse {
 
-    private Long id;
-    private String profileImageUrl;
+    private Long userId;
     private Long tossId;
+    private String name;
     private String email;
-    private LocalDateTime createdAt;
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .id(user.getId())
-                .profileImageUrl(user.getProfileImageUrl())
+                .userId(user.getId())
                 .tossId(user.getTossId())
+                .name(user.getName())
                 .email(user.getEmail())
-                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

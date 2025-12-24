@@ -1,16 +1,21 @@
 package com.paynalty.domain.challenge;
 
-// 챌린지 인증 방식
-
+/**
+ * 챌린지 인증 타입
+ */
 public enum VerificationType {
+    PHOTO("사진 인증"),
+    TEXT("텍스트 인증"),
+    VOTE("투표 인증");
 
-    // 사진 인증 (이미지 URL)
-    PHOTO,
-    
-    // 텍스트 인증
-    TEXT,
-    
-    // 체크박스 인증
-    CHECKBOX
+    private final String description;
+
+    VerificationType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
 

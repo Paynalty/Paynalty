@@ -1,30 +1,36 @@
+import { create } from 'zustand';
+
 // 목표 생성 데이터 타입
 export interface CreateGoalData {
-    goalTitle?: string;
-    verificationMethod?: string;
-    period?: string;
-    selectionType?: 'day' | 'count';
-    penaltyAmount?: number | string;
-    customAmount?: string;
-    deadline?: string;
-    startTime?: string;
-    endTime?: string;
+  title?: string;
+  verificationType?: string;
+  period?: string;
+  startDate?: 'day' | 'count';
+  penaltyAmount?: number | string;
+  customAmount?: string;
+  endDate?: string;
+  verifyStartAt?: string;
+  verifyEndAt?: string;
+  dayOfWeeks?: string[]; // 영문 요일 (MON, TUE, ...)
+  frequency?: number; // 주 n회
 }
 
-// 전역 상태 (목표 생성 중에만 사용)
-let createGoalData: CreateGoalData = {};
+interface CreateGoalStore {
+  data: CreateGoalData;
+  updateData: (data: Partial<CreateGoalData>) => void;
+  resetData: () => void;
+}
 
-// 데이터 가져오기
-export const getCreateGoalData = (): CreateGoalData => {
-    return createGoalData;
-};
+export const useCreateGoalStore = create<CreateGoalStore>((set) => ({
+  data: {},
+  updateData: (newData) =>
+    set((state) => ({
+      data: { ...state.data, ...newData },
+    })),
+  resetData: () => set({ data: {} }),
+}));
 
-// 데이터 업데이트
-export const updateCreateGoalData = (data: Partial<CreateGoalData>) => {
-    createGoalData = { ...createGoalData, ...data };
-};
-
-// 데이터 초기화 (목표 생성 완료 후)
-export const resetCreateGoalData = () => {
-    createGoalData = {};
-};
+// 하위 호환성을 위한 헬퍼 함수 (점진적 전환용)
+export const getCreateChellengeData = () => useCreateGoalStore.getState().data;
+export const updateCreateGoalData = (data: Partial<CreateGoalData>) => useCreateGoalStore.getState().updateData(data);
+export const resetCreateGoalData = () => useCreateGoalStore.getState().resetData();

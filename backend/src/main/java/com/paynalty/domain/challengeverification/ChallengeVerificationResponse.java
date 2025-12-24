@@ -12,23 +12,19 @@ import java.time.LocalDateTime;
 @Builder
 public class ChallengeVerificationResponse {
 
-    private Long id;
-    private String authEmail;
+    private String authName;
     private Long challengeId;
     private LocalDate date;
     private String imageUrl;
-    private String status;
-    private LocalDateTime createdAt;
+    private VerificationStatus status;
 
     public static ChallengeVerificationResponse from(ChallengeVerification cv) {
         return ChallengeVerificationResponse.builder()
-                .id(cv.getId())
-                .authEmail(cv.getUser().getEmail())
+                .authName(cv.getUser().getName())
                 .challengeId(cv.getChallenge().getId())
                 .date(cv.getDate())
                 .imageUrl(cv.getImageUrl())
-                .status(cv.getStatus())
-                .createdAt(cv.getCreatedAt())
+                .status(VerificationStatus.SUCCESS)
                 .build();
     }
 }

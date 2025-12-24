@@ -1,279 +1,382 @@
-import {createRoute, Spacing} from '@granite-js/react-native';
-import {View, StyleSheet, ScrollView, Pressable, Text} from 'react-native';
-import {Asset, Top, ListRow, Border, ListHeader, Icon} from '@toss/tds-react-native';
-import {useAdaptive} from '@toss/tds-react-native/private';
-import {useState, useEffect, useMemo} from 'react';
-import {Storage} from '@apps-in-toss/framework';
-import {ChallengeCard} from 'components/challenge/ChallengeCard';
-import {Challenge} from 'components/challenge/types';
+import { createRoute, Spacing } from '@granite-js/react-native';
+import { View, StyleSheet, ScrollView, Pressable, Text } from 'react-native';
+import { Asset, Top, ListRow, ListHeader, Icon, Txt } from '@toss/tds-react-native';
+import { useAdaptive } from '@toss/tds-react-native/private';
+import { useState, useEffect, useMemo } from 'react';
+import { Storage } from '@apps-in-toss/framework';
+import { ChallengeCard } from 'components/challenge/ChallengeCard';
+import { getMyProgressChallenges } from '../src/api/challenges';
+import { Challenge } from '../src/components/challenge/types';
+import { LottieView } from '@granite-js/native/lottie-react-native';
 
 export const Route = createRoute('/', {
-    component: Page,
+  component: Page,
 });
 
 function Page() {
-    const adaptive = useAdaptive();
-    const navigation = Route.useNavigation();
+  const adaptive = useAdaptive();
+  const navigation = Route.useNavigation();
 
-    useEffect(() => {
-        checkOnboarding();
-    }, []);
+  useEffect(() => {
+    checkOnboarding();
+  }, []);
 
-    const checkOnboarding = async () => {
-        try {
-            // 테스트용: 저장된 온보딩 상태 삭제
-            // await Storage.removeItem('hasCompletedOnboarding');
+  const checkOnboarding = async () => {
+    try {
+      // 테스트용: 저장된 온보딩 상태 삭제
+      // await Storage.removeItem('hasCompletedOnboarding');
 
-            const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
-            if (!hasCompletedOnboarding) {
-                navigation.navigate('/auth');
+      const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
+      if (!hasCompletedOnboarding) {
+        navigation.navigate('/auth');
+      }
+    } catch (error) {
+      console.error('Failed to check onboarding status:', error);
+    }
+  };
+
+  const [showTooltip, setShowTooltip] = useState(true);
+  const [isMissionExpanded, setIsMissionExpanded] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [currentStatus, setCurrentStatus] = useState<'ACTIVE' | 'PENDING' | 'COMPLETE'>('ACTIVE');
+  const fetchChallenges = async (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
+    try {
+      const response = await getMyProgressChallenges(1, status);
+      if (response.success) {
+        const mappedChallenges: Challenge[] = response.data.map((item) => ({
+          challengeId: String(item.challengeId),
+          title: item.title,
+          status: status as any,
+          currentCount: item.currentWeeklyVerificationCount ?? 0,
+          penaltyAmount: Number(item.penaltyAmount),
+          participants: '기영, 호영',
+          participantCount: 2,
+          verifyEndAt: item.verifyEndAt || '',
+          verificationFrequency: String(item.frequency),
+          verificationType: item.verificationType || 'PHOTO',
+        }));
+        setChallenges(mappedChallenges);
+      }
+    } catch (error) {
+      console.error('Failed to fetch challenges:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChallenges(currentStatus);
+  }, [currentStatus]);
+
+  const todayMissions = useMemo(() => challenges.filter((challenge) => challenge.status === 'ACTIVE'), [challenges]);
+
+  // 오늘 미션 벌금 합산
+  const totalPenalty = useMemo(
+    () => todayMissions.reduce((sum, challenge) => sum + challenge.penaltyAmount, 0),
+    [todayMissions]
+  );
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* 오늘의 미션 */}
+      {/*TODO : 로그인 안했을 때, 로그인 했을 때 , 미션이 없을 때로 구분*/}
+      <Pressable onPress={() => setIsMissionExpanded(!isMissionExpanded)}>
+        <View
+          style={{
+            backgroundColor: adaptive.blue500,
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+            overflow: 'hidden',
+          }}
+        >
+          <Top
+            title={
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Top.TitleParagraph color={adaptive.background}>오늘의 미션</Top.TitleParagraph>
+                {todayMissions.length > 0 && (
+                  <Text style={{ color: adaptive.background, fontSize: 16, fontWeight: 'bold' }}>
+                    {isMissionExpanded ? '∨' : '>'}
+                  </Text>
+                )}
+              </View>
             }
-        } catch (error) {
-            console.error('Failed to check onboarding status:', error);
-        }
-    };
-
-    const [showTooltip, setShowTooltip] = useState(true);
-    const [isMissionExpanded, setIsMissionExpanded] = useState(false);
-
-    // TODO : Mock 데이터 - 추후 API로 교체
-    const [challenges] = useState<Challenge[]>([
-        {
-            id: '1',
-            title: '운동 30분 챌린지',
-            status: 'completed',
-            currentCount: 3,
-            totalCount: 3,
-            penaltyAmount: 5000,
-            participants: '민수,지은,영지··',
-        },
-        {
-            id: '2',
-            title: '매일 만보 걷기',
-            status: 'in_progress',
-            currentCount: 3,
-            totalCount: 7,
-            penaltyAmount: 5000,
-            participants: '하트브레이커',
-            remainingTime: '5시간 31분',
-        },
-        {
-            id: '3',
-            title: '영어 단어 20개 암기',
-            status: 'in_progress',
-            currentCount: 1,
-            totalCount: 5,
-            penaltyAmount: 3000,
-            participants: '스터디A',
-            remainingTime: '2시간 10분',
-        },
-        {
-            id: '4',
-            title: '야식 금지 챌린지',
-            status: 'pending',
-            currentCount: 2,
-            totalCount: 3,
-            penaltyAmount: 10000,
-            participants: '한우,한돈',
-        },
-        {
-            id: '5',
-            title: '독서 30분',
-            status: 'completed',
-            currentCount: 7,
-            totalCount: 7,
-            penaltyAmount: 2000,
-            participants: '북클럽',
-        },
-    ]);
-
-    // 오늘 미션 필터링 (remainingTime이 있는 챌린지)
-    const todayMissions = useMemo(
-        () => challenges.filter(challenge => challenge.remainingTime !== undefined),
-        [challenges]
-    );
-
-    // 오늘 미션 벌금 합산
-    const totalPenalty = useMemo(
-        () => todayMissions.reduce((sum, challenge) => sum + challenge.penaltyAmount, 0),
-        [todayMissions]
-    );
-
-    return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            {/* 오늘의 미션 */}
-            {/*TODO : 로그인 안했을 때, 로그인 했을 때 , 미션이 없을 때로 구분*/}
-            <Pressable onPress={() => setIsMissionExpanded(!isMissionExpanded)}>
-                <View style={{
-                    backgroundColor: adaptive.blue500,
-                    borderBottomLeftRadius: 20,
-                    borderBottomRightRadius: 20,
-                    overflow: 'hidden'
-                }}>
-                    <Top
-                        title={
-                            <View style={{flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                                <Top.TitleParagraph color={adaptive.background}>
-                                    오늘의 미션
-                                </Top.TitleParagraph>
-                                {todayMissions.length > 0 && (
-                                    <Text style={{color: adaptive.background, fontSize: 16, fontWeight: 'bold'}}>
-                                        {isMissionExpanded ? '∨' : '>'}
-                                    </Text>
-                                )}
-
-                            </View>
-                        }
-                        subtitle2={
-                            todayMissions.length > 0 ? (
-                                isMissionExpanded ? (
-                                    // 확장 상태: 모든 미션 표시
-                                    <View>
-                                        {todayMissions.map((mission, index) => (
-                                            <View key={mission.id}>
-                                                {index > 0 && <Spacing size={8} />}
-                                                <Top.SubtitleParagraph color={adaptive.background}>
-                                                    {mission.title}{'\n'}
-                                                    남은 시간 : {mission.remainingTime}
-                                                </Top.SubtitleParagraph>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : (
-                                    // 축소 상태: 첫 번째 미션만
-                                    <Top.SubtitleParagraph color={adaptive.background}>
-                                        {todayMissions[0]?.title} {'\n'}
-                                        남은 시간 : {todayMissions[0]?.remainingTime}
-                                    </Top.SubtitleParagraph>
-                                )
-                            ) : undefined
-                        }
-                        right={
-                            <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                                {todayMissions.length > 0 && (
-                                    <Asset.Image
-                                        frameShape={Asset.frameShape.CleanW60}
-                                        source={{
-                                            uri: 'https://static.toss.im/ml-product/typing-laptop-apng.png',
-                                        }}
-                                    />
-                                )}
-                            </View>
-                        }
-                    />
-                </View>
-            </Pressable>
-
-            <Spacing size={20}/>
-
-            {/* 목표 설정 섹션 */}
-            <Top
-                title={
-                    <Top.TitleParagraph color={adaptive.grey900}>
-                        목표를 정하고{'\n'}
-                        친구들과 달성해보세요!
-                    </Top.TitleParagraph>
-                }
-                right={
-                    <Top.RightButton onPress={() => navigation.navigate('/create-goal')}>
-                        만들기
-                    </Top.RightButton>
-                }
-            />
-
-            {
-                showTooltip && todayMissions.length > 0 && (
-                    <>
-                        <ListRow
-                            left={<ListRow.Icon name="icon-emoji-money-with-wings"/>}
-                            contents={
-                                <ListRow.Texts
-                                    type="2RowTypeD"
-                                    top="오늘 미션을 하지 않으면"
-                                    topProps={{color: adaptive.grey600}}
-                                    bottom={`${totalPenalty.toLocaleString()}원을 납부해야 돼요`}
-                                    bottomProps={{color: adaptive.blue500, fontWeight: 'bold'}}
-                                />
-                            }
-                            right={
-                                <Pressable onPress={() => setShowTooltip(false)}>
-                                    <Icon name="icon-x-mono" color={adaptive.grey600} size={16}/>
-                                </Pressable>
-                            }
-                            verticalPadding={16}
-                        />
-                    </>
+            subtitle2={
+              todayMissions.length > 0 ? (
+                isMissionExpanded ? (
+                  <View>
+                    {todayMissions.map((mission, index) => (
+                      <View key={mission.id}>
+                        {index > 0 && <Spacing size={8} />}
+                        <Top.SubtitleParagraph color={adaptive.background}>
+                          {mission.title}
+                          {'\n'}
+                          남은 시간 : {mission.verifyEndAt || '시간 정보 없음'}
+                        </Top.SubtitleParagraph>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <Top.SubtitleParagraph color={adaptive.background}>
+                    {todayMissions[0]?.title} {'\n'}
+                    남은 시간 : {todayMissions[0]?.verifyEndAt}
+                  </Top.SubtitleParagraph>
                 )
+              ) : (
+                <View style={{ minHeight: 44, justifyContent: 'center' }}>
+                  <Top.SubtitleParagraph color={adaptive.background}>
+                    해야될 미션이 없어요{'\n'}
+                    오늘은 푹 쉬어도 좋아요
+                  </Top.SubtitleParagraph>
+                </View>
+              )
             }
+            right={
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Asset.Image
+                  frameShape={Asset.frameShape.CleanW60}
+                  source={{
+                    uri:
+                      todayMissions.length > 0
+                        ? 'https://static.toss.im/ml-product/typing-laptop-apng.png'
+                        : 'https://static.toss.im/ml-product/farmer-golden-rice-plant.png',
+                  }}
+                />
+              </View>
+            }
+          />
+        </View>
+      </Pressable>
 
-            {/* 진행중인 챌린지 헤더 */
-            }
-            {/*TODO : 예정된 챌린지, 완료된 챌린지 구분하여 추가*/
-            }
-            <ListHeader
-                title={
-                    <ListHeader.TitleSelector
-                        typography="t4"
-                        color={adaptive.grey800}
-                        fontWeight="bold"
-                    >
-                        진행중인 챌린지
-                    </ListHeader.TitleSelector>
-                }
+      <Spacing size={20} />
+
+      {/* 목표 설정 섹션 */}
+      <Top
+        title={
+          <Top.TitleParagraph color={adaptive.grey900}>
+            목표를 정하고{'\n'}
+            친구들과 달성해보세요!
+          </Top.TitleParagraph>
+        }
+        right={<Top.RightButton onPress={() => navigation.navigate('/create-goal')}>만들기</Top.RightButton>}
+      />
+
+      {showTooltip && todayMissions.length > 0 && (
+        <ListRow
+          left={<ListRow.Icon name="icon-emoji-money-with-wings" />}
+          contents={
+            <ListRow.Texts
+              type="2RowTypeD"
+              top="오늘 미션을 하지 않으면"
+              topProps={{ color: adaptive.grey600 }}
+              bottom={`${totalPenalty.toLocaleString()}원을 납부해야 돼요`}
+              bottomProps={{ color: adaptive.blue500, fontWeight: 'bold' }}
             />
+          }
+          right={
+            <Pressable onPress={() => setShowTooltip(false)}>
+              <Icon name="icon-x-mono" color={adaptive.grey600} size={16} />
+            </Pressable>
+          }
+          verticalPadding={16}
+        />
+      )}
 
-            {/* 챌린지 카드 반복 렌더링 */
-            }
-            {/*TODO : 무한 스크롤 or  페이징 적용*/
-            }
-            {
-                challenges.map((challenge, index) => (
-                    <View key={challenge.id}>
-                        {index > 0 && <Spacing size={16}/>}
-                        <ChallengeCard challenge={challenge}/>
-                    </View>
-                ))
-            }
-        </ScrollView>
-    )
-        ;
+      {/* 진행중인 챌린지 헤더 */}
+      <ListHeader
+        title={
+          <ListHeader.TitleSelector
+            typography="t4"
+            color={adaptive.grey800}
+            fontWeight="bold"
+            onPress={() => {
+              setShowDropdown(!showDropdown);
+            }}
+          >
+            {currentStatus === 'ACTIVE'
+              ? '진행중인 챌린지'
+              : currentStatus === 'PENDING'
+                ? '예정된 챌린지'
+                : '완료된 챌린지'}
+          </ListHeader.TitleSelector>
+        }
+      />
+      {showDropdown && (
+        <View style={styles.dropdownMenu}>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Active selected');
+              setCurrentStatus('ACTIVE');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'ACTIVE' ? adaptive.blue500 : adaptive.grey800}>
+              진행중인 챌린지
+            </Txt>
+            {currentStatus === 'ACTIVE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Pending selected');
+              setCurrentStatus('PENDING');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'PENDING' ? adaptive.blue500 : adaptive.grey800}>
+              예정된 챌린지
+            </Txt>
+            {currentStatus === 'PENDING' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Complete selected');
+              setCurrentStatus('COMPLETE');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'COMPLETE' ? adaptive.blue500 : adaptive.grey800}>
+              완료된 챌린지
+            </Txt>
+            {currentStatus === 'COMPLETE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+        </View>
+      )}
+
+      {/* 챌린지 카드 반복 렌더링 */}
+      {/*TODO : 무한 스크롤 or  페이징 적용*/}
+      {challenges.length > 0 ? (
+        challenges.map((challenge, index) => (
+          <View key={challenge.challengeId || `challenge-${index}`}>
+            {index > 0 && <Spacing size={16} />}
+            <ChallengeCard challenge={challenge} />
+          </View>
+        ))
+      ) : (
+        <OnboardingView
+          adaptive={adaptive}
+          onCreateObjective={() => navigation.navigate('/create-goal')}
+          currentStatus={currentStatus}
+        />
+      )}
+    </ScrollView>
+  );
+}
+
+function OnboardingView({
+  adaptive,
+  onCreateObjective,
+  currentStatus,
+}: {
+  adaptive: any;
+  onCreateObjective: () => void;
+  currentStatus: 'ACTIVE' | 'PENDING' | 'COMPLETE';
+}) {
+  const getMessage = () => {
+    switch (currentStatus) {
+      case 'ACTIVE':
+        return {
+          title: '아직 진행 중인 챌린지가 없어요',
+          description: '작은 습관 하나가 큰 변화를 만들어요.\n지금 바로 첫 번째 목표를 세워볼까요?',
+        };
+      case 'PENDING':
+        return {
+          title: '예정된 챌린지가 없어요',
+          description: '새로운 챌린지를 시작할 준비가 되셨나요?\n목표를 설정하고 시작해보세요!',
+        };
+      case 'COMPLETE':
+        return {
+          title: '완료된 챌린지가 없어요',
+          description: '첫 번째 챌린지를 완료하고\n성취감을 느껴보세요!',
+        };
+    }
+  };
+
+  const message = getMessage();
+
+  return (
+    <View style={styles.onboardingContainer}>
+      <View style={{ marginTop: -80, marginBottom: -60 }} pointerEvents="none">
+        <LottieView
+          source={{ uri: 'https://lottie.host/ab39ffda-09a1-44fe-ade6-1236d48e6720/AixS7quFKd.lottie' }}
+          autoPlay
+          loop
+          renderMode="SOFTWARE"
+          style={{ width: 200, height: 200 }}
+        />
+      </View>
+      <Txt typography="t5" fontWeight="bold" color={adaptive.grey800} style={{ textAlign: 'center' }}>
+        {message.title}
+      </Txt>
+      <Spacing size={8} />
+      <Txt typography="t6" color={adaptive.grey600} style={{ textAlign: 'center' }}>
+        {message.description}
+      </Txt>
+      <Spacing size={12} />
+      <ListHeader
+        title={<ListHeader.TitleParagraph color={adaptive.grey700}>이런 목표는 어때요?</ListHeader.TitleParagraph>}
+      />
+      <Spacing size={12} />
+      <View style={styles.templateGrid}>
+        {['매일 물 2L 마시기', '아침 8시 기상하기', '하루 30분 독서'].map((template) => (
+          <Pressable key={template} style={styles.templateCard} onPress={onCreateObjective}>
+            <Txt typography="t6" fontWeight="semibold" color={adaptive.grey800}>
+              {template}
+            </Txt>
+            <Icon name="icon-arrow-right-small-mono" color={adaptive.grey400} size={16} />
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: 'white',
-    },
-    content: {
-        paddingVertical: 20,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        height: 44,
-    },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    titleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-    },
-    headerRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    iconButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  content: {
+    paddingVertical: 20,
+  },
+  onboardingContainer: {
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  templateGrid: {
+    width: '100%',
+    gap: 12,
+    marginTop: 8,
+  },
+  templateCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f2f4f6',
+  },
+  dropdownMenu: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+  },
 });

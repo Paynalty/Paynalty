@@ -4,7 +4,10 @@
     "baseUrl": "src",
     "target": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "types": ["react-native"],
     "jsx": "react-native",
     "resolveJsonModule": true,

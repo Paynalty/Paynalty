@@ -11,6 +11,9 @@ import java.time.Duration;
 @Builder
 public class ChallengeDetailResponse {
 
+    // challengeDetailResponse(요약정보전달용) 필드 수정(오늘 인증 함? 참여완료 : 미참여)
+    private String verificationStatus;
+
     @Schema(description = "챌린지 ID", example = "1")
     private Long challengeId;
 
@@ -18,10 +21,10 @@ public class ChallengeDetailResponse {
     private String challengeTitle;
 
     @Schema(description = "현재 주간 인증 횟수", example = "3")
-    private int currentWeeklyVerificationCount;
+    private Integer currentWeeklyVerificationCount;
 
     @Schema(description = "주간 총 인증 횟수 (목표)", example = "7")
-    private int weeklyRequiredVerificationCount;
+    private Integer weeklyRequiredVerificationCount;
 
     @Schema(description = "인증 실패 시 벌금", example = "10000")
     private Long penaltyAmount;

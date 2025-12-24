@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 @Builder
 public class PenaltyResponse {
 
-    private Long id;
+    private Long penaltyId;
     private Long challengeMemberId;
     private String challengeTitle;
     private Long amount;
 
     // 결제 관련 정보
-    private boolean paid;
+    private Boolean paid;
     private LocalDateTime paidAt;
     private String paymentOrderId;
 
@@ -25,7 +25,7 @@ public class PenaltyResponse {
     public static PenaltyResponse from(Penalty penalty) {
         ChallengeMember member = penalty.getChallengeMember();
         return PenaltyResponse.builder()
-                .id(penalty.getId())
+                .penaltyId(penalty.getId())
                 .challengeMemberId(member.getId())
                 .challengeTitle(member.getChallenge().getTitle())
                 .amount(penalty.getFixedAmount())

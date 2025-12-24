@@ -7,14 +7,14 @@ import lombok.Getter;
 @Builder
 public class ChallengeBankResponse {
 
-    private Long id;
+    private Long challengeBankId;
     private Long challengeId;
     private Integer totalAmount;
     private String status;
 
     public static ChallengeBankResponse from(ChallengeBank challengeBank) {
         return ChallengeBankResponse.builder()
-                .id(challengeBank.getId())
+                .challengeBankId(challengeBank.getId())
                 .challengeId(challengeBank.getChallenge().getId())
                 .totalAmount(challengeBank.getTotalAmount())
                 .status(challengeBank.getStatus())
