@@ -63,7 +63,7 @@ public class ChallengeController {
 
     // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
     @Operation(
-            summary = "챌린지 상세 정보 조회",
+            summary = "챌린지에 대한 사용자 상세 정보 조회",
             description = "특정 챌린지의 상세 정보(주간 인증 현황, 벌금, 남은 시간 등)를 조회합니다."
     )
     @GetMapping("/{challengeId}/myChallenge/detail")

@@ -4,6 +4,7 @@ import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.global.error.CustomException;
@@ -30,6 +31,7 @@ public class ChallengeService {
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final ChallengeMemberService challengeMemberService;
     private final ChallengeMemberRepository challengeMemberRepository;
+    private final ChallengeVerificationService challengeVerificationService;
 
 
     @Transactional
@@ -109,7 +111,7 @@ public class ChallengeService {
             ChallengeMember challengeMember = ChallengeMember.builder()
                     .user(user)
                     .challenge(challenge)
-                    .isSuccess("PENDING") // 초기 상태 설정 (필요에 따라 변경)
+                    .isSuccess(challenge.getStatus()) // 초기 상태 설정 (필요에 따라 변경)
                     .endAt(challenge.getEndDate())
                     .build();
             challengeMemberRepository.save(challengeMember);
@@ -138,7 +140,7 @@ public class ChallengeService {
 
         // 2단계: 각 챌린지에 대해 상세 정보 생성
         return progressChallenges.stream()
-                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getId(), userId))
+                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getChallengeId(), userId))
                 .collect(Collectors.toList());
     }
 
@@ -185,19 +187,49 @@ public class ChallengeService {
 
         String remainingTimeFormatted = formatDuration(remainingDuration);
 
-        // 4단계: ChallengeDetailResponse 생성 및 반환
-        return ChallengeDetailResponse.builder()
-                .challengeId(challenge.getId())
-                .challengeTitle(challenge.getTitle())
-                .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
-                .weeklyRequiredVerificationCount(challenge.getFrequency())
-                .penaltyAmount(challenge.getPenaltyAmount())
-                .remainingTimeFormatted(remainingTimeFormatted)
-                .build();
+        // 인증 상태 확인 - daysOfWeek 가 null 아닐때. daysOfWeek 가 null 이고 frequency값만 받았을떄 실행 할 로직도 필요
+       // if(challenge.getDaysOfWeek() != null) {
+            DayOfWeek todayVerification = LocalDate.now().getDayOfWeek();
+            if (challenge.getDaysOfWeek().contains(todayVerification)) {
+                // 오늘이 인증 요일이면 해당 챌린지 인증 정보 조회 -> 있다,없다
+                // 있으면 인증 상태 완료됨 표시, 없으면 진행 해야함 표시
+                if (challengeVerificationService.checkVerification(challengeId, userId)) {
+                    String verification = "참여완";
+                    // 4단계: ChallengeDetailResponse 생성 및 반환
+                    return ChallengeDetailResponse.builder()
+                            .challengeId(challenge.getId())
+                            .challengeTitle(challenge.getTitle())
+                            .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
+                            .weeklyRequiredVerificationCount(challenge.getFrequency())
+                            .penaltyAmount(challenge.getPenaltyAmount())
+                            .remainingTimeFormatted(remainingTimeFormatted)
+                            .verificationStatus(verification)
+                            .build();
+                }
+
+            }
+            String verification = "미참여";
+            return ChallengeDetailResponse.builder()
+                    .challengeId(challenge.getId())
+                    .challengeTitle(challenge.getTitle())
+                    .currentWeeklyVerificationCount(currentWeeklyCount.intValue())
+                    .weeklyRequiredVerificationCount(challenge.getFrequency())
+                    .penaltyAmount(challenge.getPenaltyAmount())
+                    .remainingTimeFormatted(remainingTimeFormatted)
+                    .verificationStatus(verification)
+                    .build();
+        //}
+        // 현재 인증한 횟수 < 주간 인증횟수 frequency 이고 오늘 인증을 하지 않았다면 미완료
+
+        // 인증 횟수가 주간 인증회수를 채웠다. 인증안함
+        // 인증 횟수가 주간 인증횟수는 못채웠지만 당일 인증이 데이터가 있다. 인증함
+
+
     }
 
 
-    // ---------------------------------------- 유효성 검사 -----------------------------------------------------
+    // ---------------------------------------------------------------------------------------------
+
 
 
      /**

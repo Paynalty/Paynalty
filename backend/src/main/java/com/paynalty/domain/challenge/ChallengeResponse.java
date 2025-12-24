@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class ChallengeResponse {
 
-    private Long id;
+    private Long challengeId;
     private String title;
 //    private LocalDate startDate;
 //    private LocalDate endDate;
@@ -39,7 +39,7 @@ public class ChallengeResponse {
 
     public static ChallengeResponse from(Challenge challenge) {
         return ChallengeResponse.builder()
-                .id(challenge.getId())
+                .challengeId(challenge.getId())
                 .title(challenge.getTitle())
 //                .startDate(challenge.getStartDate())
 //                .endDate(challenge.getEndDate())
