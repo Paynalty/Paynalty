@@ -79,7 +79,7 @@ public class ChallengeService {
                 .verificationType(request.getVerificationType())
                 .verifyStartAt(request.getVerifyStartAt())
                 .verifyEndAt(request.getVerifyEndAt())
-                .daysOfWeeks(request.getDayOfWeeks())
+                .daysOfWeek(request.getDayOfWeeks())
                 .build();
         
         Challenge savedChallenge = challengeRepository.save(challenge);
@@ -103,7 +103,7 @@ public class ChallengeService {
 
     private void createChallengeMemberIfNotExists(User user, Challenge challenge) {
         // 이미 챌린지 멤버인지 확인
-        boolean isAlreadyMember = challengeMemberRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId()).isPresent();
+        Boolean isAlreadyMember = challengeMemberRepository.findByUserIdAndChallengeId(user.getId(), challenge.getId()).isPresent();
         
         if (!isAlreadyMember) {
             ChallengeMember challengeMember = ChallengeMember.builder()
