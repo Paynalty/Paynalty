@@ -140,7 +140,7 @@ public class ChallengeService {
 
         // 2단계: 각 챌린지에 대해 상세 정보 생성
         return progressChallenges.stream()
-                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getId(), userId))
+                .map(challengeResponse -> getMyChallengeDetail(challengeResponse.getChallengeId(), userId))
                 .collect(Collectors.toList());
     }
 

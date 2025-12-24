@@ -6,7 +6,9 @@ import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challenge.VerificationType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengeverification.VerificationStatus;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -78,8 +80,8 @@ public class DataInitializer {
                                         LocalDate.now().plusDays(20)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(18, 0))
-                                .verifyEndAt(LocalTime.of(23, 0))
+                                .verifyStartAt(LocalTime.of(0, 0))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.WED,
@@ -102,8 +104,8 @@ public class DataInitializer {
                                         LocalDate.now().plusDays(30)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(6, 0))
-                                .verifyEndAt(LocalTime.of(9, 0))
+                                .verifyStartAt(LocalTime.of(0, 0))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.TUE,
@@ -128,8 +130,8 @@ public class DataInitializer {
                                         LocalDate.now().plusDays(40)
                                 ))
                                 .verificationType(VerificationType.TEXT)
-                                .verifyStartAt(LocalTime.of(10, 0))
-                                .verifyEndAt(LocalTime.of(22, 0))
+                                .verifyStartAt(LocalTime.of(0, 0))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.SAT,
                                         DayOfWeekType.SUN
@@ -151,8 +153,8 @@ public class DataInitializer {
                                         LocalDate.now().minusDays(1)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(5, 0))
-                                .verifyEndAt(LocalTime.of(8, 0))
+                                .verifyStartAt(LocalTime.of(0, 0))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.TUE,
                                         DayOfWeekType.THU
@@ -169,25 +171,35 @@ public class DataInitializer {
 
                 for (Challenge challenge : challenges) {
 
-                    // 1️⃣ 챌린지 생성자 (방장)
+                    // 1️⃣ 방장 (항상 포함)
                     challengeMemberRepository.save(
                             ChallengeMember.builder()
-                                    .user(challenge.getUser()) // users.get(0)
+                                    .user(users.get(0)) // 방장 고정
                                     .challenge(challenge)
                                     .isSuccess(challenge.getStatus())
                                     .endAt(challenge.getEndDate())
                                     .build()
                     );
 
-                    // 2️⃣ 추가 참여자 수 (0~2명)
-                    int additionalCount = (int) (Math.random() * 3); // 0~2
-
-                    for (int i = 1; i <= additionalCount; i++) {
-                        User participant = users.get(i); // users.get(1), (2)
-
+// 2️⃣ 기본 참가자 (항상 포함)
+                    if (users.size() > 1) {
                         challengeMemberRepository.save(
                                 ChallengeMember.builder()
-                                        .user(participant)
+                                        .user(users.get(1)) // 고정 참가자
+                                        .challenge(challenge)
+                                        .isSuccess(challenge.getStatus())
+                                        .endAt(challenge.getEndDate())
+                                        .build()
+                        );
+                    }
+
+// 3️⃣ 추가 참가자 수 (0~2명 정도)
+                    int additionalCount = (int) (Math.random() * 3); // 0~2
+
+                    for (int i = 2; i < 2 + additionalCount && i < users.size(); i++) {
+                        challengeMemberRepository.save(
+                                ChallengeMember.builder()
+                                        .user(users.get(i)) // users.get(2), (3) ...
                                         .challenge(challenge)
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
@@ -196,6 +208,114 @@ public class DataInitializer {
                     }
                 }
             }
+
+            if (challengeVerificationRepository.count() == 0){
+
+            List<User> users = userRepository.findAll();
+            List<Challenge> challenges = challengeRepository.findAll();
+            // userid =1
+                challengeVerificationRepository.save(
+                    ChallengeVerification.builder()
+                            .date(LocalDate.of(2025,12,19))
+                            .user(users.getFirst())
+                            .challenge(challenges.getFirst())
+                            .imageUrl("https://example.com/image.jpg")
+                            .status(VerificationStatus.FAIL)
+                            .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,22))
+                                .user(users.getFirst())
+                                .challenge(challenges.getFirst())
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,24))
+                                .user(users.getFirst())
+                                .challenge(challenges.getFirst())
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+
+                //userId = 2;
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,19))
+                                .user(users.get(1))
+                                .challenge(challenges.getFirst())
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,22))
+                                .user(users.get(1))
+                                .challenge(challenges.getFirst())
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+
+                // challengeId =2
+                // userid =1
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,22))
+                                .user(users.getFirst())
+                                .challenge(challenges.get(1))
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.FAIL)
+                                .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,23))
+                                .user(users.getFirst())
+                                .challenge(challenges.get(1))
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,24))
+                                .user(users.getFirst())
+                                .challenge(challenges.get(1))
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+
+                //userId = 2;
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,22))
+                                .user(users.get(1))
+                                .challenge(challenges.get(1))
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(LocalDate.of(2025,12,24))
+                                .user(users.get(1))
+                                .challenge(challenges.get(1))
+                                .imageUrl("https://example.com/image.jpg")
+                                .status(VerificationStatus.SUCCESS)
+                                .build()
+                );
+
+
+
+            }
+
 
 
         };

@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +33,8 @@ public class ChallengeVerificationService {
                 .user(user)
                 .challenge(challenge)
                 .imageUrl(request.getImageUrl())
-                .status(request.getStatus())
+                .status(VerificationStatus.SUCCESS)
+                .date(LocalDate.now())
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);
