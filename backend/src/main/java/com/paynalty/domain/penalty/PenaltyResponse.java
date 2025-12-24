@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PenaltyResponse {
 
-    private Long id;
+    private Long penaltyId;
     private Long challengeMemberId;
     private String challengeTitle;
     private Long amount;
@@ -25,7 +25,7 @@ public class PenaltyResponse {
     public static PenaltyResponse from(Penalty penalty) {
         ChallengeMember member = penalty.getChallengeMember();
         return PenaltyResponse.builder()
-                .id(penalty.getId())
+                .penaltyId(penalty.getId())
                 .challengeMemberId(member.getId())
                 .challengeTitle(member.getChallenge().getTitle())
                 .amount(penalty.getFixedAmount())

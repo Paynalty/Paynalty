@@ -20,8 +20,8 @@ public class UserRequest {
     @Schema(description = "토스 id", example = "1298")
     private Long tossId;
 
-  private String name;
-  private String phoneNum;
+    private String name;
+    private String phoneNum;
 
 
 }
