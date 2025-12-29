@@ -15,7 +15,6 @@ export type WeeklyStatus = {
 
 export type Challenge = {
   challengeId: string;
-  id?: string;
   title: string;
   status: ChallengeStatus;
   currentCount: number;

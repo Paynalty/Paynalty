@@ -58,3 +58,6 @@ Thumbs.db
 *.p12
 *.jks
 !**/src/test/**/*.pem
+
+### Production Config ###
+src/main/resources/application-prod.yml
