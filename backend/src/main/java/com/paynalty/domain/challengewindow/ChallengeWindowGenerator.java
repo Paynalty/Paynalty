@@ -27,7 +27,7 @@ public class ChallengeWindowGenerator {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
-    private final com.paynalty.domain.challengewindow.ChallengeWindowRepository challengeWindowRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
 
     // today부터 today+LOOKAHEAD_DAYS까지의 ChallengeWindow 생성
     // 매일 1회, KST 00:00:00.000에 실행
@@ -153,9 +153,7 @@ public class ChallengeWindowGenerator {
         }
 
         // 신규 ChallengeWindow가 있는 경우 bulk insert
-        if (!windowsToGenerate.isEmpty()) {
-            challengeWindowRepository.saveAll(windowsToGenerate);
-        }
+        if (!windowsToGenerate.isEmpty()) challengeWindowRepository.saveAll(windowsToGenerate);
 
     }
 }
