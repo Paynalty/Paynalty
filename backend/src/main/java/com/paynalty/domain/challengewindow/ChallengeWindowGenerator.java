@@ -2,7 +2,6 @@ package com.paynalty.domain.challengewindow;
 
 import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.challenge.ChallengeRepository;
-import com.paynalty.domain.challenge.ChallengeStatus;
 import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
@@ -28,12 +27,12 @@ public class ChallengeWindowGenerator {
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
-    private final com.paynalty.domain.challengewindow.ChallengeWindowRepository challengeWindowRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
 
     // today부터 today+LOOKAHEAD_DAYS까지의 ChallengeWindow 생성
     // 매일 1회, KST 00:00:00.000에 실행
-    // TODO: 1단계에서 (1), (2) 두 조건 중 하나만 확인해도 안정적인지 재현님께 확인
-    // 1단계: Challenge 중에서 (1)status가 active고, (2)start_date가 today와 같거나 이르고, end_date가 until과 같거나 후인 모든 records 확인
+
+    // 1단계: Challenge 중에서 (1)start_date가 today와 같거나 이르고, (2)end_date가 until과 같거나 후인 모든 records 확인
     // 2단계: Challenge에 설정된 요일이 today부터 until에 포함된 요일과 일치하는지 확인
     // 3단계: 1,2단계에서 필터링된 Challenge에 해당하는 모든 ChallengeMember records 확인
     // 4단계: 3단계에서 얻은 ChallengeMember records의 challenge_id, user_id, start_at으로 기존 ChallengeWindow records 확인 (멱등성 idempotency 유지 목적)
@@ -47,7 +46,7 @@ public class ChallengeWindowGenerator {
         LocalDate until = today.plusDays(LOOKAHEAD_DAYS); // ex)2025-12-22
 
         List<Challenge> activeChallengesSpanningPeriod = challengeRepository
-                .findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(ChallengeStatus.ACTIVE, today, until);
+                .findByStartDateLessThanEqualAndEndDateGreaterThanEqual(today, until);
 
         // [2단계]
         Set<DayOfWeek> windowDaysOfWeek = new HashSet<>();
@@ -154,9 +153,7 @@ public class ChallengeWindowGenerator {
         }
 
         // 신규 ChallengeWindow가 있는 경우 bulk insert
-        if (!windowsToGenerate.isEmpty()) {
-            challengeWindowRepository.saveAll(windowsToGenerate);
-        }
+        if (!windowsToGenerate.isEmpty()) challengeWindowRepository.saveAll(windowsToGenerate);
 
     }
 }

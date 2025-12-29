@@ -14,8 +14,8 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     @Query("SELECT c FROM Challenge c JOIN FETCH c.user u WHERE u.id = :id AND c.status = :status")
     List<Challenge> findByEmailAndStatus(@Param("id") Long id, @Param("status") ChallengeStatus status);
 
-    // WHERE status = 'active' AND start_date <= today AND end_date >= until과 동일
-    List<Challenge> findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Enum challengeStatus, LocalDate periodStartDate, LocalDate periodEndDate);
+    // WHERE start_date <= today AND end_date >= until과 동일
+    List<Challenge> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate periodStartDate, LocalDate periodEndDate);
 
     List<Challenge> user(User user);
 
