@@ -30,6 +30,9 @@ dependencies {
         implementation("org.apache.httpcomponents.client5:httpclient5")
         implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1")
 
+        // AWS S3
+        implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.2.1")
+
         // JWT
         implementation("io.jsonwebtoken:jjwt-api:0.13.0")
         runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")

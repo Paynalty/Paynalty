@@ -104,7 +104,7 @@ function Page() {
                 isMissionExpanded ? (
                   <View>
                     {todayMissions.map((mission, index) => (
-                      <View key={mission.id}>
+                      <View key={mission.challengeId}>
                         {index > 0 && <Spacing size={8} />}
                         <Top.SubtitleParagraph color={adaptive.background}>
                           {mission.title}
