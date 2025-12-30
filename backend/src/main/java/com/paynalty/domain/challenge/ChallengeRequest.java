@@ -64,10 +64,10 @@ public class ChallengeRequest {
                     "- 예: [\"MON\", \"WED\", \"FRI\"] → frequency = 3 (자동 계산)\n" +
                     "- null이거나 빈 배열이면 frequency 값을 사용\n" +
                     "- 가능한 요일 값: MON, TUE, WED, THU, FRI, SAT, SUN",
-            example = "[\"MON\", \"WED\", \"FRI\"]",
+            example = "[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"]",
             allowableValues = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"}
     )
-    private List<DayOfWeekType> dayOfWeeks;
+    private List<DayOfWeekType> daysOfWeek;
 
     @Schema(description = "벌금 금액 (필수, 양수)", example = "10000", required = true)
     @NotNull(message = "패널티 금액은 필수입니다")

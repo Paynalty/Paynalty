@@ -1,8 +1,9 @@
 package com.paynalty.domain.challengeverification;
 
 public enum VerificationStatus {
-    FAIL("인증인정안함"),
-    SUCCESS("인증인정");
+    UNVERIFIED("검증되지않음"),
+    VALID("유효"),
+    INVALID("무효");
 
     private final String description;
 

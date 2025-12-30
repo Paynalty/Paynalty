@@ -1,5 +1,7 @@
 package com.paynalty.domain.challengeverification;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,8 +36,60 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
             @Param("weekEnd") LocalDate weekEnd
     );
 
+    /**
+     * 특정 챌린지와 사용자의 전체 인증 횟수를 조회합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param userId 사용자 ID
+     * @return 전체 인증 횟수
+     */
+    @Query("SELECT COUNT(cv) FROM ChallengeVerification cv " +
+           "WHERE cv.challenge.id = :challengeId " +
+           "AND cv.user.id = :userId")
+    Long countTotalVerifications(
+            @Param("challengeId") Long challengeId,
+            @Param("userId") Long userId
+    );
+
+    /**
+     * 특정 챌린지와 사용자가 특정 날짜에 이미 인증했는지 확인합니다.
+     * 1일 1회 인증 제한을 위해 사용됩니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param userId 사용자 ID
+     * @param date 확인할 날짜
+     * @return 해당 날짜에 인증 기록이 있으면 true, 없으면 false
+     */
+    boolean existsByChallengeIdAndUserIdAndDate(Long challengeId, Long userId, LocalDate date);
+
     Optional<ChallengeVerification> findTopByChallengeIdAndUserIdOrderByDateDesc(Long challengeId, Long userId);
 
+
+     // 특정 챌린지의 모든 인증 데이터 중 가장 최근 인증을 조회합니다.
+    Optional<ChallengeVerification> findTopByChallengeIdOrderByDateDescIdDesc(Long challengeId);
+
+    /**
+     * 특정 챌린지의 특정 사용자 인증 데이터를 최신순으로 페이징하여 조회합니다.
+     * 무한 스크롤을 위해 Slice를 반환합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param userId 사용자 ID
+     * @param pageable 페이징 정보 (page, size, sort)
+     * @return Slice<ChallengeVerification> (다음 페이지 존재 여부 포함)
+     */
+    Slice<ChallengeVerification> findByChallengeIdAndUserIdOrderByDateDescIdDesc(
+            Long challengeId, 
+            Long userId, 
+            Pageable pageable
+    );
+
+    // 특정 챌린지의 모든 참여자 인증 데이터를 최신순으로 페이징하여 조회합니다.
+    Slice<ChallengeVerification> findByChallengeIdOrderByDateDescIdDesc(
+            Long challengeId,
+            Pageable pageable
+    );
+
+    // 챌린지에 참여한 맴버들 총 인증 횟수 가져오기
     @Query("""
     SELECT new com.paynalty.domain.challengeverification
         .MembersVerificationCountResponse(
@@ -52,4 +106,5 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
 """)
     List<MembersVerificationCountResponse>
     countVerificationByChallengeMembers(@Param("challengeId") Long challengeId);
+
 }

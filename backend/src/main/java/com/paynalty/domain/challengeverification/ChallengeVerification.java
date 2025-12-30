@@ -27,22 +27,22 @@ public class ChallengeVerification extends BaseTimeEntity {
     private Challenge challenge;
 
     // 인증 날짜(월,화,수...)
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
+//    @Column(name = "date", nullable = false)
+//    private LocalDate date;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    // 인증 생성시 기본적으로 인증 완료 로 표시 추후 enum타입으로 변경 예정
+    // 대기중
     @Column(name = "status", length = 20)
     private VerificationStatus status;
 
 
     @Builder
-    public ChallengeVerification(User user, Challenge challenge, String imageUrl, VerificationStatus status , LocalDate date) {
+    public ChallengeVerification(User user, Challenge challenge, String imageUrl, VerificationStatus status) {
         this.user = user;
         this.challenge = challenge;
-        this.date = date;
+//        this.date = date;
         this.imageUrl = imageUrl;
         this.status = status;
     }

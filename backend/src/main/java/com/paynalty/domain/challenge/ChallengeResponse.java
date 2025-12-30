@@ -1,55 +1,96 @@
 package com.paynalty.domain.challenge;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+@Schema(description = "챌린지 상세 정보 응답")
 @Getter
 @Builder
 public class ChallengeResponse {
 
-    private Long challengeId;
+    @Schema(description = "챌린지 ID", example = "Long")
+    private Long id;
+
+    @Schema(description = "챌린지 제목", example = "String")
     private String title;
-//    private LocalDate startDate;
-//    private LocalDate endDate;
 
-    // 사용자 현재 인증 횟수 변수 추가
+    @Schema(description = "참여 멤버 수", example = "Integer")
+    private Integer totalParticipants;
 
-    //  인증 주기 dayOfWeek 추가
-    private int frequency;
+    @Schema(description = "챌린지 시작일", example = "LocalDate")
+    private LocalDate startDate;
 
+    @Schema(description = "챌린지 종료일", example = "LocalDate")
+    private LocalDate endDate;
+
+    @Schema(
+            description = "주간 인증 횟수 (1일 1회만 인증 가능)\n" +
+                    "- daysOfWeek가 설정된 경우: 요일 개수와 동일\n" +
+                    "- daysOfWeek가 없는 경우: 사용자가 자유롭게 선택한 주간 인증 횟수",
+            example = "Integer"
+    )
+    private Integer frequency;
+
+    @Schema(description = "인증 실패 시 벌금액", example = "Long")
     private Long penaltyAmount;
 
-    // 인증 상태에 따른 참여 완료 ? 지금 할 차례에요 메세지 전달.
-    // 해당 변수 미사용. 타입 변경하여 사용 예정
-    private ChallengeStatus status;
+    @Schema(description = "오늘의 인증 상태 (사용자가 오늘 인증했는지 여부)", example = "VerificationStatus 타입, 종류 : VERIFIED, NOT_VERIFIED")
+    private VerificationStatus verificationStatus;
 
+    @Schema(description = "현재 주간 인증 횟수 (이번 주에 사용자가 완료한 인증 수)", example = "Integer")
+    private Integer weeklyProgressCount;
+
+    @Schema(description = "인증 가능 시작 시간", example = "LocalTime")
     private LocalTime verifyStartAt;
+
+    @Schema(description = "인증 마감 시간", example = "LocalTime")
     private LocalTime verifyEndAt;
+
+    @Schema(description = "인증 방식", example = "VerificationType 타입, 종류 : PHOTO, TEXT, VOTE")
     private VerificationType verificationType;
 
-    // 당일 인증 안했을시 마감시간 표시 추가
-    // 챌린지 내 최신 인증 한 데이터 추가
-    // 주간 인증 현황 추가
+    @Schema(
+            description = "인증 요일 목록 (특정 요일에만 인증하는 경우)\n" +
+                    "- null 또는 빈 리스트: 요일 지정 없음 (주간 frequency 횟수만큼 자유롭게 인증)\n" +
+                    "- 값 있음: 지정된 요일에만 인증 가능",
+            example = "List<DayOfWeekType> 타입, 종류 : MON, TUE, WED, THU, FRI, SAT, SUN"
+    )
+    private List<DayOfWeekType> daysOfWeek;
 
-    // 인증 하는 요일 (MON, TUE, WED, THU, FRI, SAT, SUN)
-    private List<DayOfWeekType> dayOfWeeks;
-
-    public static ChallengeResponse from(Challenge challenge) {
+    /**
+     * Challenge 엔티티와 추가 정보로부터 ChallengeResponse를 생성합니다.
+     * 
+     * @param challenge Challenge 엔티티
+     * @param verificationStatus 오늘의 인증 상태 (VERIFIED: 인증함, NOT_VERIFIED: 인증안함)
+     * @param totalParticipants 참여 멤버 수
+     * @param weeklyProgressCount 현재 주간 인증 횟수
+     * @return ChallengeResponse
+     */
+    public static ChallengeResponse from(
+            Challenge challenge, 
+            VerificationStatus verificationStatus,
+            Integer totalParticipants,
+            Integer weeklyProgressCount
+    ) {
         return ChallengeResponse.builder()
-                .challengeId(challenge.getId())
+                .id(challenge.getId())
                 .title(challenge.getTitle())
-//                .startDate(challenge.getStartDate())
-//                .endDate(challenge.getEndDate())
+                .totalParticipants(totalParticipants)
+                .startDate(challenge.getStartDate())
+                .endDate(challenge.getEndDate())
                 .frequency(challenge.getFrequency())
                 .penaltyAmount(challenge.getPenaltyAmount())
-                .status(challenge.calculateStatus())  // 자동 계산된 status 사용
+                .verificationStatus(verificationStatus)
+                .weeklyProgressCount(weeklyProgressCount)
                 .verifyStartAt(challenge.getVerifyStartAt())
                 .verifyEndAt(challenge.getVerifyEndAt())
                 .verificationType(challenge.getVerificationType())
-                .dayOfWeeks(challenge.getDaysOfWeek())
+                .daysOfWeek(challenge.getDaysOfWeek())
                 .build();
     }
 }
