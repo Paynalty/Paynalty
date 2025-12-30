@@ -2,8 +2,10 @@ import { View, StyleSheet } from 'react-native';
 import { Spacing, useNavigation } from '@granite-js/react-native';
 import { Badge, Top, ListHeader } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+
 import { Challenge, ChallengeStatus } from './types';
 import { setSelectedChallenge } from '../../stores/challengeStore';
+import { getVerificationMessage } from '../../utils/challenge';
 
 export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const adaptive = useAdaptive();
@@ -38,7 +40,11 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
         title={<Top.TitleParagraph color={adaptive.grey900}>{challenge.title}</Top.TitleParagraph>}
         subtitle1={
           challenge.verifyEnd ? (
-            <Top.SubtitleParagraph>남은 시간 : {challenge.verifyEnd}</Top.SubtitleParagraph>
+            <Top.SubtitleParagraph>
+              {challenge.verifyEnd
+                ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
+                : '시간 정보 없음'}
+            </Top.SubtitleParagraph>
           ) : undefined
         }
         subtitle2={<Top.SubtitleBadges items={badges} />}

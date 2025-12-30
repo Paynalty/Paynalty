@@ -7,6 +7,7 @@ import { Storage } from '@apps-in-toss/framework';
 import { ChallengeCard } from 'components/challenge/ChallengeCard';
 import { useChallenges, useMissionChallenges } from '../src/hooks/useChallenges';
 import { LottieView } from '@granite-js/native/lottie-react-native';
+import { getVerificationMessage } from '../src/utils/challenge';
 
 export const Route = createRoute('/', {
   component: Page,
@@ -23,7 +24,7 @@ function Page() {
   const checkOnboarding = async () => {
     try {
       // 테스트용: 저장된 온보딩 상태 삭제
-      /*await Storage.removeItem('hasCompletedOnboarding');*/
+      await Storage.removeItem('hasCompletedOnboarding');
 
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
@@ -85,30 +86,7 @@ function Page() {
                           {mission.title}
                           {'\n'}
                           {mission.verifyEnd
-                            ? (() => {
-                                if (!mission.verifyStart || !mission.verifyEnd) return '시간 정보 없음';
-
-                                const start = new Date(mission.verifyStart).getTime();
-                                const end = new Date(mission.verifyEnd).getTime();
-                                const now = Date.now();
-
-                                if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
-
-                                if (now < start) {
-                                  const diff = start - now;
-                                  const h = Math.floor(diff / 3600000);
-                                  const m = Math.floor((diff % 3600000) / 60000);
-                                  if (h > 0) return `${h}시간 ${m}분 후 인증 가능`;
-                                  return `${m}분 후 인증 가능`;
-                                } else if (now <= end) {
-                                  const diff = end - now;
-                                  const h = Math.floor(diff / 3600000);
-                                  const m = Math.floor((diff % 3600000) / 60000);
-                                  return `${h}시간 ${m}분 남음`;
-                                } else {
-                                  return '오늘 인증을 못했어요';
-                                }
-                              })()
+                            ? getVerificationMessage(mission.verifyStart, mission.verifyEnd)
                             : '시간 정보 없음'}
                         </Top.SubtitleParagraph>
                       </View>
@@ -120,27 +98,7 @@ function Page() {
                     {(() => {
                       const mission = todayMissions[0];
                       if (!mission?.verifyStart || !mission?.verifyEnd) return '시간 정보 없음';
-
-                      const start = new Date(mission.verifyStart).getTime();
-                      const end = new Date(mission.verifyEnd).getTime();
-                      const now = Date.now();
-
-                      if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
-
-                      if (now < start) {
-                        const diff = start - now;
-                        const h = Math.floor(diff / 3600000);
-                        const m = Math.floor((diff % 3600000) / 60000);
-                        if (h > 0) return `${h}시간 ${m}분 후 인증 가능`;
-                        return `${m}분 후 인증 가능`;
-                      } else if (now <= end) {
-                        const diff = end - now;
-                        const h = Math.floor(diff / 3600000);
-                        const m = Math.floor((diff % 3600000) / 60000);
-                        return `${h}시간 ${m}분 남음`;
-                      } else {
-                        return '오늘 인증을 못했어요';
-                      }
+                      return getVerificationMessage(mission.verifyStart, mission.verifyEnd);
                     })()}
                   </Top.SubtitleParagraph>
                 )
@@ -150,8 +108,7 @@ function Page() {
                     오늘은 쉬어가는 날입니다{'\n'}
                     다음 미션은 내일 시작됩니다
                   </Top.SubtitleParagraph>
-                  {/* 🎉 오늘의 미션을 모두 완료했습니다
-이번 주 목표까지 1회 남아 있어요*/}
+                  {/* 🎉 오늘의 미션을 모두 완료했습니다. 이번 주 목표까지 1회 남아 있어요*/}
                 </View>
               )
             }

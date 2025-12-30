@@ -21,7 +21,7 @@ export const useChallenges = (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
           endAt: item.endAt,
           participantCount: 2, // 임시 데이터
           participants: '기영, 호영', // 임시 데이터
-          verificationType: item.verificationType || 'PHOTO', // 임시 데이터
+          verificationType: item.verificationType || '',
         })) as Challenge[];
       }
       return [];
@@ -48,7 +48,7 @@ export const useMissionChallenges = () => {
           endAt: item.endAt,
           participants: '기영, 호영', // 임시
           participantCount: 2, // 임시
-          verificationType: item.verificationType || 'PHOTO', // 임시
+          verificationType: item.verificationType || '',
         })) as Challenge[];
       }
       return [];
