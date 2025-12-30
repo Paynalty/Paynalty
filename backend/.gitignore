@@ -61,3 +61,6 @@ Thumbs.db
 
 ### Production Config ###
 src/main/resources/application-prod.yml
+
+# === Local Config ===
+application-local.yml
