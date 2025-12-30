@@ -335,6 +335,17 @@ public class ChallengeService {
                 .build();
     }
 
+    // update
+//    public ChallengeResponse edit(){
+//        // 수정할 챌린지 entity 찾기
+//        // updateRequest 의 필드에 entity 값 설정
+//        // 필드값이 설정된 update를 사용자에게 보여줌
+//        // 사용자가 보고 수정할 내용 변경
+//        // 변경 된 내용 entity의 update 매서드 활요하여 적용 . (저장소에 save안해도 자동 저장?)
+//        // 변경된 챌린지entity 내용을 response객체로 반환하여 보여줌
+//
+//    }
+
 
     // ---------------------------------------------------------------------------------------------
 
