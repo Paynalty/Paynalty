@@ -26,7 +26,11 @@ spring:
       write-dates-as-timestamps: false
     time-zone: Asia/Seoul
     default-property-inclusion: non_null
-
+  # S3 region 설정
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
 # 서버 설정
 server:
   port: ${SERVER_PORT:8080}
