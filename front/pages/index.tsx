@@ -7,7 +7,7 @@ import { Storage } from '@apps-in-toss/framework';
 import { ChallengeCard } from 'components/challenge/ChallengeCard';
 import { useChallenges, useMissionChallenges } from '../src/hooks/useChallenges';
 import { LottieView } from '@granite-js/native/lottie-react-native';
-import { getVerificationMessage } from '../src/utils/challenge';
+import { getVerificationMessage, isTodayChallenge } from '../src/utils/challenge';
 
 export const Route = createRoute('/', {
   component: Page,
@@ -24,7 +24,7 @@ function Page() {
   const checkOnboarding = async () => {
     try {
       // 테스트용: 저장된 온보딩 상태 삭제
-      await Storage.removeItem('hasCompletedOnboarding');
+      // await Storage.removeItem('hasCompletedOnboarding');
 
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
@@ -43,7 +43,9 @@ function Page() {
   const { data: challenges = [] } = useChallenges(currentStatus);
   const { data: missionChallenges = [] } = useMissionChallenges();
 
-  const todayMissions = missionChallenges;
+  const todayMissions = missionChallenges.filter((mission) =>
+    isTodayChallenge(mission.daysOfWeek, Number(mission.weeklyRequiredCount), mission.weeklyProgressCount)
+  );
 
   // 오늘 미션 벌금 합산
   const totalPenalty = useMemo(

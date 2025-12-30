@@ -5,7 +5,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 
 import { Challenge, ChallengeStatus } from './types';
 import { setSelectedChallenge } from '../../stores/challengeStore';
-import { getVerificationMessage } from '../../utils/challenge';
+import { getVerificationMessage, isTodayChallenge, getNextScheduleMessage } from '../../utils/challenge';
 
 export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const adaptive = useAdaptive();
@@ -41,9 +41,13 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
         subtitle1={
           challenge.verifyEnd ? (
             <Top.SubtitleParagraph>
-              {challenge.verifyEnd
+              {isTodayChallenge(
+                challenge.daysOfWeek,
+                Number(challenge.weeklyRequiredCount),
+                challenge.weeklyProgressCount
+              )
                 ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
-                : '시간 정보 없음'}
+                : getNextScheduleMessage(challenge.daysOfWeek)}
             </Top.SubtitleParagraph>
           ) : undefined
         }

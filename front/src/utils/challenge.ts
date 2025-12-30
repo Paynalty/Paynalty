@@ -47,6 +47,76 @@ export const getVerificationMessage = (verifyStart?: string, verifyEnd?: string)
     return `인증 중 : ${h}시간 ${m}분 남음`;
   } else {
     // 인증 종료
+
     return '오늘 인증을 못했어요';
   }
+};
+
+// 요일 매핑 (Backend String -> JS Date.getDay())
+const DAYS_MAP: { [key: string]: number } = {
+  SUN: 0,
+  MON: 1,
+  TUE: 2,
+  WED: 3,
+  THU: 4,
+  FRI: 5,
+  SAT: 6,
+};
+
+// JS Date.getDay() -> 한글 요일
+const DAYS_LABEL: { [key: number]: string } = {
+  0: '일',
+  1: '월',
+  2: '화',
+  3: '수',
+  4: '목',
+  5: '금',
+  6: '토',
+};
+
+/**
+ * 오늘 수행해야 할 미션인지 확인합니다.
+ * @param daysOfWeek 인증 요일 목록 (['MON', 'WED']...)
+ * @param weeklyRequiredCount 주간 필수 인증 횟수
+ * @param weeklyProgressCount 현재 주간 인증 횟수
+ */
+export const isTodayChallenge = (
+  daysOfWeek: string[] | undefined,
+  weeklyRequiredCount: number,
+  weeklyProgressCount: number
+): boolean => {
+  // 인증 요일이 정해져 있는 경우
+  if (daysOfWeek && daysOfWeek.length > 0) {
+    const today = new Date().getDay();
+    return daysOfWeek.some((day) => DAYS_MAP[day] === today);
+  }
+
+  // 인증 요일이 없는 경우 (자율) -> 횟수가 남았으면 오늘 할 수 있음
+  return weeklyProgressCount < weeklyRequiredCount;
+};
+
+/**
+ * 인증 요일이 아닐 때, 다음 인증 가능한 요일을 안내하는 메시지를 반환합니다.
+ */
+export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string => {
+  if (!daysOfWeek || daysOfWeek.length === 0) return '자율 인증 가능';
+
+  const today = new Date().getDay();
+  // 오늘의 요일 숫자 리스트로 변환 및 정렬
+  const scheduleDays = daysOfWeek
+    .map((day) => DAYS_MAP[day])
+    .filter((d): d is number => d !== undefined)
+    .sort((a, b) => a - b);
+
+  // 오늘 이후의 가장 가까운 요일 찾기
+  let nextDay = scheduleDays.find((day) => day > today);
+
+  // 오늘 이후에 없으면, 다음 주의 첫 번째 요일이 다음 인증일
+  if (nextDay === undefined) {
+    nextDay = scheduleDays[0];
+  }
+
+  if (nextDay === undefined) return ''; // 예외 케이스
+
+  return `다음 인증일 : ${DAYS_LABEL[nextDay]}요일`;
 };
