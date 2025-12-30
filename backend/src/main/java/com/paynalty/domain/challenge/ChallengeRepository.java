@@ -11,15 +11,27 @@ import java.util.List;
 
 @Repository
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
-    @Query("SELECT c FROM Challenge c JOIN FETCH c.user u WHERE u.id = :id AND c.status = :status")
-    List<Challenge> findByEmailAndStatus(@Param("id") Long id, @Param("status") ChallengeStatus status);
+    /**
+     * 사용자가 참여한 챌린지 중 특정 상태의 챌린지를 조회합니다.
+     * ChallengeMember를 통해 참여 여부를 확인합니다.
+     *
+     * @param userId 사용자 ID
+     * @param status 챌린지 상태 (PENDING, ACTIVE, COMPLETE)
+     * @return 사용자가 참여한 챌린지 목록
+     */
+    @Query("""
+        SELECT DISTINCT c 
+        FROM Challenge c
+        JOIN FETCH c.user
+        JOIN ChallengeMember cm ON cm.challenge = c
+        WHERE cm.user.id = :userId
+        AND c.status = :status
+    """)
+    List<Challenge> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") ChallengeStatus status);
 
     // WHERE start_date <= today AND end_date >= until과 동일
     List<Challenge> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate periodStartDate, LocalDate periodEndDate);
 
     List<Challenge> user(User user);
-
-    @Query("SELECT cv FROM ChallengeVerification cv WHERE cv.challenge.id = :challengeId AND cv.user.id = :userId")
-    Boolean findByChallengeIdAndUserId(@Param("challengeId") Long challengeId, @Param("userId") Long userId);
 }
 
