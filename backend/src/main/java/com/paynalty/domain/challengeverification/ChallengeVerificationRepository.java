@@ -60,12 +60,16 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * @param date 확인할 날짜
      * @return 해당 날짜에 인증 기록이 있으면 true, 없으면 false
      */
-    boolean existsByChallengeIdAndUserIdAndDate(Long challengeId, Long userId, LocalDate date);
+    boolean existsByChallengeIdAndUserIdAndDate(
+            Long challengeId,
+            Long userId,
+            LocalDate date
+    );
 
+    // 특정 챌린지와 사용자의 가장 최근 인증을 조회합니다.
     Optional<ChallengeVerification> findTopByChallengeIdAndUserIdOrderByDateDesc(Long challengeId, Long userId);
 
-
-     // 특정 챌린지의 모든 인증 데이터 중 가장 최근 인증을 조회합니다.
+    // 특정 챌린지의 모든 인증 데이터 중 가장 최근 인증을 조회합니다.
     Optional<ChallengeVerification> findTopByChallengeIdOrderByDateDescIdDesc(Long challengeId);
 
     /**

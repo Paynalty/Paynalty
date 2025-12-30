@@ -174,13 +174,13 @@ public class ChallengeService {
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
                                 .build();
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
-                        // 완료된 챌린지 - 전체 인증 횟수 표시
-                        Integer totalVerificationCount = calculateTotalVerificationCount(challenge.getId(), userId);
+                        // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
+                        Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challenge.getId(), userId, challenge.getEndDate());
                         
                         return ChallengeDetailResponse.builder()
                                 .id(challenge.getId())
                                 .title(challenge.getTitle())
-                                .weeklyProgressCount(totalVerificationCount)  // 전체 인증 횟수
+                                .weeklyProgressCount(lastWeekProgressCount)  // 마지막 주의 주간 인증 횟수
                                 .weeklyRequiredCount(challenge.getFrequency())
                                 .penaltyAmount(challenge.getPenaltyAmount())
                                 .verifyStart(challenge.getVerifyStartAt())
@@ -289,13 +289,13 @@ public class ChallengeService {
                     .verificationStatus(VerificationStatus.NOT_VERIFIED)
                     .build();
         } else if (challengeStatus == ChallengeStatus.COMPLETE) {
-            // 완료된 챌린지 - 전체 인증 횟수 표시
-            Integer totalVerificationCount = calculateTotalVerificationCount(challengeId, userId);
+            // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
+            Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challengeId, userId, challenge.getEndDate());
             
             return ChallengeDetailResponse.builder()
                     .id(challenge.getId())
                     .title(challenge.getTitle())
-                    .weeklyProgressCount(totalVerificationCount)  // 전체 인증 횟수
+                    .weeklyProgressCount(lastWeekProgressCount)  // 마지막 주의 주간 인증 횟수
                     .weeklyRequiredCount(challenge.getFrequency())
                     .penaltyAmount(challenge.getPenaltyAmount())
                     .verifyStart(challenge.getVerifyStartAt())
@@ -421,6 +421,29 @@ public class ChallengeService {
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.with(DayOfWeek.MONDAY); // 이번주 월요일
         LocalDate weekEnd = weekStart.plusDays(6); // 이번주 일요일
+        
+        Long count = challengeVerificationRepository.countWeeklyVerifications(
+                challengeId,
+                userId,
+                weekStart,
+                weekEnd
+        );
+        
+        return count.intValue();
+    }
+
+    /**
+     * 특정 날짜를 기준으로 해당 주의 인증 횟수를 계산합니다.
+     * 완료된 챌린지의 마지막 주 인증 횟수를 계산할 때 사용됩니다.
+     * 
+     * @param challengeId 챌린지 ID
+     * @param userId 사용자 ID
+     * @param referenceDate 기준 날짜 (이 날짜가 포함된 주의 인증 횟수 계산)
+     * @return 해당 주의 인증 횟수
+     */
+    private Integer calculateWeeklyProgressCountForDate(Long challengeId, Long userId, LocalDate referenceDate) {
+        LocalDate weekStart = referenceDate.with(DayOfWeek.MONDAY); // 기준 날짜가 포함된 주의 월요일
+        LocalDate weekEnd = weekStart.plusDays(6); // 해당 주의 일요일
         
         Long count = challengeVerificationRepository.countWeeklyVerifications(
                 challengeId,

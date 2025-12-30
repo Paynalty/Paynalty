@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ChallengeVerificationService {
             throw new IllegalStateException("인증 가능한 챌린지가 아닙니다. (현재 상태: " + status + ")");
         }
 
-        // 3단계: 인증 시간대 검증  - 겹치는 로직. 삭제
+        // 3단계: 인증 시간대 검증  - 겹치는 로직 삭제
         LocalTime now = LocalTime.now();
         LocalTime startTime = challenge.getVerifyStartAt();
         LocalTime endTime = challenge.getVerifyEndAt();
@@ -70,8 +71,9 @@ public class ChallengeVerificationService {
             }
         }
 
-        // 5단계: 중복 인증 검증 (1일 1회만 가능) - 유지
+        // 5단계: 중복 인증 검증 (1일 1회만 가능)
         LocalDate today = LocalDate.now();
+        
         boolean alreadyVerifiedToday = challengeVerificationRepository
                 .existsByChallengeIdAndUserIdAndDate(challengeId, user.getId(), today);
         
@@ -79,7 +81,7 @@ public class ChallengeVerificationService {
             throw new IllegalStateException("오늘 이미 인증을 완료했습니다. (1일 1회만 가능)");
         }
 
-        // 6단계: 주간 인증 횟수 제한 검증 - 삭제
+        // 6단계: 주간 인증 횟수 제한 검증
         LocalDate weekStart = today.with(DayOfWeek.MONDAY);
         LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
         
@@ -97,9 +99,9 @@ public class ChallengeVerificationService {
         ChallengeVerification challengeVerification = ChallengeVerification.builder()
                 .user(user)
                 .challenge(challenge)
+                .date(today)
                 .imageUrl(request.getImageUrl())
                 .status(VerificationStatus.UNVERIFIED)
-//                .date(today)
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);

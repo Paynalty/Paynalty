@@ -293,6 +293,7 @@ public class DataInitializer {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
                                 ChallengeVerification.builder()
+                                    .date(date)
                                     .user(users.get(i))
                                     .challenge(activeChallenge1)
                                     .imageUrl("https://example.com/verification.jpg")
@@ -310,6 +311,7 @@ public class DataInitializer {
                     
                     challengeVerificationRepository.save(
                         ChallengeVerification.builder()
+                            .date(today)
                             .user(users.get(1))
                             .challenge(activeChallenge1)
                             .imageUrl("https://example.com/verification.jpg")
@@ -330,6 +332,7 @@ public class DataInitializer {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
                                 ChallengeVerification.builder()
+                                    .date(date)
                                     .user(users.get(i))
                                     .challenge(activeChallenge2)
                                     .imageUrl("https://example.com/verification.jpg")
@@ -347,6 +350,7 @@ public class DataInitializer {
                     
                     challengeVerificationRepository.save(
                         ChallengeVerification.builder()
+                            .date(today)
                             .user(users.get(2))
                             .challenge(activeChallenge2)
                             .imageUrl("https://example.com/verification.jpg")
@@ -363,6 +367,7 @@ public class DataInitializer {
                     for (int i = 0; i < 3 && i < users.size(); i++) {
                         challengeVerificationRepository.save(
                             ChallengeVerification.builder()
+                                .date(date)
                                 .user(users.get(i))
                                 .challenge(activeChallengeDaily)
                                 .imageUrl("https://example.com/verification.jpg")
@@ -375,6 +380,7 @@ public class DataInitializer {
                 // 오늘: userId=2만 인증 (userId=1은 테스트용으로 인증 안 함)
                 challengeVerificationRepository.save(
                     ChallengeVerification.builder()
+                        .date(today)
                         .user(users.get(1))
                         .challenge(activeChallengeDaily)
                         .imageUrl("https://example.com/verification.jpg")
@@ -393,6 +399,7 @@ public class DataInitializer {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
                                 ChallengeVerification.builder()
+                                    .date(date)
                                     .user(users.get(i))
                                     .challenge(completeChallenge)
                                     .imageUrl("https://example.com/verification.jpg")
@@ -416,6 +423,7 @@ public class DataInitializer {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
                                 ChallengeVerification.builder()
+                                    .date(date)
                                     .user(users.get(i))
                                     .challenge(activeChallenge6)
                                     .imageUrl("https://example.com/verification.jpg")
@@ -434,6 +442,7 @@ public class DataInitializer {
                     
                     challengeVerificationRepository.save(
                         ChallengeVerification.builder()
+                            .date(today)
                             .user(users.get(0))
                             .challenge(activeChallenge6)
                             .imageUrl("https://example.com/verification.jpg")
@@ -455,6 +464,7 @@ public class DataInitializer {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
                                 ChallengeVerification.builder()
+                                    .date(date)
                                     .user(users.get(i))
                                     .challenge(activeChallenge7)
                                     .imageUrl("https://example.com/verification.jpg")
