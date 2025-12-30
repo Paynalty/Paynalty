@@ -5,8 +5,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState, useEffect, useMemo } from 'react';
 import { Storage } from '@apps-in-toss/framework';
 import { ChallengeCard } from 'components/challenge/ChallengeCard';
-import { getMyProgressChallenges } from '../src/api/challenges';
-import { Challenge } from '../src/components/challenge/types';
+import { useChallenges, useMissionChallenges } from '../src/hooks/useChallenges';
 import { LottieView } from '@granite-js/native/lottie-react-native';
 
 export const Route = createRoute('/', {
@@ -38,36 +37,12 @@ function Page() {
   const [showTooltip, setShowTooltip] = useState(true);
   const [isMissionExpanded, setIsMissionExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [currentStatus, setCurrentStatus] = useState<'ACTIVE' | 'PENDING' | 'COMPLETE'>('ACTIVE');
-  const fetchChallenges = async (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
-    try {
-      const response = await getMyProgressChallenges(1, status);
-      if (response.success) {
-        const mappedChallenges: Challenge[] = response.data.map((item) => ({
-          challengeId: String(item.challengeId),
-          title: item.title,
-          status: status as any,
-          currentCount: item.currentWeeklyVerificationCount ?? 0,
-          penaltyAmount: Number(item.penaltyAmount),
-          participants: '기영, 호영',
-          participantCount: 2,
-          verifyEndAt: item.verifyEndAt || '',
-          verificationFrequency: String(item.frequency),
-          verificationType: item.verificationType || 'PHOTO',
-        }));
-        setChallenges(mappedChallenges);
-      }
-    } catch (error) {
-      console.error('Failed to fetch challenges:', error);
-    }
-  };
 
-  useEffect(() => {
-    fetchChallenges(currentStatus);
-  }, [currentStatus]);
+  const { data: challenges = [] } = useChallenges(currentStatus);
+  const { data: missionChallenges = [] } = useMissionChallenges();
 
-  const todayMissions = useMemo(() => challenges.filter((challenge) => challenge.status === 'ACTIVE'), [challenges]);
+  const todayMissions = missionChallenges;
 
   // 오늘 미션 벌금 합산
   const totalPenalty = useMemo(
@@ -109,7 +84,32 @@ function Page() {
                         <Top.SubtitleParagraph color={adaptive.background}>
                           {mission.title}
                           {'\n'}
-                          남은 시간 : {mission.verifyEndAt || '시간 정보 없음'}
+                          {mission.verifyEndAt
+                            ? (() => {
+                                if (!mission.verifyStartAt || !mission.verifyEndAt) return ' 시간 정보 없음';
+
+                                const start = new Date(mission.verifyStartAt).getTime();
+                                const end = new Date(mission.verifyEndAt).getTime();
+                                const now = Date.now();
+
+                                if (isNaN(start) || isNaN(end)) return ' 시간 정보 없음';
+
+                                if (now < start) {
+                                  const diff = start - now;
+                                  const h = Math.floor(diff / 3600000);
+                                  const m = Math.floor((diff % 3600000) / 60000);
+                                  if (h > 0) return `${h}시간 ${m}분 후 인증 가능`;
+                                  return `${m}분 후 인증 가능`;
+                                } else if (now <= end) {
+                                  const diff = end - now;
+                                  const h = Math.floor(diff / 3600000);
+                                  const m = Math.floor((diff % 3600000) / 60000);
+                                  return `${h}시간 ${m}분 남음`;
+                                } else {
+                                  return '오늘 인증을 못했어요';
+                                }
+                              })()
+                            : '시간 정보 없음'}
                         </Top.SubtitleParagraph>
                       </View>
                     ))}
@@ -117,15 +117,41 @@ function Page() {
                 ) : (
                   <Top.SubtitleParagraph color={adaptive.background}>
                     {todayMissions[0]?.title} {'\n'}
-                    남은 시간 : {todayMissions[0]?.verifyEndAt}
+                    {(() => {
+                      const mission = todayMissions[0];
+                      if (!mission?.verifyStartAt || !mission?.verifyEndAt) return ' 시간 정보 없음';
+
+                      const start = new Date(mission.verifyStartAt).getTime();
+                      const end = new Date(mission.verifyEndAt).getTime();
+                      const now = Date.now();
+
+                      if (isNaN(start) || isNaN(end)) return ' 시간 정보 없음';
+
+                      if (now < start) {
+                        const diff = start - now;
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        if (h > 0) return `${h}시간 ${m}분 후 인증 가능`;
+                        return `${m}분 후 인증 가능`;
+                      } else if (now <= end) {
+                        const diff = end - now;
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        return `${h}시간 ${m}분 남음`;
+                      } else {
+                        return '오늘 인증을 못했어요';
+                      }
+                    })()}
                   </Top.SubtitleParagraph>
                 )
               ) : (
                 <View style={{ minHeight: 44, justifyContent: 'center' }}>
                   <Top.SubtitleParagraph color={adaptive.background}>
-                    해야될 미션이 없어요{'\n'}
-                    오늘은 푹 쉬어도 좋아요
+                    오늘은 쉬어가는 날입니다{'\n'}
+                    다음 미션은 내일 시작됩니다
                   </Top.SubtitleParagraph>
+                  {/* 🎉 오늘의 미션을 모두 완료했습니다
+이번 주 목표까지 1회 남아 있어요*/}
                 </View>
               )
             }

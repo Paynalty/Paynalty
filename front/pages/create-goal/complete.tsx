@@ -1,11 +1,9 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import { View } from 'react-native';
 import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
-import { LottieView } from '@granite-js/native/lottie-react-native';
 
 export const Route = createRoute('/create-goal/complete', {
   component: Page,
@@ -51,7 +49,7 @@ export default function Page() {
             ? Number(challengeData.customAmount)
             : Number(challengeData.penaltyAmount),
         frequency: challengeData.frequency,
-        dayOfWeek: challengeData.dayOfWeek as any,
+        dayOfWeek: challengeData.dayOfWeeks as any,
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
@@ -59,7 +57,7 @@ export default function Page() {
 
       // 성공 시 데이터 초기화
       resetCreateGoalData();
-
+        alert('목표를 만들었습니다.');
       // 메인 페이지로 이동
       navigation.navigate('/');
     } catch (error) {
@@ -71,25 +69,6 @@ export default function Page() {
   };
   return (
     <>
-      {/* 전체 화면 Lottie 배경 */}
-      <LottieView
-        source={{ uri: 'https://lottie.host/0b55994f-12f5-4c62-9509-d3110975bcba/XjKjAF4jXq.lottie' }}
-        autoPlay
-        loop={false}
-        renderMode="SOFTWARE"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '50%',
-          zIndex: 100,
-        }}
-        pointerEvents="none"
-      />
-
       {/* 컨텐츠 */}
       <Spacing size={30} />
       <Top
