@@ -14,7 +14,7 @@ export const useChallengeStore = create<ChallengeStore>((set) => ({
   setSelectedChallengeId: (id) => set({ selectedChallengeId: id, selectedChallengeObject: null }),
   setSelectedChallenge: (challenge) =>
     set({
-      selectedChallengeId: challenge?.challengeId ?? null,
+      selectedChallengeId: challenge?.id ?? null,
       selectedChallengeObject: challenge,
     }),
 }));

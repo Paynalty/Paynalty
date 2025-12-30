@@ -29,8 +29,3 @@ export const useCreateGoalStore = create<CreateGoalStore>((set) => ({
     })),
   resetData: () => set({ data: {} }),
 }));
-
-// 하위 호환성을 위한 헬퍼 함수 (점진적 전환용)
-export const getCreateChellengeData = () => useCreateGoalStore.getState().data;
-export const updateCreateGoalData = (data: Partial<CreateGoalData>) => useCreateGoalStore.getState().updateData(data);
-export const resetCreateGoalData = () => useCreateGoalStore.getState().resetData();

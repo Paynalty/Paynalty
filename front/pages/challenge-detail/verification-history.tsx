@@ -1,5 +1,5 @@
-import {Asset, Txt, Top, ListHeader, Post,} from '@toss/tds-react-native';
-import {Paragraph, useAdaptive} from '@toss/tds-react-native/private';
+import {Asset, Txt, Top, ListHeader, } from '@toss/tds-react-native';
+import {useAdaptive} from '@toss/tds-react-native/private';
 import {ScrollView, StyleSheet, View} from "react-native";
 
 export default function Page() {
