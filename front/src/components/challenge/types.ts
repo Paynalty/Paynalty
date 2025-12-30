@@ -1,9 +1,9 @@
-export type ChallengeStatus = 'COMPLETE' | 'ACTIVE' | 'PENDING';
+export type verificationStatus = 'VERIFIED' | 'NOT_VERIFIED';
 
 export type Challenge = {
   id: string;
   title: string;
-  status: ChallengeStatus;
+  verificationStatus: verificationStatus;
   weeklyProgressCount: number;
   weeklyRequiredCount: string;
   penaltyAmount: number;

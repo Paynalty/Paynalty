@@ -11,7 +11,7 @@ export const useChallenges = (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
         return response.data.map((item) => ({
           id: String(item.id),
           title: item.title,
-          status: 'ACTIVE', // 임시 데이터
+          verificationStatus: item.verificationStatus,
           weeklyProgressCount: item.weeklyProgressCount ?? 0,
           weeklyRequiredCount: String(item.weeklyRequiredCount),
           penaltyAmount: Number(item.penaltyAmount),
@@ -38,7 +38,7 @@ export const useMissionChallenges = () => {
         return response.data.map((item) => ({
           id: String(item.id),
           title: item.title,
-          status: 'ACTIVE', // 임시 데이터
+          verificationStatus: item.verificationStatus,
           weeklyProgressCount: item.weeklyProgressCount ?? 0,
           weeklyRequiredCount: String(item.weeklyRequiredCount),
           penaltyAmount: Number(item.penaltyAmount),

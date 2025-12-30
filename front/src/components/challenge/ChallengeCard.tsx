@@ -3,7 +3,7 @@ import { Spacing, useNavigation } from '@granite-js/react-native';
 import { Badge, Top, ListHeader } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 
-import { Challenge, ChallengeStatus } from './types';
+import { Challenge, verificationStatus } from './types';
 import { setSelectedChallenge } from '../../stores/challengeStore';
 import { getVerificationMessage, isTodayChallenge, getNextScheduleMessage } from '../../utils/challenge';
 
@@ -11,24 +11,29 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const adaptive = useAdaptive();
   const navigation = useNavigation();
 
-  const getStatusBadge = (status: ChallengeStatus) => {
-    switch (status) {
-      case 'COMPLETE':
-        return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
-      case 'ACTIVE':
-        return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
-      case 'PENDING':
-        return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
-      default:
-        return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
+  const getStatusBadge = (status: verificationStatus) => {
+    if (status === 'VERIFIED') {
+      return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
     }
+
+    const isToday = isTodayChallenge(
+      challenge.daysOfWeek,
+      Number(challenge.weeklyRequiredCount),
+      challenge.weeklyProgressCount
+    );
+
+    if (isToday) {
+      return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+    }
+
+    return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
   };
 
   const badges = [
-    getStatusBadge(challenge.status),
+    getStatusBadge(challenge.verificationStatus),
     {
       label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,
-      type: (challenge.status === 'COMPLETE' ? 'green' : 'yellow') as any,
+      type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
       style: 'weak' as const,
     },
     { label: `${challenge.penaltyAmount}원`, type: 'blue' as any, style: 'weak' as const },
