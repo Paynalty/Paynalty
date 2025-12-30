@@ -350,16 +350,57 @@ public class ChallengeService {
                 .build();
     }
 
-    // update
-//    public ChallengeResponse edit(){
-//        // 수정할 챌린지 entity 찾기
-//        // updateRequest 의 필드에 entity 값 설정
-//        // 필드값이 설정된 update를 사용자에게 보여줌
-//        // 사용자가 보고 수정할 내용 변경
-//        // 변경 된 내용 entity의 update 매서드 활요하여 적용 . (저장소에 save안해도 자동 저장?)
-//        // 변경된 챌린지entity 내용을 response객체로 반환하여 보여줌
-//
-//    }
+        // updateRequest 데이터 설정 후 사용자 한테 전달
+        public ChallengeUpdateRequest getUpdateForm(Long challengeId){
+        // challengeId로 entity 찾기
+            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+        // updateRequest 필드 값 설정 후 반환
+        return new ChallengeUpdateRequest(challenge);
+        }
+
+        //update
+        public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long userId){
+            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+            challenge.update(request);
+
+            // 이번주 인증 횟수 조회
+            LocalDate today = LocalDate.now();
+            LocalDate weekStart = today.with(DayOfWeek.MONDAY); // 이번주 월요일
+            LocalDate weekEnd = weekStart.plusDays(6); // 이번주 일요일
+
+            Long currentWeeklyCount = challengeVerificationRepository.countWeeklyVerifications(
+                    challengeId,
+                    userId,
+                    weekStart,
+                    weekEnd
+            );
+            // 챌린지 시작일, 마감일 , 인증시간 에대 한 검증
+            // 시작일
+            validateStartDate(request.getStartDate());
+            // 마감일
+            validateEndDate(request.getEndDate());
+            // 인증시간
+            validateVerificationTime(request.getVerifyStartAt(),request.getVerifyEndAt());
+
+
+            VerificationStatus verificationStatus = determineVerificationStatus(challenge, userId);
+
+            // hallengeDetailResponse 생성 및 반환
+            return ChallengeDetailResponse.builder()
+                    .id(challenge.getId())
+                    .title(challenge.getTitle())
+                    .weeklyProgressCount(currentWeeklyCount.intValue())
+                    .weeklyRequiredCount(challenge.getFrequency())
+                    .penaltyAmount(challenge.getPenaltyAmount())
+                    .verifyStart(challenge.getVerifyStartAt())
+                    .verifyEnd(challenge.getVerifyEndAt())
+                    .startAt(challenge.getStartDate())
+                    .endAt(challenge.getEndDate())
+                    .daysOfWeek(challenge.getDaysOfWeek())
+                    .verificationType(challenge.getVerificationType())
+                    .verificationStatus(verificationStatus)
+                    .build();
+        }
 
 
     // ---------------------------------------------------------------------------------------------

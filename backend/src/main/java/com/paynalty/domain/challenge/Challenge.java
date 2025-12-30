@@ -140,4 +140,17 @@ public class Challenge extends BaseTimeEntity {
         }
     }
 
+    // 업데이트
+    public void update(ChallengeUpdateRequest request){
+        this.title = request.getTitle();
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+        this.verifyStartAt = request.getVerifyStartAt();
+        this.verifyEndAt = request.getVerifyEndAt();
+        this.penaltyAmount = request.getPenaltyAmount();
+        this.daysOfWeek = request.getDaysOfWeek();
+        this.frequency = request.getFrequency();
+        this.verificationType = request.getVerifyType();
+    }
+
 }
