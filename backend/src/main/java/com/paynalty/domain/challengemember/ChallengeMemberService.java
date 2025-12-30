@@ -36,7 +36,7 @@ public class ChallengeMemberService {
     }
 
 
-    // 챌린지 맴버 추가
+    // 챌린지 맴버 이미 있는지 검증 하고 추가
     @Transactional
     public void addMemberIfNotExists(User user, Challenge challenge) {
         // 이미 챌린지 멤버인지 확인
@@ -58,17 +58,21 @@ public class ChallengeMemberService {
 
     // 챌린지 생성 시 생성자와 초대 친구들 챌린지 맴버로 생성
     @Transactional
-    public void addMembersToNewChallenge(User creator, Challenge challenge, List<InviteFriendInfo> inviteFriends) {
+    public void addMembersToNewChallenge(User creator, Challenge challenge, List<Long> userIds) {
         // 1. 생성자 본인 추가
         addMemberIfNotExists(creator, challenge);
 
+        if (userIds == null || userIds.isEmpty()) {
+            return;
+        }
+
+        // usersId 값으로 user찾아서 list에 넣고 아래 초대된 친구 추가에 전달
+        List<User> users = userRepository.findAllById(userIds);
+
+
         // 2. 초대된 친구들 추가
-        if (inviteFriends != null && !inviteFriends.isEmpty()) {
-            for (InviteFriendInfo inviteFriend : inviteFriends) {
-                // 이름과 전화번호로 사용자 찾기
-                userRepository.findByNameAndPhoneNum(inviteFriend.getName(), inviteFriend.getPhoneNumber())
-                        .ifPresent(friend -> addMemberIfNotExists(friend, challenge));
-            }
+        for (User user : users) {
+            addMemberIfNotExists(user, challenge);
         }
     }
 

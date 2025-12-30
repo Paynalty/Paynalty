@@ -1,5 +1,7 @@
 package com.paynalty.domain.user;
 
+import com.paynalty.global.error.CustomException;
+import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,11 @@ public class UserService {
     public List<UserResponse> findByNameAndEmail(String identify){
         List<User> users = userRepository.findByEmailOrName(identify);
         return users.stream().map(UserResponse::from).toList();
+    }
+
+    //userId 로 user찾기
+    public User getById(Long userId){
+        return userRepository.findById(userId).orElseThrow(()->new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 
 }

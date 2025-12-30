@@ -109,18 +109,9 @@ public class ChallengeRequest {
                     "- 예: [{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"}, {\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]",
             example = "[{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"},{\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]"
     )
-    private List<InviteFriend> inviteFriends;
+    // List 변경 InviteFriend -> Long
+    // private List<InviteFriend> inviteFriends;
+    private List<Long> userIds;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @Schema(description = "초대할 친구 정보")
-    public static class InviteFriend {
-        @Schema(description = "친구 이름", example = "홍길동")
-        private String name;
-
-        @Schema(description = "친구 전화번호", example = "010-1111-2222")
-        private String phoneNumber;
-    }
 
 }

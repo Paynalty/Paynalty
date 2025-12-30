@@ -88,15 +88,9 @@ public class ChallengeService {
         Challenge savedChallenge = challengeRepository.save(challenge);
 
         // ChallengeMember 생성 (생성자 + 초대된 친구들)
-        List<ChallengeMemberService.InviteFriendInfo> inviteFriendInfos = null;
-        if (request.getInviteFriends() != null) {
-            inviteFriendInfos = request.getInviteFriends().stream()
-                    .map(friend -> new ChallengeMemberService.InviteFriendInfo(
-                            friend.getName(), 
-                            friend.getPhoneNumber()))
-                    .toList();
-        }
-        challengeMemberService.addMembersToNewChallenge(user, savedChallenge, inviteFriendInfos);
+        // 변경 기존 : List<InvitionFriends> -> List<Long>
+
+        challengeMemberService.addMembersToNewChallenge(user,savedChallenge,request.getUserIds());
 
         // 생성된 챌린지 ID 반환
         return savedChallenge.getId();
