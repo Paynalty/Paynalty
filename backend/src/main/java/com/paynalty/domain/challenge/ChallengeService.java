@@ -7,6 +7,7 @@ import com.paynalty.domain.challengeverification.ChallengeVerificationRepository
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
+import com.paynalty.domain.user.UserService;
 import com.paynalty.global.error.ChallengeErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
@@ -33,6 +34,7 @@ public class ChallengeService {
     private final ChallengeMemberService challengeMemberService;
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeVerificationService challengeVerificationService;
+    private final UserService userService;
 
 
     @Transactional
@@ -348,14 +350,23 @@ public class ChallengeService {
         public ChallengeUpdateRequest getUpdateForm(Long challengeId){
         // challengeId로 entity 찾기
             Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+            
+            List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+            List<Long> userIds = challengeMembers.stream()
+                    .map(ChallengeMember::getUser)
+                    .map(User::getId)
+                    .collect(Collectors.toList());
         // updateRequest 필드 값 설정 후 반환
-        return new ChallengeUpdateRequest(challenge);
+        return new ChallengeUpdateRequest(challenge,userIds);
         }
 
         //update
+        @Transactional
         public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long userId){
             Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
-            challenge.update(request);
+
+
+            User user = userService.getById(userId);
 
             // 이번주 인증 횟수 조회
             LocalDate today = LocalDate.now();
@@ -376,8 +387,13 @@ public class ChallengeService {
             // 인증시간
             validateVerificationTime(request.getVerifyStartAt(),request.getVerifyEndAt());
 
+            challenge.update(request);
 
             VerificationStatus verificationStatus = determineVerificationStatus(challenge, userId);
+
+            // request 의 userIds 데이터 토대로 다시 챌린지 맴버 전환
+            List<Long> userIds = request.getUserIds();
+            challengeMemberService.addMembersToNewChallenge(user,challenge,userIds);
 
             // hallengeDetailResponse 생성 및 반환
             return ChallengeDetailResponse.builder()

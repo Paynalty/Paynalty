@@ -31,10 +31,12 @@ public class ChallengeUpdateRequest {
     private Integer frequency;
 
     private VerificationType verifyType;
-    // 기존 생성 로직에 기존 request에서 InviteFriend 데이터를 담은 List가 있고 해당 값을 토대로 챌린지 맴버를 만듬
-    //  이후 수정하기, or 맴버 초대,추방 에대한 로직을 위해 updateRequest에 해당값이 필요함.
 
-    public ChallengeUpdateRequest (Challenge challenge){
+    private List<Long> userIds;
+   
+
+    // 챌린지 수정 요청 시 챌린지 데이터 조회
+    public ChallengeUpdateRequest (Challenge challenge,List<Long> userIds){
         this.title = challenge.getTitle();
         this.startDate = challenge.getStartDate();
         this.endDate = challenge.getEndDate();
@@ -44,6 +46,7 @@ public class ChallengeUpdateRequest {
         this.daysOfWeek = challenge.getDaysOfWeek();
         this.frequency = challenge.getFrequency();
         this.verifyType = challenge .getVerificationType();
+        this.userIds = userIds;
     }
 
 }
