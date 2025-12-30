@@ -55,7 +55,7 @@ function Page() {
             items={[
               { label: '지금 할 차례에요', type: 'yellow', style: 'weak' },
               {
-                label: `${selectedChallenge.currentCount}/${selectedChallenge.totalCount}`,
+                label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.totalCount}`,
                 type: 'yellow',
                 style: 'weak',
               },
@@ -159,7 +159,7 @@ function Page() {
               인증 시간
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verifyEndAt}
+              {selectedChallenge.verifyEnd}
             </Txt>
           </View>
           <View style={styles.gridDivider} />
@@ -169,7 +169,7 @@ function Page() {
               인증 주기
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationFrequency}
+              {selectedChallenge.weeklyRequiredCount}
             </Txt>
           </View>
         </View>

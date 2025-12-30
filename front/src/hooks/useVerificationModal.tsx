@@ -19,11 +19,12 @@ export function useVerificationModal() {
       return (
         <BottomSheet.Root
           header={<BottomSheet.Header>인증 방법을 선택해주세요</BottomSheet.Header>}
-          headerDescription={
+          // 가이드라인 생성 시
+            /*headerDescription={
             selectedChallenge?.guideline ? (
               <BottomSheet.HeaderDescription>{selectedChallenge.guideline}</BottomSheet.HeaderDescription>
             ) : undefined
-          }
+          }*/
           open={isOpen}
           onClose={close}
           onExited={exit}

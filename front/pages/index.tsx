@@ -23,7 +23,7 @@ function Page() {
   const checkOnboarding = async () => {
     try {
       // 테스트용: 저장된 온보딩 상태 삭제
-      // await Storage.removeItem('hasCompletedOnboarding');
+      /*await Storage.removeItem('hasCompletedOnboarding');*/
 
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
@@ -79,20 +79,20 @@ function Page() {
                 isMissionExpanded ? (
                   <View>
                     {todayMissions.map((mission, index) => (
-                      <View key={mission.challengeId}>
+                      <View key={mission.id}>
                         {index > 0 && <Spacing size={8} />}
                         <Top.SubtitleParagraph color={adaptive.background}>
                           {mission.title}
                           {'\n'}
-                          {mission.verifyEndAt
+                          {mission.verifyEnd
                             ? (() => {
-                                if (!mission.verifyStartAt || !mission.verifyEndAt) return ' 시간 정보 없음';
+                                if (!mission.verifyStart || !mission.verifyEnd) return '시간 정보 없음';
 
-                                const start = new Date(mission.verifyStartAt).getTime();
-                                const end = new Date(mission.verifyEndAt).getTime();
+                                const start = new Date(mission.verifyStart).getTime();
+                                const end = new Date(mission.verifyEnd).getTime();
                                 const now = Date.now();
 
-                                if (isNaN(start) || isNaN(end)) return ' 시간 정보 없음';
+                                if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
 
                                 if (now < start) {
                                   const diff = start - now;
@@ -119,13 +119,13 @@ function Page() {
                     {todayMissions[0]?.title} {'\n'}
                     {(() => {
                       const mission = todayMissions[0];
-                      if (!mission?.verifyStartAt || !mission?.verifyEndAt) return ' 시간 정보 없음';
+                      if (!mission?.verifyStart || !mission?.verifyEnd) return '시간 정보 없음';
 
-                      const start = new Date(mission.verifyStartAt).getTime();
-                      const end = new Date(mission.verifyEndAt).getTime();
+                      const start = new Date(mission.verifyStart).getTime();
+                      const end = new Date(mission.verifyEnd).getTime();
                       const now = Date.now();
 
-                      if (isNaN(start) || isNaN(end)) return ' 시간 정보 없음';
+                      if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
 
                       if (now < start) {
                         const diff = start - now;
@@ -273,7 +273,7 @@ function Page() {
       {/*TODO : 무한 스크롤 or  페이징 적용*/}
       {challenges.length > 0 ? (
         challenges.map((challenge, index) => (
-          <View key={challenge.challengeId || `challenge-${index}`}>
+          <View key={challenge.id || `challenge-${index}`}>
             {index > 0 && <Spacing size={16} />}
             <ChallengeCard challenge={challenge} />
           </View>

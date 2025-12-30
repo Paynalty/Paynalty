@@ -5,13 +5,13 @@ export type DayOfWeekType = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN
 
 export interface CreateChallengeRequest {
   title: string;
-  startDate: string; // ISO date string (YYYY-MM-DD)
-  endDate: string; // ISO date string (YYYY-MM-DD)
+  startDate: string;
+  endDate: string;
   frequency?: number; // 주 n회 인증
   dayOfWeek?: DayOfWeekType[]; // 지정 요일 (선택사항)
   penaltyAmount: number;
-  verifyStartAt?: string; // HH:mm 형식
-  verifyEndAt?: string; // HH:mm 형식
+  verifyStartAt?: string;
+  verifyEndAt?: string;
   verificationType: VerificationType;
 }
 
@@ -22,16 +22,16 @@ export interface CreateChallengeResponse {
 }
 
 export interface ChallengeDetailResponse {
-  challengeId: number;
+  id: number;
   title: string;
-  currentWeeklyVerificationCount: number;
-  frequency: number;
+  weeklyProgressCount: number;
+  weeklyRequiredCount: number;
   penaltyAmount: number;
-  status: string;
-  verifyStartAt: string;
-  verifyEndAt: string;
+  verifyStart: string;
+  verifyEnd: string;
   verificationType: string;
-  dayOfWeeks: string[];
+  daysOfWeek: string[];
+  endAt: string;
 }
 
 export interface ApiResponse<T> {

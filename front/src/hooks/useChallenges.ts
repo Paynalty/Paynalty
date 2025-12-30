@@ -9,17 +9,19 @@ export const useChallenges = (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
       const response = await getMyProgressChallenges(1, status);
       if (response.success) {
         return response.data.map((item) => ({
-          challengeId: String(item.challengeId),
+          id: String(item.id),
           title: item.title,
-          status: status as any,
-          currentCount: item.currentWeeklyVerificationCount ?? 0,
+          status: 'ACTIVE', // 임시 데이터
+          weeklyProgressCount: item.weeklyProgressCount ?? 0,
+          weeklyRequiredCount: String(item.weeklyRequiredCount),
           penaltyAmount: Number(item.penaltyAmount),
-          participants: '기영, 호영',
-          participantCount: 2,
-          verifyStartAt: item.verifyStartAt || '',
-          verifyEndAt: item.verifyEndAt || '',
-          verificationFrequency: String(item.frequency),
-          verificationType: item.verificationType || 'PHOTO',
+          verifyStart: item.verifyStart || '',
+          verifyEnd: item.verifyEnd || '',
+          daysOfWeek: item.daysOfWeek ?? [],
+          endAt: item.endAt,
+          participantCount: 2, // 임시 데이터
+          participants: '기영, 호영', // 임시 데이터
+          verificationType: item.verificationType || 'PHOTO', // 임시 데이터
         })) as Challenge[];
       }
       return [];
@@ -34,17 +36,19 @@ export const useMissionChallenges = () => {
       const response = await getMyProgressChallenges(1, 'ACTIVE');
       if (response.success) {
         return response.data.map((item) => ({
-          challengeId: String(item.challengeId),
+          id: String(item.id),
           title: item.title,
-          status: 'ACTIVE' as any,
-          currentCount: item.currentWeeklyVerificationCount ?? 0,
+          status: 'ACTIVE', // 임시 데이터
+          weeklyProgressCount: item.weeklyProgressCount ?? 0,
+          weeklyRequiredCount: String(item.weeklyRequiredCount),
           penaltyAmount: Number(item.penaltyAmount),
-          participants: '기영, 호영',
-          participantCount: 2,
-          verifyStartAt: item.verifyStartAt || '',
-          verifyEndAt: item.verifyEndAt || '',
-          verificationFrequency: String(item.frequency),
-          verificationType: item.verificationType || 'PHOTO',
+          verifyStart: item.verifyStart || '',
+          verifyEnd: item.verifyEnd || '',
+          daysOfWeek: item.daysOfWeek ?? [],
+          endAt: item.endAt,
+          participants: '기영, 호영', // 임시
+          participantCount: 2, // 임시
+          verificationType: item.verificationType || 'PHOTO', // 임시
         })) as Challenge[];
       }
       return [];
