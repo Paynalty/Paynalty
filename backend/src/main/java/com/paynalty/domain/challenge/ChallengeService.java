@@ -169,8 +169,10 @@ public class ChallengeService {
                                 .penaltyAmount(challenge.getPenaltyAmount())
                                 .verifyStart(challenge.getVerifyStartAt())
                                 .verifyEnd(challenge.getVerifyEndAt())
+                                .startAt(challenge.getStartDate())
                                 .endAt(challenge.getEndDate())
                                 .daysOfWeek(challenge.getDaysOfWeek())
+                                .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
                                 .build();
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
@@ -185,8 +187,10 @@ public class ChallengeService {
                                 .penaltyAmount(challenge.getPenaltyAmount())
                                 .verifyStart(challenge.getVerifyStartAt())
                                 .verifyEnd(challenge.getVerifyEndAt())
+                                .startAt(challenge.getStartDate())
                                 .endAt(challenge.getEndDate())
                                 .daysOfWeek(challenge.getDaysOfWeek())
+                                .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
                                 .build();
                     } else {
@@ -202,8 +206,10 @@ public class ChallengeService {
                                 .penaltyAmount(challenge.getPenaltyAmount())
                                 .verifyStart(challenge.getVerifyStartAt())
                                 .verifyEnd(challenge.getVerifyEndAt())
+                                .startAt(challenge.getStartDate())
                                 .endAt(challenge.getEndDate())
                                 .daysOfWeek(challenge.getDaysOfWeek())
+                                .verificationType(challenge.getVerificationType())
                                 .verificationStatus(verificationStatus)
                                 .build();
                     }
@@ -285,7 +291,10 @@ public class ChallengeService {
                     .penaltyAmount(challenge.getPenaltyAmount())
                     .verifyStart(challenge.getVerifyStartAt())
                     .verifyEnd(challenge.getVerifyEndAt())
+                    .startAt(challenge.getStartDate())
                     .endAt(challenge.getEndDate())
+                    .daysOfWeek(challenge.getDaysOfWeek())
+                    .verificationType(challenge.getVerificationType())
                     .verificationStatus(VerificationStatus.NOT_VERIFIED)
                     .build();
         } else if (challengeStatus == ChallengeStatus.COMPLETE) {
@@ -300,7 +309,10 @@ public class ChallengeService {
                     .penaltyAmount(challenge.getPenaltyAmount())
                     .verifyStart(challenge.getVerifyStartAt())
                     .verifyEnd(challenge.getVerifyEndAt())
+                    .startAt(challenge.getStartDate())
                     .endAt(challenge.getEndDate())
+                    .daysOfWeek(challenge.getDaysOfWeek())
+                    .verificationType(challenge.getVerificationType())
                     .verificationStatus(VerificationStatus.NOT_VERIFIED)
                     .build();
         }
@@ -330,7 +342,10 @@ public class ChallengeService {
                 .penaltyAmount(challenge.getPenaltyAmount())
                 .verifyStart(challenge.getVerifyStartAt())
                 .verifyEnd(challenge.getVerifyEndAt())
+                .startAt(challenge.getStartDate())
                 .endAt(challenge.getEndDate())
+                .daysOfWeek(challenge.getDaysOfWeek())
+                .verificationType(challenge.getVerificationType())
                 .verificationStatus(verificationStatus)
                 .build();
     }

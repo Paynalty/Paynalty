@@ -66,8 +66,8 @@ public class ChallengeController {
 
     // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
     @Operation(
-            summary = "챌린지에 대한 사용자 상세 정보 조회",
-            description = "특정 챌린지의 상세 정보(주간 인증 현황, 벌금, 남은 시간 등)를 조회합니다."
+            summary = "삭제예정"
+
     )
     @GetMapping("/{challengeId}/myChallenge/detail")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
@@ -84,15 +84,9 @@ public class ChallengeController {
 
 
     @Operation(
-            summary = "챌린지 상세 정보 조회",
-            description = "특정 챌린지의 상세 정보를 조회합니다.\n\n" +
-                    "📌 반환 정보:\n" +
-                    "- 챌린지 기본 정보 (제목, 기간, 벌금 등)\n" +
-                    "- 참여 멤버 수\n" +
-                    "- 사용자의 인증 상태 (오늘 인증했는지 여부)\n" +
-                    "- 현재 주간 인증 현황 (3/5 등)\n" +
-                    "- 인증 시간, 인증 방식, 인증 주기 등\n\n" +
-                    "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
+            summary = "삭제 예정",
+            description = "삭제 예정"
+
     )
     @GetMapping("/{challengeId}/detail")
     public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeDetail(
@@ -106,5 +100,9 @@ public class ChallengeController {
         ChallengeResponse response = challengeService.getChallengeDetail(challengeId, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
+
+    // 전달 받은 데이터에서 수정 후 편집
 
 }
