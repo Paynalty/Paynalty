@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -66,46 +67,111 @@ public class DataInitializer {
             if (challengeRepository.count() == 0) {
 
                 List<User> users = userRepository.findAll();
+                LocalDate today = LocalDate.now();
 
-                // 1️⃣ 진행 중 - 평일 저녁 운동
+                // ✅ 챌린지 1: PENDING (시작 전)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("평일 저녁 운동 챌린지")
-                                .startDate(LocalDate.now().minusDays(5))
-                                .endDate(LocalDate.now().plusDays(20))
+                                .title("시작 전 챌린지")
+                                .startDate(today.plusDays(3))
+                                .endDate(today.plusDays(24)) // 3주
                                 .frequency(3)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
-                                        LocalDate.now().minusDays(5),
-                                        LocalDate.now().plusDays(20)
+                                        today.plusDays(3),
+                                        today.plusDays(24)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59,59))
-                                .daysOfWeek(List.of(
-                                        DayOfWeekType.MON,
-                                        DayOfWeekType.WED,
-                                        DayOfWeekType.FRI
-                                ))
-                                .user(users.get(0)) // 홍길동
+                                .verifyStartAt(LocalTime.of(9, 0))
+                                .verifyEndAt(LocalTime.of(18, 0))
+                                .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
+                                .user(users.get(0))
                                 .build()
                 );
 
-                // 2️⃣ 진행 중 - 출근 인증
+                // ✅ 챌린지 2: ACTIVE (진행 중 - 요일 지정)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("출근 인증 챌린지")
-                                .startDate(LocalDate.now().minusDays(2))
-                                .endDate(LocalDate.now().plusDays(30))
-                                .frequency(5)
-                                .penaltyAmount(5000L)
+                                .title("진행 중 챌린지 (월/수/금)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(3)
+                                .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
-                                        LocalDate.now().minusDays(2),
-                                        LocalDate.now().plusDays(30)
+                                        today.minusDays(21),
+                                        today.plusDays(14)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59,59))
+                                .verifyStartAt(LocalTime.of(9, 0))
+                                .verifyEndAt(LocalTime.of(18, 0))
+                                .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
+                                .user(users.get(0))
+                                .build()
+                );
+
+                // ✅ 챌린지 3: ACTIVE (진행 중 - 저녁 시간대)
+                challengeRepository.save(
+                        Challenge.builder()
+                                .title("진행 중 챌린지 (저녁 시간대)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(3)
+                                .penaltyAmount(10000L)
+                                .status(Challenge.calculateStatus(
+                                        today.minusDays(21),
+                                        today.plusDays(14)
+                                ))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(18, 0))
+                                .verifyEndAt(LocalTime.of(23, 59))
+                                .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
+                                .user(users.get(0))
+                                .build()
+                );
+
+                // ✅ 챌린지 4: ACTIVE (진행 중 - 매일, 24시간)
+                challengeRepository.save(
+                        Challenge.builder()
+                                .title("진행 중 챌린지 (매일)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(7) // 주 7회 (매일)
+                                .penaltyAmount(10000L)
+                                .status(Challenge.calculateStatus(
+                                        today.minusDays(21),
+                                        today.plusDays(14)
+                                ))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(0, 0, 0))
+                                .verifyEndAt(LocalTime.of(23, 59, 59))
+                                .daysOfWeek(List.of(
+                                        DayOfWeekType.MON,
+                                        DayOfWeekType.TUE,
+                                        DayOfWeekType.WED,
+                                        DayOfWeekType.THU,
+                                        DayOfWeekType.FRI,
+                                        DayOfWeekType.SAT,
+                                        DayOfWeekType.SUN
+                                ))
+                                .user(users.get(0))
+                                .build()
+                );
+
+                // ✅ 챌린지 5: COMPLETE (완료됨)
+                challengeRepository.save(
+                        Challenge.builder()
+                                .title("완료된 챌린지")
+                                .startDate(today.minusDays(28))
+                                .endDate(today.minusDays(7))
+                                .frequency(5)
+                                .penaltyAmount(10000L)
+                                .status(Challenge.calculateStatus(
+                                        today.minusDays(28),
+                                        today.minusDays(7)
+                                ))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(9, 0))
+                                .verifyEndAt(LocalTime.of(18, 0))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.TUE,
@@ -113,55 +179,61 @@ public class DataInitializer {
                                         DayOfWeekType.THU,
                                         DayOfWeekType.FRI
                                 ))
-                                .user(users.get(0)) // 이순신
+                                .user(users.get(0))
                                 .build()
                 );
 
-                // 3️⃣ 시작 전 - 주말 독서
+                // ✅ 챌린지 6: ACTIVE (진행 중 - 화/목/토/일, 오전)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("주말 독서 챌린지")
-                                .startDate(LocalDate.now().plusDays(3))
-                                .endDate(LocalDate.now().plusDays(40))
-                                .frequency(2)
-                                .penaltyAmount(7000L)
+                                .title("진행 중 챌린지 (화목토일-오전)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(4)
+                                .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
-                                        LocalDate.now().plusDays(3),
-                                        LocalDate.now().plusDays(40)
+                                        today.minusDays(21),
+                                        today.plusDays(14)
                                 ))
-                                .verificationType(VerificationType.TEXT)
-                                .verifyStartAt(LocalTime.of(0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59,59))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(9, 0))
+                                .verifyEndAt(LocalTime.of(18, 0))
                                 .daysOfWeek(List.of(
+                                        DayOfWeekType.TUE,
+                                        DayOfWeekType.THU,
                                         DayOfWeekType.SAT,
                                         DayOfWeekType.SUN
                                 ))
-                                .user(users.get(0)) // 테스트유저3
+                                .user(users.get(0))
                                 .build()
                 );
 
-                // 4️⃣ 완료됨 - 과거 챌린지
+                // ✅ 챌린지 7: ACTIVE (진행 중 - 화/목/토/일, 저녁)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("완료된 미라클 모닝")
-                                .startDate(LocalDate.now().minusDays(30))
-                                .endDate(LocalDate.now().minusDays(1))
-                                .frequency(2)
-                                .penaltyAmount(3000L)
+                                .title("진행 중 챌린지 (화목토일-저녁)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(4)
+                                .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
-                                        LocalDate.now().minusDays(30),
-                                        LocalDate.now().minusDays(1)
+                                        today.minusDays(21),
+                                        today.plusDays(14)
                                 ))
                                 .verificationType(VerificationType.PHOTO)
-                                .verifyStartAt(LocalTime.of(0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59,59))
+                                .verifyStartAt(LocalTime.of(18, 0))
+                                .verifyEndAt(LocalTime.of(23, 59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.TUE,
-                                        DayOfWeekType.THU
+                                        DayOfWeekType.THU,
+                                        DayOfWeekType.SAT,
+                                        DayOfWeekType.SUN
                                 ))
-                                .user(users.get(0)) // 테스트유저4
+                                .user(users.get(0))
                                 .build()
                 );
+
+                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (7개)");
             }
 
             if (challengeMemberRepository.count() == 0) {
@@ -171,21 +243,11 @@ public class DataInitializer {
 
                 for (Challenge challenge : challenges) {
 
-                    // 1️⃣ 방장 (항상 포함)
-                    challengeMemberRepository.save(
-                            ChallengeMember.builder()
-                                    .user(users.get(0)) // 방장 고정
-                                    .challenge(challenge)
-                                    .isSuccess(challenge.getStatus())
-                                    .endAt(challenge.getEndDate())
-                                    .build()
-                    );
-
-// 2️⃣ 기본 참가자 (항상 포함)
-                    if (users.size() > 1) {
+                    // 1️⃣ 테스트용 고정 멤버 (userId=1, 2, 3 항상 포함)
+                    for (int i = 0; i < 3 && i < users.size(); i++) {
                         challengeMemberRepository.save(
                                 ChallengeMember.builder()
-                                        .user(users.get(1)) // 고정 참가자
+                                        .user(users.get(i))
                                         .challenge(challenge)
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
@@ -193,13 +255,13 @@ public class DataInitializer {
                         );
                     }
 
-// 3️⃣ 추가 참가자 수 (0~2명 정도)
-                    int additionalCount = (int) (Math.random() * 3); // 0~2
+                    // 2️⃣ 추가 참가자 (0~2명 랜덤, userId=4부터)
+                    int additionalCount = (int) (Math.random() * 3); // 0, 1, or 2
 
-                    for (int i = 2; i < 2 + additionalCount && i < users.size(); i++) {
+                    for (int i = 3; i < 3 + additionalCount && i < users.size(); i++) {
                         challengeMemberRepository.save(
                                 ChallengeMember.builder()
-                                        .user(users.get(i)) // users.get(2), (3) ...
+                                        .user(users.get(i))
                                         .challenge(challenge)
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
@@ -207,104 +269,221 @@ public class DataInitializer {
                         );
                     }
                 }
+
+                System.out.println("테스트용 ChallengeMember 데이터가 생성되었습니다.");
+                System.out.println("✅ userId=1, 2, 3은 모든 챌린지에 포함됨");
             }
 
-            if (challengeVerificationRepository.count() == 0){
+            if (challengeVerificationRepository.count() == 0) {
 
-            List<User> users = userRepository.findAll();
-            List<Challenge> challenges = challengeRepository.findAll();
-            // userid =1
+                List<User> users = userRepository.findAll();
+                List<Challenge> challenges = challengeRepository.findAll();
+                LocalDate today = LocalDate.now();
+                LocalDate weekStart = today.minusDays(today.getDayOfWeek().getValue() - 1); // 이번 주 월요일
+
+                // ✅ 챌린지 2번 인증 데이터 (ACTIVE - 오전)
+                Challenge activeChallenge1 = challenges.get(1);
+
+                // 과거 인증 데이터 (시작일부터 어제까지)
+                for (LocalDate date = activeChallenge1.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                    if (date.getDayOfWeek().getValue() == 1 || 
+                        date.getDayOfWeek().getValue() == 3 || 
+                        date.getDayOfWeek().getValue() == 5) {
+                        
+                        for (int i = 0; i < 3 && i < users.size(); i++) {
+                            challengeVerificationRepository.save(
+                                ChallengeVerification.builder()
+                                    .date(date)
+                                    .user(users.get(i))
+                                    .challenge(activeChallenge1)
+                                    .imageUrl("https://example.com/verification.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build()
+                            );
+                        }
+                    }
+                }
+
+                // 오늘: userId=2만 인증
+                if (today.getDayOfWeek().getValue() == 1 || 
+                    today.getDayOfWeek().getValue() == 3 || 
+                    today.getDayOfWeek().getValue() == 5) {
+                    
+                    challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                            .date(today)
+                            .user(users.get(1))
+                            .challenge(activeChallenge1)
+                            .imageUrl("https://example.com/verification.jpg")
+                            .status(VerificationStatus.VALID)
+                            .build()
+                    );
+                }
+
+                // ✅ 챌린지 3번 인증 데이터 (ACTIVE - 저녁)
+                Challenge activeChallenge2 = challenges.get(2);
+
+                // 과거 인증 데이터 (시작일부터 어제까지)
+                for (LocalDate date = activeChallenge2.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                    if (date.getDayOfWeek().getValue() == 1 || 
+                        date.getDayOfWeek().getValue() == 3 || 
+                        date.getDayOfWeek().getValue() == 5) {
+                        
+                        for (int i = 0; i < 3 && i < users.size(); i++) {
+                            challengeVerificationRepository.save(
+                                ChallengeVerification.builder()
+                                    .date(date)
+                                    .user(users.get(i))
+                                    .challenge(activeChallenge2)
+                                    .imageUrl("https://example.com/verification.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build()
+                            );
+                        }
+                    }
+                }
+
+                // 오늘: userId=3만 인증 (저녁 시간대는 userId=1,2가 인증 안 함)
+                if (today.getDayOfWeek().getValue() == 1 || 
+                    today.getDayOfWeek().getValue() == 3 || 
+                    today.getDayOfWeek().getValue() == 5) {
+                    
+                    challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                            .date(today)
+                            .user(users.get(2))
+                            .challenge(activeChallenge2)
+                            .imageUrl("https://example.com/verification.jpg")
+                            .status(VerificationStatus.VALID)
+                            .build()
+                    );
+                }
+
+                // ✅ 챌린지 4번 인증 데이터 (ACTIVE - 매일)
+                Challenge activeChallengeDaily = challenges.get(3);
+
+                // 과거 인증 데이터 (시작일부터 어제까지 매일)
+                for (LocalDate date = activeChallengeDaily.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                    for (int i = 0; i < 3 && i < users.size(); i++) {
+                        challengeVerificationRepository.save(
+                            ChallengeVerification.builder()
+                                .date(date)
+                                .user(users.get(i))
+                                .challenge(activeChallengeDaily)
+                                .imageUrl("https://example.com/verification.jpg")
+                                .status(VerificationStatus.VALID)
+                                .build()
+                        );
+                    }
+                }
+
+                // 오늘: userId=2만 인증 (userId=1은 테스트용으로 인증 안 함)
                 challengeVerificationRepository.save(
                     ChallengeVerification.builder()
-                            .date(LocalDate.of(2025,12,19))
-                            .user(users.getFirst())
-                            .challenge(challenges.getFirst())
-                            .imageUrl("https://example.com/image.jpg")
-                            .status(VerificationStatus.FAIL)
+                        .date(today)
+                        .user(users.get(1))
+                        .challenge(activeChallengeDaily)
+                        .imageUrl("https://example.com/verification.jpg")
+                        .status(VerificationStatus.VALID)
+                        .build()
+                );
+
+                // ✅ 챌린지 5번 인증 데이터 (COMPLETE)
+                Challenge completeChallenge = challenges.get(4);
+                
+                for (LocalDate date = completeChallenge.getStartDate(); 
+                     !date.isAfter(completeChallenge.getEndDate()); 
+                     date = date.plusDays(1)) {
+                    
+                    if (date.getDayOfWeek().getValue() >= 1 && date.getDayOfWeek().getValue() <= 5) {
+                        for (int i = 0; i < 3 && i < users.size(); i++) {
+                            challengeVerificationRepository.save(
+                                ChallengeVerification.builder()
+                                    .date(date)
+                                    .user(users.get(i))
+                                    .challenge(completeChallenge)
+                                    .imageUrl("https://example.com/verification.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build()
+                            );
+                        }
+                    }
+                }
+
+                // ✅ 챌린지 6번 인증 데이터 (ACTIVE - 화/목/토/일, 오전)
+                Challenge activeChallenge6 = challenges.get(5);
+
+                // 과거 인증 데이터 (시작일부터 어제까지)
+                for (LocalDate date = activeChallenge6.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                    if (date.getDayOfWeek().getValue() == 2 || 
+                        date.getDayOfWeek().getValue() == 4 || 
+                        date.getDayOfWeek().getValue() == 6 || 
+                        date.getDayOfWeek().getValue() == 7) {
+                        
+                        for (int i = 0; i < 3 && i < users.size(); i++) {
+                            challengeVerificationRepository.save(
+                                ChallengeVerification.builder()
+                                    .date(date)
+                                    .user(users.get(i))
+                                    .challenge(activeChallenge6)
+                                    .imageUrl("https://example.com/verification.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build()
+                            );
+                        }
+                    }
+                }
+
+                // 오늘: userId=1만 인증
+                if (today.getDayOfWeek().getValue() == 2 || 
+                    today.getDayOfWeek().getValue() == 4 || 
+                    today.getDayOfWeek().getValue() == 6 || 
+                    today.getDayOfWeek().getValue() == 7) {
+                    
+                    challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                            .date(today)
+                            .user(users.get(0))
+                            .challenge(activeChallenge6)
+                            .imageUrl("https://example.com/verification.jpg")
+                            .status(VerificationStatus.VALID)
                             .build()
-                );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,22))
-                                .user(users.getFirst())
-                                .challenge(challenges.getFirst())
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,24))
-                                .user(users.getFirst())
-                                .challenge(challenges.getFirst())
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
+                    );
+                }
 
-                //userId = 2;
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,19))
-                                .user(users.get(1))
-                                .challenge(challenges.getFirst())
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,22))
-                                .user(users.get(1))
-                                .challenge(challenges.getFirst())
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
+                // ✅ 챌린지 7번 인증 데이터 (ACTIVE - 화/목/토/일, 저녁)
+                Challenge activeChallenge7 = challenges.get(6);
 
-                // challengeId =2
-                // userid =1
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,22))
-                                .user(users.getFirst())
-                                .challenge(challenges.get(1))
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.FAIL)
-                                .build()
-                );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,23))
-                                .user(users.getFirst())
-                                .challenge(challenges.get(1))
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
+                // 과거 인증 데이터 (시작일부터 어제까지)
+                for (LocalDate date = activeChallenge7.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                    if (date.getDayOfWeek().getValue() == 2 || 
+                        date.getDayOfWeek().getValue() == 4 || 
+                        date.getDayOfWeek().getValue() == 6 || 
+                        date.getDayOfWeek().getValue() == 7) {
+                        
+                        for (int i = 0; i < 3 && i < users.size(); i++) {
+                            challengeVerificationRepository.save(
+                                ChallengeVerification.builder()
+                                    .date(date)
+                                    .user(users.get(i))
+                                    .challenge(activeChallenge7)
+                                    .imageUrl("https://example.com/verification.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build()
+                            );
+                        }
+                    }
+                }
 
-                //userId = 2;
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,22))
-                                .user(users.get(1))
-                                .challenge(challenges.get(1))
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(LocalDate.of(2025,12,24))
-                                .user(users.get(1))
-                                .challenge(challenges.get(1))
-                                .imageUrl("https://example.com/image.jpg")
-                                .status(VerificationStatus.SUCCESS)
-                                .build()
-                );
+                // 오늘: 모두 인증 안 함 (userId=1,2,3 모두 테스트 가능)
+                // (저녁 챌린지는 별도 테스트용)
 
-
-
+                System.out.println("✅ 테스트용 인증 데이터 생성 완료");
+                System.out.println("   📌 챌린지 2 (09:00~18:00, 월/수/금): userId=2 인증완료");
+                System.out.println("   📌 챌린지 3 (18:00~23:59, 월/수/금): userId=3 인증완료");
+                System.out.println("   📌 챌린지 4 (00:00~23:59, 매일): userId=2 인증완료");
+                System.out.println("   📌 챌린지 6 (09:00~18:00, 화/목/토/일): userId=1 인증완료");
+                System.out.println("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
             }
 
 

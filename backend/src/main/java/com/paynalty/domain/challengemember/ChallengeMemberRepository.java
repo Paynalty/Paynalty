@@ -20,6 +20,27 @@ public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember
 
     List<ChallengeMember> findByChallengeId(Long challengeId);
 
+    /**
+     * 챌린지 ID와 사용자 ID로 ChallengeMember를 조회합니다.
+     * User와 Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param userId 사용자 ID
+     * @return ChallengeMember (User, Challenge 포함)
+     */
+    @Query("""
+    SELECT cm
+    FROM ChallengeMember cm
+    JOIN FETCH cm.user
+    JOIN FETCH cm.challenge
+    WHERE cm.challenge.id = :challengeId
+    AND cm.user.id = :userId
+    """)
+    Optional<ChallengeMember> findByChallengeIdAndUserIdWithFetch(
+            @Param("challengeId") Long challengeId,
+            @Param("userId") Long userId
+    );
+
     @Query("""
     SELECT cm
     FROM ChallengeMember cm

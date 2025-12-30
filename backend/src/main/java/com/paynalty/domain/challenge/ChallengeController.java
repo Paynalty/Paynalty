@@ -33,31 +33,34 @@ public class ChallengeController {
                     "   - dayOfWeeks가 null이거나 빈 리스트이면 → frequency 값 필수\n" +
                     "4. verifyStartAt/verifyEndAt: 둘 다 null이면 기본값(00:00, 23:59) 사용\n" +
                     "5. verifyStartAt은 verifyEndAt보다 이전이어야 함\n\n" +
-                    "✅ 성공 시: 201 Created (response body 없음)\n" +
+                    "✅ 성공 시: 201 Created + 생성된 챌린지 ID 반환\n" +
+                    "💡 상세 정보 조회는 GET /api/challenge/{challengeId}/detail 사용\n" +
                     "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
     )
     @PostMapping()
-    public ResponseEntity<Void> createChallenge(
+    public ResponseEntity<ApiResponse<Long>> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request) {
         Long userId = 1L;
-        challengeService.create(request, userId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Long challengeId = challengeService.create(request, userId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(challengeId));
     }
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
+    // todo userId -> authId로 교체
     @Operation(
             summary = "진행 상황에 따른 챌린지 목록 불러오기",
-            description = "시작전 챌린지 : pending , 진행중 챌린지 : progress "
+            description = "시작전 챌린지 : PENDING , 진행중 챌린지 : ACTIVE, 완료된 챌린지 : COMPLETE"
     )
     @GetMapping("/{userId}/{status}")
-    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getByStatus(
+    public ResponseEntity<ApiResponse<List<ChallengeDetailResponse>>> getByStatus(
             @Parameter(description = "사용자 userId", required = true, example = "1")
             @PathVariable Long userId,
             @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
             @PathVariable ChallengeStatus status
     ) {
-        List<ChallengeResponse> response = challengeService.findByStatus(userId , status);
+        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId , status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -81,15 +84,26 @@ public class ChallengeController {
 
 
     @Operation(
-            summary = "삭제예정",
-            description = "필요없는 호출"
+            summary = "챌린지 상세 정보 조회",
+            description = "특정 챌린지의 상세 정보를 조회합니다.\n\n" +
+                    "📌 반환 정보:\n" +
+                    "- 챌린지 기본 정보 (제목, 기간, 벌금 등)\n" +
+                    "- 참여 멤버 수\n" +
+                    "- 사용자의 인증 상태 (오늘 인증했는지 여부)\n" +
+                    "- 현재 주간 인증 현황 (3/5 등)\n" +
+                    "- 인증 시간, 인증 방식, 인증 주기 등\n\n" +
+                    "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
     )
-    @GetMapping("/myProgressChallenges/{userId}")
-    public ResponseEntity<ApiResponse<List<ChallengeDetailResponse>>> getMyProgressChallengesDetail(
-            @Parameter(description = "사용자 ID", required = true, example = "1")
-            @PathVariable Long userId
+    @GetMapping("/{challengeId}/detail")
+    public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeDetail(
+            @Parameter(description = "챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId
     ) {
-        List<ChallengeDetailResponse> response = challengeService.getMyProgressChallengesDetail(userId);
+        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
+        // 현재는 임시로 userId = 1L 사용
+        Long userId = 1L;
+        
+        ChallengeResponse response = challengeService.getChallengeDetail(challengeId, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
