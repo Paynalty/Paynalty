@@ -59,7 +59,7 @@ public class ChallengeVerificationController {
     }
 
     @Operation(
-            summary = "챌린지에 참여한 맴버들 총 인증 횟수 가져오기"
+            summary = "수정 예정."
     )
     @GetMapping("/{challengeId}/member/verification-count")
     public ResponseEntity<ApiResponse<List<MembersVerificationCountResponse>>>

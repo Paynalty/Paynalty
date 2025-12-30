@@ -41,6 +41,12 @@ public class ChallengeDetailResponse {
 
     //마감일(년/월/일)
     private LocalDate endAt;
+    // 시작일
+    private LocalDate startAt;
+
+    //인증 타입
+    private VerificationType verificationType;
+
 }
 
 

@@ -28,9 +28,9 @@ public class ChallengeVerificationResponse {
     @Schema(description = "인증 이미지 URL", example = "String")
     private String imageUrl;
 
-    //default: PENDING
-    @Schema(description = "인증 상태", example = "VerificationStatus 타입, 종류 : SUCCESS, FAILED, PENDING")
-    private VerificationStatus status;
+    //보류
+//    @Schema(description = "인증 상태", example = "VerificationStatus 타입, 종류 : SUCCESS, FAILED, PENDING")
+//    private VerificationStatus status;
 
     public static ChallengeVerificationResponse from(ChallengeVerification cv) {
         return ChallengeVerificationResponse.builder()
