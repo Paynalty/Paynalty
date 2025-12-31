@@ -22,7 +22,6 @@ public enum ChallengeErrorCode implements ErrorCode {
     // 챌린지 권한 에러
     NOT_CHALLENGE_CREATOR_FOR_UPDATE(HttpStatus.FORBIDDEN, "CHA020", "챌린지 생성자만 수정할 수 있습니다."),
     NOT_CHALLENGE_CREATOR_FOR_DELETE(HttpStatus.FORBIDDEN, "CHA021", "챌린지 생성자만 삭제할 수 있습니다."),
-    NOT_CHALLENGE_MEMBER(HttpStatus.FORBIDDEN, "CHA022", "챌린지 참여자가 아닙니다."),
     ;
 
     private final HttpStatus status;

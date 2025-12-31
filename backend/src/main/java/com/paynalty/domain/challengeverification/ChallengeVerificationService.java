@@ -7,6 +7,9 @@ import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.user.User;
+import com.paynalty.global.error.ChallengeMemberErrorCode;
+import com.paynalty.global.error.CustomException;
+import com.paynalty.global.error.ChallengeVerificationErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +37,7 @@ public class ChallengeVerificationService {
         // 1단계: 챌린지 멤버 확인 (Challenge + User 함께 조회하여 성능 최적화)
         ChallengeMember member = challengeMemberRepository
                 .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
-                .orElseThrow(() -> new IllegalStateException("챌린지에 참여하지 않은 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
         
         Challenge challenge = member.getChallenge();
         User user = member.getUser();
@@ -42,32 +45,28 @@ public class ChallengeVerificationService {
         // 2단계: 챌린지 상태 검증 (ACTIVE만 인증 가능)
         ChallengeStatus status = challenge.calculateStatus();
         if (status != ChallengeStatus.ACTIVE) {
-            throw new IllegalStateException("인증 가능한 챌린지가 아닙니다. (현재 상태: " + status + ")");
+            throw new CustomException(ChallengeVerificationErrorCode.CHALLENGE_NOT_ACTIVE);
         }
 
-        // 3단계: 인증 시간대 검증  - 겹치는 로직 삭제
+        // 3단계: 인증 시간대 검증
         LocalTime now = LocalTime.now();
         LocalTime startTime = challenge.getVerifyStartAt();
         LocalTime endTime = challenge.getVerifyEndAt();
         
         if (startTime != null && endTime != null) {
             if (now.isBefore(startTime) || now.isAfter(endTime)) {
-                throw new IllegalStateException(
-                    String.format("인증 가능 시간이 아닙니다. (가능 시간: %s ~ %s)", startTime, endTime)
-                );
+                throw new CustomException(ChallengeVerificationErrorCode.OUTSIDE_VERIFICATION_TIME);
             }
         }
 
-        // 4단계: 인증 요일 검증 (daysOfWeek가 설정된 경우만) - 삭제
+        // 4단계: 인증 요일 검증 (daysOfWeek가 설정된 경우만)
         List<DayOfWeekType> allowedDays = challenge.getDaysOfWeek();
         if (allowedDays != null && !allowedDays.isEmpty()) {
             DayOfWeek todayDayOfWeek = LocalDate.now().getDayOfWeek();
             DayOfWeekType todayDayOfWeekType = DayOfWeekType.from(todayDayOfWeek);
             
             if (!allowedDays.contains(todayDayOfWeekType)) {
-                throw new IllegalStateException(
-                    "오늘은 인증 가능한 요일이 아닙니다. (인증 가능 요일: " + allowedDays + ")"
-                );
+                throw new CustomException(ChallengeVerificationErrorCode.NOT_ALLOWED_DAY);
             }
         }
 
@@ -78,7 +77,7 @@ public class ChallengeVerificationService {
                 .existsByChallengeIdAndUserIdAndDate(challengeId, user.getId(), today);
         
         if (alreadyVerifiedToday) {
-            throw new IllegalStateException("오늘 이미 인증을 완료했습니다. (1일 1회만 가능)");
+            throw new CustomException(ChallengeVerificationErrorCode.ALREADY_VERIFIED_TODAY);
         }
 
         // 6단계: 주간 인증 횟수 제한 검증
@@ -90,9 +89,7 @@ public class ChallengeVerificationService {
         
         Integer maxFrequency = challenge.getFrequency();
         if (weeklyCount >= maxFrequency) {
-            throw new IllegalStateException(
-                String.format("주간 인증 횟수를 초과했습니다. (%d/%d)", weeklyCount, maxFrequency)
-            );
+            throw new CustomException(ChallengeVerificationErrorCode.WEEKLY_FREQUENCY_EXCEEDED);
         }
 
         // 7단계: ChallengeVerification 생성
@@ -127,7 +124,7 @@ public class ChallengeVerificationService {
     public ChallengeVerificationResponse getLatestVerification(Long challengeId) {
         ChallengeVerification cv = challengeVerificationRepository
                 .findTopByChallengeIdOrderByDateDescIdDesc(challengeId)
-                .orElseThrow(() -> new IllegalStateException("해당 챌린지에 인증 데이터가 없습니다."));
+                .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.NO_VERIFICATION_DATA));
         return ChallengeVerificationResponse.from(cv);
     }
 
@@ -170,6 +167,74 @@ public class ChallengeVerificationService {
         Slice<ChallengeVerification> verificationSlice = challengeVerificationRepository
                 .findByChallengeIdOrderByDateDescIdDesc(challengeId, pageable);
         return verificationSlice.map(ChallengeVerificationResponse::from);
+    }
+
+    // 인증 데이터 수정 (이미지 URL 변경)
+    @Transactional
+    public ChallengeVerificationResponse update(Long verificationId, Long userId, ChallengeVerificationUpdateRequest request) {
+        // 1단계: 인증 데이터 조회
+        ChallengeVerification verification = challengeVerificationRepository
+                .findById(verificationId)
+                .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.VERIFICATION_NOT_FOUND));
+
+        // 2단계: 본인 인증 데이터인지 확인
+        if (!verification.getUser().getId().equals(userId)) {
+            throw new CustomException(ChallengeVerificationErrorCode.NOT_VERIFICATION_OWNER_FOR_UPDATE);
+        }
+
+        // 3단계: 당일 인증인지 확인
+        LocalDate today = LocalDate.now();
+        if (!verification.getDate().isEqual(today)) {
+            throw new CustomException(ChallengeVerificationErrorCode.CANNOT_UPDATE_PAST_VERIFICATION);
+        }
+
+        // 4단계: 챌린지 정보 가져오기
+        Challenge challenge = verification.getChallenge();
+
+        // 5단계: 인증 시간대 검증
+        LocalTime now = LocalTime.now();
+        LocalTime startTime = challenge.getVerifyStartAt();
+        LocalTime endTime = challenge.getVerifyEndAt();
+        
+        if (startTime != null && endTime != null) {
+            if (now.isBefore(startTime) || now.isAfter(endTime)) {
+                throw new CustomException(ChallengeVerificationErrorCode.CANNOT_UPDATE_OUTSIDE_TIME_RANGE);
+            }
+        }
+
+        // 6단계: 인증 요일 검증 (daysOfWeek가 설정된 경우만)
+        List<DayOfWeekType> allowedDays = challenge.getDaysOfWeek();
+        if (allowedDays != null && !allowedDays.isEmpty()) {
+            DayOfWeek todayDayOfWeek = today.getDayOfWeek();
+            DayOfWeekType todayDayOfWeekType = DayOfWeekType.from(todayDayOfWeek);
+            
+            if (!allowedDays.contains(todayDayOfWeekType)) {
+                throw new CustomException(ChallengeVerificationErrorCode.CANNOT_UPDATE_OUTSIDE_ALLOWED_DAYS);
+            }
+        }
+
+        // 7단계: 이미지 URL 수정
+        verification.updateImageUrl(request.getImageUrl());
+
+        // 8단계: 변경 사항 저장 및 응답
+        return ChallengeVerificationResponse.from(verification);
+    }
+
+    // 인증 데이터 삭제
+    @Transactional
+    public void delete(Long verificationId, Long userId) {
+        // 1단계: 인증 데이터 조회
+        ChallengeVerification verification = challengeVerificationRepository
+                .findById(verificationId)
+                .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.VERIFICATION_NOT_FOUND));
+
+        // 2단계: 본인 인증 데이터인지 확인
+        if (!verification.getUser().getId().equals(userId)) {
+            throw new CustomException(ChallengeVerificationErrorCode.NOT_VERIFICATION_OWNER_FOR_DELETE);
+        }
+
+        // 3단계: 인증 데이터 삭제
+        challengeVerificationRepository.delete(verification);
     }
 
 

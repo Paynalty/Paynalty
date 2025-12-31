@@ -103,4 +103,36 @@ public class ChallengeVerificationController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "인증 데이터 수정",
+            description = "본인의 인증 데이터의 이미지 URL을 수정합니다."
+    )
+    @PutMapping("/{verificationId}")
+    public ResponseEntity<ChallengeVerificationResponse> update(
+            @Parameter(description = "인증 ID", required = true, example = "1")
+            @PathVariable Long verificationId,
+            @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId,
+            @Parameter(description = "인증 수정 요청 정보", required = true)
+            @Valid @RequestBody ChallengeVerificationUpdateRequest request
+    ) {
+        ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "인증 데이터 삭제",
+            description = "본인의 인증 데이터를 삭제합니다."
+    )
+    @DeleteMapping("/{verificationId}")
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "인증 ID", required = true, example = "1")
+            @PathVariable Long verificationId,
+            @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId
+    ) {
+        challengeVerificationService.delete(verificationId, userId);
+        return ResponseEntity.ok().build();
+    }
+
 }
