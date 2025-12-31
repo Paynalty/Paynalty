@@ -6,6 +6,7 @@ import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challenge.VerificationType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.VerificationStatus;
@@ -241,16 +242,25 @@ public class DataInitializer {
                 List<User> users = userRepository.findAll();
                 List<Challenge> challenges = challengeRepository.findAll();
 
+                MemberRole role = MemberRole.CHALLENGER;
+
                 for (Challenge challenge : challenges) {
 
                     // 1️⃣ 테스트용 고정 멤버 (userId=1, 2, 3 항상 포함)
                     for (int i = 0; i < 3 && i < users.size(); i++) {
+                        if( i == 0){
+                         role = MemberRole.CREATOR;
+                        }else{
+                        role = MemberRole.CHALLENGER;
+                        }
+
                         challengeMemberRepository.save(
                                 ChallengeMember.builder()
                                         .user(users.get(i))
                                         .challenge(challenge)
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
+                                        .role(role)
                                         .build()
                         );
                     }
@@ -265,6 +275,7 @@ public class DataInitializer {
                                         .challenge(challenge)
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
+                                        .role(role)
                                         .build()
                         );
                     }

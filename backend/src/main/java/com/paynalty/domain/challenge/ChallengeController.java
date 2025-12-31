@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -102,7 +103,31 @@ public class ChallengeController {
     }
 
     // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
+    @Operation(
+            description = "챌린지 수정 페이지 이동시 사용자한테 보여줄 데이터(challengeUpdateRequest(기존 정보값이 설정되있는상태)"
+    )
+    @GetMapping("/{challengeId}/edit")
+    public ResponseEntity<ApiResponse<ChallengeUpdateRequest>> getEditForm(
+        @PathVariable Long challengeId
+    ){
+        ChallengeUpdateRequest response = challengeService.getUpdateForm(challengeId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
     // 전달 받은 데이터에서 수정 후 편집
+    @Operation(
+            description = "getEditForm에 응답 받은 데이터 토대로 데이터 수정 후 업데이트 요청"
+    )
+    @PutMapping("/{challengeId}/")
+    public ResponseEntity<ApiResponse<ChallengeDetailResponse>> updateChallenge(
+            @RequestBody ChallengeUpdateRequest updateRequest,
+            @PathVariable Long challengeId
+    )
+    {
+        // 사용자 id값 대신 임시로 userId =1L 로 사용
+        Long userId = 1L;
+        ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 
 }

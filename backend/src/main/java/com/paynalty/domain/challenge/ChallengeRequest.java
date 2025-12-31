@@ -30,7 +30,7 @@ public class ChallengeRequest {
                     "- 프론트에서 계산된 날짜를 전달\n" +
                     "  * 내일 시작: 오늘 기준 +1일\n" +
                     "  * 다음주 시작: 오늘 기준 다음주 월요일",
-            example = "2025-12-29",
+            example = "2026-02-25",
             required = true
     )
     @NotNull(message = "시작 날짜는 필수입니다")
@@ -41,7 +41,7 @@ public class ChallengeRequest {
                     "- 형식: YYYY-MM-DD (예: 2025-12-31)\n" +
                     "- 오늘 날짜보다 이후여야 함 (오늘 포함 불가)\n" +
                     "- 시작일보다 이후여야 함",
-            example = "2025-12-31",
+            example = "2026-12-31",
             required = true
     )
     @NotNull(message = "종료 날짜는 필수입니다")
@@ -107,20 +107,11 @@ public class ChallengeRequest {
             description = "초대할 친구 목록\n" +
                     "- 이름과 전화번호를 포함하는 객체 리스트\n" +
                     "- 예: [{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"}, {\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]",
-            example = "[{\"name\": \"홍길동\", \"phoneNumber\": \"010-1111-2222\"},{\"name\": \"이순신\", \"phoneNumber\": \"010-3333-9999\"}]"
+            example = "[2,3,7]"
     )
-    private List<InviteFriend> inviteFriends;
+    // List 변경 InviteFriend -> Long
+    // private List<InviteFriend> inviteFriends;
+    private List<Long> userIds;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @Schema(description = "초대할 친구 정보")
-    public static class InviteFriend {
-        @Schema(description = "친구 이름", example = "홍길동")
-        private String name;
-
-        @Schema(description = "친구 전화번호", example = "010-1111-2222")
-        private String phoneNumber;
-    }
 
 }
