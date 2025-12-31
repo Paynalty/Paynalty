@@ -2,48 +2,62 @@ import { Asset, Txt, Top, ListHeader } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { ScrollView, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
+import { useVerifications } from '../../src/hooks/useVerifications';
+import { useChallengeStore } from '../../src/stores/challengeStore';
 
 export default function Page() {
   const adaptive = useAdaptive();
+  const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
 
-  // 목 데이터: 날짜별로 그룹화된 형태
-  const groupedVerifications = [
-    {
-      date: new Date().toISOString(),
-      items: [
-        {
-          id: 1,
-          userName: '지은',
-          imageUrl: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png',
-          dateTime: new Date().toISOString(),
-        },
-        {
-          id: 2,
-          userName: '민수',
-          imageUrl: 'https://static.toss.im/ml-product/observer-binocular.png',
-          dateTime: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        },
-      ],
+  // challengeId가 number일 경우를 대비해 string으로 변환
+  const challengeId = selectedChallenge?.id ? String(selectedChallenge.id) : '';
+  const { data: verifications = [] } = useVerifications(challengeId);
+
+  // 데이터를 날짜별로 그룹화 (YYYY-MM-DD 기준)
+  const groupedVerifications = verifications.reduce(
+    (acc, current) => {
+      const dateKey = current.dateTime.split('T')[0];
+      const existingGroup = acc.find((group) => group.date.startsWith(dateKey));
+
+      if (existingGroup) {
+        existingGroup.items.push({
+          id: current.id,
+          userName: current.userName,
+          imageUrl: current.imageUrl,
+          dateTime: current.dateTime,
+        });
+      } else {
+        acc.push({
+          date: current.dateTime,
+          items: [
+            {
+              id: current.id,
+              userName: current.userName,
+              imageUrl: current.imageUrl,
+              dateTime: current.dateTime,
+            },
+          ],
+        });
+      }
+      return acc;
     },
-    {
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-      items: [
-        {
-          id: 3,
-          userName: '현지',
-          imageUrl: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png',
-          dateTime: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-        },
-      ],
-    },
-  ];
+    [] as { date: string; items: any[] }[]
+  );
 
   return (
-    <View style={{ flex: 1, backgroundColor: adaptive.grey50 }}>
+    <View style={{ flex: 1 }}>
       <ScrollView>
         <Top
-          title={<Top.TitleParagraph color={adaptive.grey900}>매일 만보 걷기</Top.TitleParagraph>}
-          subtitle2={<Top.SubtitleParagraph color={adaptive.grey600}>하트브레이커 6명과 도전 중</Top.SubtitleParagraph>}
+          title={
+            <Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge?.title || '챌린지'}</Top.TitleParagraph>
+          }
+          subtitle2={
+            <Top.SubtitleParagraph color={adaptive.grey600}>
+              {selectedChallenge
+                ? `${selectedChallenge.participants || ''} ${selectedChallenge.participantCount}명과 도전 중`
+                : '정보 로딩 중...'}
+            </Top.SubtitleParagraph>
+          }
           right={
             <Top.UpperAssetContent
               content={
@@ -66,14 +80,20 @@ export default function Page() {
               typography="t5"
               style={{ marginLeft: 16 }}
             >
-              최근 인증 현황
+              인증 현황
             </ListHeader.TitleParagraph>
           }
         />
 
-        {groupedVerifications.map((group) => (
-          <VerificationGroup key={group.date} date={group.date} verifications={group.items} />
-        ))}
+        {groupedVerifications.length > 0 ? (
+          groupedVerifications.map((group) => (
+            <VerificationGroup key={group.date} date={group.date} verifications={group.items} />
+          ))
+        ) : (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Txt color={adaptive.grey500}>아직 인증 내역이 없습니다.</Txt>
+          </View>
+        )}
 
         <View style={{ height: 32 }} />
       </ScrollView>

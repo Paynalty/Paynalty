@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getLatestVerification } from '../api/verifications';
-import { formatDate, formatTime } from '../utils/challenge';
+import { getLatestVerification, getVerifications } from '../api/verifications';
 
 export const useLatestVerification = (challengeId: string) => {
   return useQuery({
@@ -18,6 +17,21 @@ export const useLatestVerification = (challengeId: string) => {
         };
       }
       return null;
+    },
+    enabled: !!challengeId,
+  });
+};
+
+export const useVerifications = (challengeId: string) => {
+  return useQuery({
+    queryKey: ['verifications', challengeId],
+    queryFn: async () => {
+      if (!challengeId) return [];
+      const response = await getVerifications(challengeId);
+      if (response.success && response.data) {
+        return response.data.content;
+      }
+      return [];
     },
     enabled: !!challengeId,
   });
