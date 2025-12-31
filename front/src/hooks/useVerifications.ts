@@ -6,17 +6,14 @@ export const useLatestVerification = (challengeId: string) => {
     queryKey: ['latestVerification', challengeId],
     queryFn: async () => {
       if (!challengeId) return null;
-      const response = await getLatestVerification(challengeId);
-      if (response.success && response.data) {
-        return {
-          id: response.data.id,
-          name: response.data.userName,
-          // avatar: response.data.userAvatar,
-          image: response.data.imageUrl,
-          dateTime: response.data.dateTime,
-        };
-      }
-      return null;
+      const data = await getLatestVerification(challengeId);
+      return {
+        id: data.id,
+        name: data.userName,
+        // avatar: response.data.userAvatar,
+        image: data.imageUrl,
+        dateTime: data.dateTime,
+      };
     },
     enabled: !!challengeId,
   });
@@ -27,11 +24,8 @@ export const useVerifications = (challengeId: string) => {
     queryKey: ['verifications', challengeId],
     queryFn: async () => {
       if (!challengeId) return [];
-      const response = await getVerifications(challengeId);
-      if (response.success && response.data) {
-        return response.data.content;
-      }
-      return [];
+      const data = await getVerifications(challengeId);
+      return data.content;
     },
     enabled: !!challengeId,
   });
