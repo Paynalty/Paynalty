@@ -75,5 +75,12 @@ toss:
     mtls:
       client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/test-mTLS_public.crt}
       client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/test-mTLS_private.key}
-      # 인증서 비밀번호 (있는 경우만)
+      # 인증서 비밀번호
       key-password: ${TOSS_KEY_PASSWORD:}
+
+    # toss API 키
+    api-key: ${TOSS_API_KEY}
+
+    # Toss로부터 전달받은 사용자 정보 복호화하기 위한 키
+    data-secret-key: ${TOSS_DATA_SECRET_KEY}
+
