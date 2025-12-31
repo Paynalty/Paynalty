@@ -1,6 +1,5 @@
 package com.paynalty.domain.challengeverification;
 
-import com.paynalty.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +32,7 @@ public class ChallengeVerificationController {
                     "   예: POST /api/challenge-verifications/1?userId=2"
     )
     @PostMapping("/{challengeId}")
-    public ResponseEntity<ApiResponse<ChallengeVerificationResponse>> create(
+    public ResponseEntity<ChallengeVerificationResponse> create(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
             @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
@@ -42,7 +41,7 @@ public class ChallengeVerificationController {
             @Valid @RequestBody ChallengeVerificationRequest request
     ) {
         ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, request);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -50,24 +49,24 @@ public class ChallengeVerificationController {
             description = "해당 챌린지의 모든 인증 데이터 중 가장 최근 인증 기록을 조회합니다."
     )
     @GetMapping("/{challengeId}/latest")
-    public ResponseEntity<ApiResponse<ChallengeVerificationResponse>> getLatestVerification(
+    public ResponseEntity<ChallengeVerificationResponse> getLatestVerification(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId
     ) {
         ChallengeVerificationResponse response = challengeVerificationService.getLatestVerification(challengeId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
             summary = "수정 예정."
     )
     @GetMapping("/{challengeId}/member/verification-count")
-    public ResponseEntity<ApiResponse<List<MembersVerificationCountResponse>>>
+    public ResponseEntity<List<MembersVerificationCountResponse>>
     getChallengeMemberVerificationCounts(@PathVariable Long challengeId) {
 
         List<MembersVerificationCountResponse> response = challengeVerificationService
                 .getChallengeMemberVerificationCounts(challengeId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
@@ -90,7 +89,7 @@ public class ChallengeVerificationController {
                     "예: GET /api/challenge-verifications/1/list?page=0&size=20"
     )
     @GetMapping("/{challengeId}/list")
-    public ResponseEntity<ApiResponse<Slice<ChallengeVerificationResponse>>> getAllVerifications(
+    public ResponseEntity<Slice<ChallengeVerificationResponse>> getAllVerifications(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
             @Parameter(description = "페이지 번호 (0부터 시작)", required = false, example = "0")
@@ -100,7 +99,7 @@ public class ChallengeVerificationController {
     ) {
         Slice<ChallengeVerificationResponse> response = challengeVerificationService
                 .getAllVerifications(challengeId, page, size);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
 }

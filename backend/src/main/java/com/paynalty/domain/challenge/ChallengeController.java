@@ -1,12 +1,10 @@
 package com.paynalty.domain.challenge;
 
-import com.paynalty.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +37,13 @@ public class ChallengeController {
                     "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
     )
     @PostMapping()
-    public ResponseEntity<ApiResponse<Long>> createChallenge(
+    public ResponseEntity<Long> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request) {
         Long userId = 1L;
         Long challengeId = challengeService.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(challengeId));
+                .body(challengeId);
     }
 
     // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
@@ -55,52 +53,16 @@ public class ChallengeController {
             description = "시작전 챌린지 : PENDING , 진행중 챌린지 : ACTIVE, 완료된 챌린지 : COMPLETE"
     )
     @GetMapping("/{userId}/{status}")
-    public ResponseEntity<ApiResponse<List<ChallengeDetailResponse>>> getByStatus(
+    public ResponseEntity<List<ChallengeDetailResponse>> getByStatus(
             @Parameter(description = "사용자 userId", required = true, example = "1")
             @PathVariable Long userId,
             @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
             @PathVariable ChallengeStatus status
     ) {
         List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId , status);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
-    // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
-    @Operation(
-            summary = "삭제예정"
-
-    )
-    @GetMapping("/{challengeId}/myChallenge/detail")
-    public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
-            @Parameter(description = "챌린지 ID", required = true, example = "1")
-            @PathVariable Long challengeId
-    ) {
-        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
-        // 현재는 임시로 userId = 1L 사용
-        Long userId = 1L;
-        
-        ChallengeDetailResponse response = challengeService.getMyChallengeDetail(challengeId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-
-    @Operation(
-            summary = "삭제 예정",
-            description = "삭제 예정"
-
-    )
-    @GetMapping("/{challengeId}/detail")
-    public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeDetail(
-            @Parameter(description = "챌린지 ID", required = true, example = "1")
-            @PathVariable Long challengeId
-    ) {
-        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
-        // 현재는 임시로 userId = 1L 사용
-        Long userId = 1L;
-        
-        ChallengeResponse response = challengeService.getChallengeDetail(challengeId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
 
     // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
     @Operation(
@@ -108,11 +70,11 @@ public class ChallengeController {
             summary = "수정 화면에서 사용자에게 제공할 필드값이 담긴 객체"
     )
     @GetMapping("/{challengeId}/edit")
-    public ResponseEntity<ApiResponse<ChallengeUpdateRequest>> getEditForm(
+    public ResponseEntity<ChallengeUpdateRequest> getEditForm(
         @PathVariable Long challengeId
     ){
         ChallengeUpdateRequest response = challengeService.getUpdateForm(challengeId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
     // 전달 받은 데이터에서 수정 후 편집
@@ -121,15 +83,31 @@ public class ChallengeController {
             summary = "update 기능"
     )
     @PutMapping("/{challengeId}/")
-    public ResponseEntity<ApiResponse<ChallengeDetailResponse>> updateChallenge(
+    public ResponseEntity<ChallengeDetailResponse> updateChallenge(
+            @PathVariable Long challengeId,
             @RequestBody ChallengeUpdateRequest updateRequest,
-            @PathVariable Long challengeId
+            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId
     )
     {
-        // 사용자 id값 대신 임시로 userId =1L 로 사용
-        Long userId = 1L;
         ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
+    }
+
+    // todo userId 입력 -> 사용자 id 입력
+    @Operation(
+            summary = "챌린지 삭제",
+            description = "챌린지를 삭제합니다."
+    )
+    @DeleteMapping("/{challengeId}")
+    public ResponseEntity<Void> deleteChallenge(
+            @Parameter(description = "삭제할 챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId,
+            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId
+    ) {
+        challengeService.delete(challengeId, userId);
+        return ResponseEntity.ok().build();
     }
 
 }

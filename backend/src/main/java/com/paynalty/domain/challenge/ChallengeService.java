@@ -363,10 +363,21 @@ public class ChallengeService {
         //update
         @Transactional
         public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long userId){
-            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+            // 1단계: 챌린지 존재 여부 확인
+            Challenge challenge = challengeRepository.findById(challengeId)
+                    .orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
+            // 2단계: 사용자가 해당 챌린지의 멤버인지 확인 및 권한 확인
+            ChallengeMember member = challengeMemberRepository
+                    .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.NOT_CHALLENGE_MEMBER));
 
-            User user = userService.getById(userId);
+            // 3단계: 생성자(CREATOR) 권한 확인 (수정 권한)
+            if (member.getRole() != com.paynalty.domain.challengemember.MemberRole.CREATOR) {
+                throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_UPDATE);
+            }
+
+            User user = member.getUser();  // ChallengeMember에서 User 가져오기
 
             // frequency 자동 계산 로직 (생성과 동일)
             int calculatedFrequency;
@@ -425,6 +436,27 @@ public class ChallengeService {
                     .verificationType(challenge.getVerificationType())
                     .verificationStatus(verificationStatus)
                     .build();
+        }
+
+        // 사용자가 해당 챌린지 creator인지 확인후 삭제
+        @Transactional
+        public void delete(Long challengeId, Long userId) {
+            // 1단계: 챌린지 존재 여부 확인
+            Challenge challenge = challengeRepository.findById(challengeId)
+                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+            // 2단계: 사용자가 해당 챌린지의 멤버인지 확인
+            ChallengeMember member = challengeMemberRepository
+                    .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.NOT_CHALLENGE_MEMBER));
+
+            // 3단계: 생성자(CREATOR) 권한 확인 (삭제 권한)
+            if (member.getRole() != com.paynalty.domain.challengemember.MemberRole.CREATOR) {
+                throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_DELETE);
+            }
+
+            // 4단계: 챌린지 삭제 (Cascade로 관련 데이터 자동 삭제)
+            challengeRepository.delete(challenge);
         }
 
         
