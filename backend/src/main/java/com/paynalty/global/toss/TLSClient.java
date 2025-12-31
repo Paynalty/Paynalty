@@ -44,7 +44,7 @@ public class TLSClient {
         return sslContext;
     }
 
-    private static X509Certificate loadCertificate(Resource resource) throws Exception {
+    public static X509Certificate loadCertificate(Resource resource) throws Exception {
         String content = readResource(resource)
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "")
@@ -57,7 +57,7 @@ public class TLSClient {
                         .generateCertificate(new ByteArrayInputStream(decoded));
     }
 
-    private static PrivateKey loadPrivateKey(Resource resource) throws Exception {
+    public static PrivateKey loadPrivateKey(Resource resource) throws Exception {
         String content = readResource(resource)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
