@@ -36,7 +36,16 @@ public class UserService {
 
     // String 이 email 또는 name 에 포함된 모든 유저 찾기
     public List<UserResponse> findByNameAndEmail(String identify){
-        List<User> users = userRepository.findByEmailOrName(identify);
+        // 검색어 길이 검증 (최소 2자 이상)
+        if (identify == null || identify.trim().isEmpty()) {
+            throw new CustomException(UserErrorCode.SEARCH_KEYWORD_EMPTY);
+        }
+        
+        if (identify.trim().length() < 2) {
+            throw new CustomException(UserErrorCode.SEARCH_KEYWORD_TOO_SHORT);
+        }
+        
+        List<User> users = userRepository.findByEmailOrName(identify.trim());
         return users.stream().map(UserResponse::from).toList();
     }
 

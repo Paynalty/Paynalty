@@ -14,6 +14,10 @@ public enum UserErrorCode implements ErrorCode {
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "U004", "User Unauthorized"),
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, "U005", "User Forbidden"),
     INVALID_USER_STATUS(HttpStatus.BAD_REQUEST, "U006", "Invalid User Status"),
+    
+    // 사용자 검색 에러
+    SEARCH_KEYWORD_EMPTY(HttpStatus.BAD_REQUEST, "U010", "검색어를 입력해주세요."),
+    SEARCH_KEYWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "U011", "검색어는 최소 2자 이상이어야 합니다."),
     ;
 
     private final HttpStatus status;
