@@ -27,9 +27,8 @@ public class ChallengeMemberResponse {
     @Schema(description = "참여 시간", example = "LocalDateTime")
     private LocalDateTime joinedAt;
 
-    // 챌린지에 대한 성공 실패 여부 x
-    // 참여한 챌린지에 대한 인증 여부 - > 했다 ture , 안했다 false
-    // 인증 조건에 맞는 인증 데이터 있는지 확인 -> 인증 성공 = true or 인증 실패 = false   // 보류 - 인증 데이터 확정 후 수정
+
+    // 다른 사람이 봤을때 이사람이 당일 인증을 했는지 위해 표시. 나중에 수정 예정. 지금은 다 성공.
     @Schema(description = "성공 여부", example = "String")
     private String isSuccess;
 

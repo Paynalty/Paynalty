@@ -9,6 +9,7 @@ import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
 import com.paynalty.global.error.ChallengeErrorCode;
+import com.paynalty.global.error.ChallengeMemberErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -370,7 +371,7 @@ public class ChallengeService {
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인 및 권한 확인
             ChallengeMember member = challengeMemberRepository
                     .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
-                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.NOT_CHALLENGE_MEMBER));
+                    .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
 
             // 3단계: 생성자(CREATOR) 권한 확인 (수정 권한)
             if (member.getRole() != com.paynalty.domain.challengemember.MemberRole.CREATOR) {
@@ -448,7 +449,7 @@ public class ChallengeService {
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인
             ChallengeMember member = challengeMemberRepository
                     .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
-                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.NOT_CHALLENGE_MEMBER));
+                    .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
 
             // 3단계: 생성자(CREATOR) 권한 확인 (삭제 권한)
             if (member.getRole() != com.paynalty.domain.challengemember.MemberRole.CREATOR) {

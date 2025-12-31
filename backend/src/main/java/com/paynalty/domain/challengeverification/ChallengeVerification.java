@@ -46,6 +46,11 @@ public class ChallengeVerification extends BaseTimeEntity {
         this.status = status;
     }
 
+    // 인증 이미지 URL 수정
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
 
 }
 
