@@ -111,4 +111,36 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
     List<MembersVerificationCountResponse>
     countVerificationByChallengeMembers(@Param("challengeId") Long challengeId);
 
+    /**
+     * 챌린지에 참여한 멤버들의 특정 주간(월요일~일요일) 인증 횟수를 조회합니다.
+     * 
+     * @param challengeId 챌린지 ID
+     * @param weekStart 주간 시작일 (월요일)
+     * @param weekEnd 주간 종료일 (일요일)
+     * @return 멤버별 주간 인증 횟수 리스트
+     */
+    @Query("""
+    SELECT new com.paynalty.domain.challengeverification
+        .MembersVerificationCountResponse(
+            u.id,
+            u.name,
+            COUNT(cv.id)
+        )
+    FROM ChallengeMember cm
+    JOIN cm.user u
+    LEFT JOIN ChallengeVerification cv
+        ON cv.user = u 
+        AND cv.challenge = cm.challenge
+        AND cv.date >= :weekStart
+        AND cv.date <= :weekEnd
+    WHERE cm.challenge.id = :challengeId
+    GROUP BY u.id, u.name
+""")
+    List<MembersVerificationCountResponse>
+    countWeeklyVerificationByChallengeMembers(
+            @Param("challengeId") Long challengeId,
+            @Param("weekStart") LocalDate weekStart,
+            @Param("weekEnd") LocalDate weekEnd
+    );
+
 }

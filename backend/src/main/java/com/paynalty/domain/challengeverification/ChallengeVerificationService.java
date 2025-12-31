@@ -131,10 +131,14 @@ public class ChallengeVerificationService {
         return ChallengeVerificationResponse.from(cv);
     }
 
-    public List<MembersVerificationCountResponse> getChallengeMemberVerificationCounts(Long challengeId) {
+    // 맴버별 당일이 포함된 주간 인증 횟수 가져오기
+    public List<MembersVerificationCountResponse> getChallengeMemberWeeklyVerificationCounts(Long challengeId) {
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
 
         return challengeVerificationRepository
-                .countVerificationByChallengeMembers(challengeId);
+                .countWeeklyVerificationByChallengeMembers(challengeId, weekStart, weekEnd);
     }
 
 

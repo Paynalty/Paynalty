@@ -58,14 +58,15 @@ public class ChallengeVerificationController {
     }
 
     @Operation(
-            summary = "수정 예정."
+            summary = "맴버별 당일이 포함된 주간 인증 횟수",
+            description = "챌린지 참여 멤버들의 당일이 포함된 주(월요일~일요일) 동안의 인증 횟수를 조회합니다."
     )
     @GetMapping("/{challengeId}/member/verification-count")
     public ResponseEntity<List<MembersVerificationCountResponse>>
-    getChallengeMemberVerificationCounts(@PathVariable Long challengeId) {
+    getChallengeMemberWeeklyVerificationCounts(@PathVariable Long challengeId) {
 
         List<MembersVerificationCountResponse> response = challengeVerificationService
-                .getChallengeMemberVerificationCounts(challengeId);
+                .getChallengeMemberWeeklyVerificationCounts(challengeId);
         return ResponseEntity.ok(response);
     }
 
