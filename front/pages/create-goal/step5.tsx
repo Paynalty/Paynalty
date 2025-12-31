@@ -111,7 +111,7 @@ function Page() {
                   style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey100 }}
                 >
                   <Txt typography="t5" color={time === startTime ? adaptive.blue500 : adaptive.grey900}>
-                    {time}
+                    {formatTime(time)}
                   </Txt>
                 </Pressable>
               ))}
@@ -144,7 +144,7 @@ function Page() {
                   style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey100 }}
                 >
                   <Txt typography="t5" color={time === endTime ? adaptive.blue500 : adaptive.grey900}>
-                    {time}
+                    {formatTime(time)}
                   </Txt>
                 </Pressable>
               ))}

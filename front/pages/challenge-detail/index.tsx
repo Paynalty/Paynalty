@@ -6,7 +6,14 @@ import { VerificationGroup } from '../../src/components/verification/Verificatio
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
-import { formatDate, formatTime, getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
+import {
+  formatDate,
+  formatDaysOfWeek,
+  formatTime,
+  getChallengeStatusBadge,
+  getVerificationMessage,
+  getVerificationTypeLabel,
+} from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -158,7 +165,7 @@ function Page() {
               인증 시간
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {formatTime(selectedChallenge.verifyEnd)}
+              {formatTime(selectedChallenge.verifyStart)} ~ {formatTime(selectedChallenge.verifyEnd)}
             </Txt>
           </View>
           <View style={styles.gridDivider} />
@@ -168,19 +175,22 @@ function Page() {
               인증 주기
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.weeklyRequiredCount}
+              {selectedChallenge.daysOfWeek && selectedChallenge.daysOfWeek.length > 0
+                ? `${formatDaysOfWeek(selectedChallenge.daysOfWeek)} / `
+                : ''}
+              주 {selectedChallenge.weeklyRequiredCount}회
             </Txt>
           </View>
         </View>
         <View style={styles.gridHorizontalDivider} />
         <View style={styles.gridRow}>
           <View style={styles.gridCell}>
-            <Asset.Icon frameShape={{ width: 24, height: 24 }} name="icon-camera-mono" color={adaptive.grey600} />
+            <Asset.Icon frameShape={{ width: 24, height: 24 }} name="icon-check-circle-mono" color={adaptive.grey600} />
             <Txt color={adaptive.grey600} typography="t7" fontWeight="medium">
               인증 방법
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verificationType}
+              {getVerificationTypeLabel(selectedChallenge.verificationType)}
             </Txt>
           </View>
           <View style={styles.gridDivider} />

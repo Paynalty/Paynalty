@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
 import { formatDate, formatTime } from '../../src/utils/challenge';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const Route = createRoute('/create-goal/complete', {
   component: Page,
@@ -13,6 +14,7 @@ export const Route = createRoute('/create-goal/complete', {
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  const queryClient = useQueryClient();
   type StartType = 'nextWeek' | 'tomorrow';
   const [loading, setLoading] = useState<StartType | null>(null);
 
@@ -55,6 +57,9 @@ export default function Page() {
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
       });
+
+      await queryClient.invalidateQueries({ queryKey: ['challenges'] });
+      await queryClient.invalidateQueries({ queryKey: ['missionChallenges'] });
 
       // 성공 시 데이터 초기화
       resetCreateGoalData();
@@ -143,7 +148,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${challengeData.period} \n${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt === '23:59:59' ? '24:00' : challengeData.verifyEndAt || '')}`}
+              bottom={`${challengeData.period} \n${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }

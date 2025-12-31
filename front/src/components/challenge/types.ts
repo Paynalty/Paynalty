@@ -9,7 +9,7 @@ export type Challenge = {
   penaltyAmount: number;
   participants: string;
   participantCount: number;
-  verifyStart?: string;
+  verifyStart: string;
   verifyEnd: string;
   daysOfWeek: string[];
   endAt: string;

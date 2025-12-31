@@ -163,11 +163,33 @@ export const formatDate = (dateString: string) => {
  * ISO 날짜 문자열 또는 시간 문자열을 받아 "오전/오후 HH:mm" 형식으로 변환합니다.
  */
 export const formatTime = (dateString: string) => {
-  if (!dateString) return '';
-  const date = getTimeDate(dateString);
-  return date.toLocaleTimeString('ko-KR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+    if (!dateString) return '';
+    const date = getTimeDate(dateString);
+    return date.toLocaleTimeString('ko-KR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    });
+};
+
+export const formatDaysOfWeek = (days: string[] | undefined) => {
+  if (!days || days.length === 0) return '';
+  return days
+    .map((day) => {
+      const dayNum = DAYS_MAP[day];
+      return dayNum !== undefined ? DAYS_LABEL[dayNum] : day;
+    })
+    .join(', ');
+};
+
+/**
+ * 영문 인증 방식을 한글 명칭으로 변환합니다.
+ */
+export const getVerificationTypeLabel = (type: string) => {
+  const typeMap: { [key: string]: string } = {
+    PHOTO: '사진',
+    TEXT: '텍스트',
+    VOTE: '투표',
+  };
+  return typeMap[type] || type;
 };
