@@ -368,6 +368,19 @@ public class ChallengeService {
 
             User user = userService.getById(userId);
 
+            // frequency 자동 계산 로직 (생성과 동일)
+            int calculatedFrequency;
+            if (request.getDaysOfWeek() != null && !request.getDaysOfWeek().isEmpty()) {
+                // 요일 지정 모드: 지정된 요일 수만큼 frequency 계산
+                calculatedFrequency = request.getDaysOfWeek().size();
+            } else {
+                // frequency 직접 지정 모드: daysOfWeek가 null이거나 빈 리스트인 경우
+                if (request.getFrequency() == null || request.getFrequency() <= 0) {
+                    throw new CustomException(ChallengeErrorCode.INVALID_FREQUENCY);
+                }
+                calculatedFrequency = request.getFrequency();
+            }
+
             // 이번주 인증 횟수 조회
             LocalDate today = LocalDate.now();
             LocalDate weekStart = today.with(DayOfWeek.MONDAY); // 이번주 월요일
@@ -388,6 +401,8 @@ public class ChallengeService {
             validateVerificationTime(request.getVerifyStartAt(),request.getVerifyEndAt());
 
             challenge.update(request);
+            // 계산된 frequency 반영 (요일 변경 시 자동으로 frequency도 업데이트)
+            challenge.updateFrequency(calculatedFrequency);
 
             VerificationStatus verificationStatus = determineVerificationStatus(challenge, userId);
 
@@ -551,34 +566,39 @@ public class ChallengeService {
      * 오늘의 인증 상태를 판단합니다.
      * 
      * 로직:
-     * 1. 챌린지의 daysOfWeek에 오늘 요일이 포함되어 있는지 확인
-     * 2. 포함되어 있다면:
-     *    - 해당 사용자의 오늘 인증 내역이 있는지 확인
-     *    - 있으면 VERIFIED (인증함), 없으면 NOT_VERIFIED (인증안함)
-     * 3. 포함되어 있지 않다면: NOT_VERIFIED (인증안함)
+     * 1. 요일 지정 모드 (daysOfWeek가 있는 경우):
+     *    - 오늘이 지정된 요일에 포함되어 있으면 → 오늘 인증 여부 확인
+     *    - 오늘이 지정된 요일이 아니면 → NOT_VERIFIED (인증 불가능한 날)
+     * 
+     * 2. 주간 횟수 모드 (daysOfWeek가 null이거나 빈 배열인 경우):
+     *    - 모든 요일에 인증 가능 → 오늘 인증 여부만 확인
+     *    - 주간 인증 횟수는 별도로 체크 (frequency 기준)
      *
      * @param challenge 챌린지 객체
      * @param userId 사용자 ID
      * @return VerificationStatus (VERIFIED 또는 NOT_VERIFIED)
      */
     private VerificationStatus determineVerificationStatus(Challenge challenge, Long userId) {
-        // 1단계: daysOfWeek가 null이거나 비어있으면 NOT_VERIFIED 반환
+        // Case 1: 주간 횟수 모드 (daysOfWeek가 null이거나 비어있으면)
         if (challenge.getDaysOfWeek() == null || challenge.getDaysOfWeek().isEmpty()) {
-            return VerificationStatus.NOT_VERIFIED;
+            // 모든 요일에 인증 가능 - 오늘 인증 여부만 확인
+            boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), userId);
+            return VerificationStatus.from(hasVerifiedToday);
         }
 
-        // 2단계: 오늘의 요일을 DayOfWeekType으로 변환
+        // Case 2: 요일 지정 모드
+        // 오늘의 요일을 DayOfWeekType으로 변환
         DayOfWeek todayDayOfWeek = LocalDate.now().getDayOfWeek();
         DayOfWeekType todayDayOfWeekType = DayOfWeekType.from(todayDayOfWeek);
 
-        // 3단계: 오늘이 챌린지 인증 요일에 포함되어 있는지 확인
+        // 오늘이 챌린지 인증 요일에 포함되어 있는지 확인
         if (challenge.getDaysOfWeek().contains(todayDayOfWeekType)) {
             // 오늘이 인증 요일이면 해당 사용자의 오늘 인증 내역 확인
             boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), userId);
             return VerificationStatus.from(hasVerifiedToday);
         }
 
-        // 4단계: 오늘이 인증 요일이 아니면 NOT_VERIFIED
+        // 오늘이 인증 요일이 아니면 NOT_VERIFIED (인증 불가능한 날)
         return VerificationStatus.NOT_VERIFIED;
     }
 

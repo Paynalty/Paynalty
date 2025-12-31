@@ -104,7 +104,8 @@ public class ChallengeController {
 
     // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
     @Operation(
-            description = "챌린지 수정 페이지 이동시 사용자한테 보여줄 데이터(challengeUpdateRequest(기존 정보값이 설정되있는상태)"
+            description = "챌린지 수정 페이지 이동시 사용자한테 보여줄 데이터(challengeUpdateRequest(기존 정보값이 설정되있는상태)",
+            summary = "수정 화면에서 사용자에게 제공할 필드값이 담긴 객체"
     )
     @GetMapping("/{challengeId}/edit")
     public ResponseEntity<ApiResponse<ChallengeUpdateRequest>> getEditForm(
@@ -116,7 +117,8 @@ public class ChallengeController {
 
     // 전달 받은 데이터에서 수정 후 편집
     @Operation(
-            description = "getEditForm에 응답 받은 데이터 토대로 데이터 수정 후 업데이트 요청"
+            description = "getEditForm에 응답 받은 데이터 토대로 데이터 수정 후 업데이트 요청",
+            summary = "update 기능"
     )
     @PutMapping("/{challengeId}/")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> updateChallenge(
