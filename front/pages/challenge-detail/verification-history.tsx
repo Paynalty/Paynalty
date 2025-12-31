@@ -4,14 +4,21 @@ import { ScrollView, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerifications } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
+import { getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
 
 export default function Page() {
   const adaptive = useAdaptive();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
-
-  // challengeId가 number일 경우를 대비해 string으로 변환
   const challengeId = selectedChallenge?.id ? String(selectedChallenge.id) : '';
   const { data: verifications = [] } = useVerifications(challengeId);
+
+  if (!selectedChallenge) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Txt color={adaptive.grey600}>챌린지 정보를 불러올 수 없습니다.</Txt>
+      </View>
+    );
+  }
 
   // 데이터를 날짜별로 그룹화 (YYYY-MM-DD 기준)
   const groupedVerifications = verifications.reduce(
@@ -48,14 +55,10 @@ export default function Page() {
     <View style={{ flex: 1 }}>
       <ScrollView>
         <Top
-          title={
-            <Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge?.title || '챌린지'}</Top.TitleParagraph>
-          }
+          title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
           subtitle2={
             <Top.SubtitleParagraph color={adaptive.grey600}>
-              {selectedChallenge
-                ? `${selectedChallenge.participants || ''} ${selectedChallenge.participantCount}명과 도전 중`
-                : '정보 로딩 중...'}
+              {`${selectedChallenge.participants || ''} ${selectedChallenge.participantCount}명과 도전 중`}
             </Top.SubtitleParagraph>
           }
           right={
@@ -72,14 +75,38 @@ export default function Page() {
           }
           lowerGap={0}
         />
+        <Top
+          title=""
+          subtitle1={
+            <Top.SubtitleParagraph>
+              {selectedChallenge.verifyStart && selectedChallenge.verifyEnd
+                ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
+                : '시간 정보 없음'}
+            </Top.SubtitleParagraph>
+          }
+          subtitle2={
+            <Top.SubtitleBadges
+              items={[
+                getChallengeStatusBadge(
+                  selectedChallenge.verificationStatus,
+                  selectedChallenge.daysOfWeek || [],
+                  Number(selectedChallenge.weeklyRequiredCount || 0),
+                  selectedChallenge.weeklyProgressCount || 0
+                ),
+                {
+                  label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
+                  type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+                  style: 'weak' as const,
+                },
+                { label: `${(selectedChallenge.penaltyAmount || 0).toLocaleString()}원`, type: 'blue', style: 'weak' },
+              ]}
+            />
+          }
+          upperGap={0}
+        />
         <ListHeader
           title={
-            <ListHeader.TitleParagraph
-              color={adaptive.grey800}
-              fontWeight="bold"
-              typography="t5"
-              style={{ marginLeft: 16 }}
-            >
+            <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
               인증 현황
             </ListHeader.TitleParagraph>
           }

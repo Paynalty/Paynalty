@@ -2,11 +2,11 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { formatDate, formatTime, getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
+import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
-import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
+import { formatDate, formatTime, getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -20,12 +20,15 @@ function Page() {
   const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
 
   if (!selectedChallenge) {
-    return <Txt color={adaptive.grey600}>챌린지 정보를 불러올 수 없습니다.</Txt>;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Txt color={adaptive.grey600}>챌린지 정보를 불러올 수 없습니다.</Txt>
+      </View>
+    );
   }
 
   return (
     <ScrollView>
-      <Spacing size={16} />
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
         subtitle2={
@@ -115,11 +118,11 @@ function Page() {
             주간 인증 현황
           </ListHeader.TitleParagraph>
         }
-        right={
+        /*right={
           <ListHeader.TitleSelector typography="t7" color={adaptive.grey800} fontWeight="regular">
             보기 기준
           </ListHeader.TitleSelector>
-        }
+        }*/
       />
       <BarChart data={[]} fill={{ type: 'all-bar', theme: 'blue' }} />
       <ListHeader
@@ -128,11 +131,11 @@ function Page() {
             챌린저 규칙
           </ListHeader.TitleParagraph>
         }
-        right={
+        /*right={
           <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
             수정하기
           </ListHeader.RightArrow>
-        }
+        }*/
       />
       <View style={styles.rulesCard}>
         <View style={styles.gridCell}>
@@ -192,7 +195,7 @@ function Page() {
           </View>
         </View>
       </View>
-      <ListHeader
+      {/*<ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
             패널티 이력 보기
@@ -203,8 +206,8 @@ function Page() {
             자세히 보기
           </ListHeader.RightArrow>
         }
-      />
-      <ListHeader
+      />*/}
+      {/*<ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
             참여중인 친구
@@ -215,7 +218,7 @@ function Page() {
             자세히 보기
           </ListHeader.RightArrow>
         }
-      />
+      />*/}
       <FixedBottomCTAProvider>
         <FixedBottomCTA loading={false} onPress={openVerificationModal}>
           바로 인증하기
