@@ -50,4 +50,8 @@ public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember
     """)
     List<ChallengeMember> findWithUserAndChallengeIn(@Param("challenges") List<Challenge> challenges);
 
+
+
+    
+
 }

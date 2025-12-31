@@ -28,6 +28,7 @@ public class ChallengeVerification extends BaseTimeEntity {
     @Column(name = "verification_date", nullable = false)
     private java.time.LocalDate date;
 
+
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 

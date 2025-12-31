@@ -42,7 +42,7 @@ public class ChallengeMemberController {
     )
     @PostMapping
     public ResponseEntity<ApiResponse<String>> addMember(
-            @Parameter(description = "챌린지 멤버 추가 요청 정보", required = true)
+            @Parameter(description = "삭제 또는 수정 예정 ( 챌린지 맴버 초대)", required = true)
             @Valid @RequestBody ChallengeMemberRequest request
     ) {
         // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal로 현재 사용자 정보 가져오기
