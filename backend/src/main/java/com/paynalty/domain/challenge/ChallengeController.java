@@ -132,4 +132,20 @@ public class ChallengeController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
+    // todo userId 입력 -> 사용자 id 입력
+    @Operation(
+            summary = "챌린지 삭제",
+            description = "챌린지를 삭제합니다."
+    )
+    @DeleteMapping("/{challengeId}")
+    public ResponseEntity<ApiResponse<Void>> deleteChallenge(
+            @Parameter(description = "삭제할 챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId,
+            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId
+    ) {
+        challengeService.delete(challengeId, userId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
 }

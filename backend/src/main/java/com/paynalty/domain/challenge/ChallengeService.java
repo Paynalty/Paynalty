@@ -427,6 +427,27 @@ public class ChallengeService {
                     .build();
         }
 
+        // 사용자가 해당 챌린지 creator인지 확인후 삭제
+        @Transactional
+        public void delete(Long challengeId, Long userId) {
+            // 1단계: 챌린지 존재 여부 확인
+            Challenge challenge = challengeRepository.findById(challengeId)
+                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+            // 2단계: 사용자가 해당 챌린지의 멤버인지 확인
+            ChallengeMember member = challengeMemberRepository
+                    .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                    .orElseThrow(() -> new CustomException(ChallengeErrorCode.NOT_CHALLENGE_MEMBER));
+
+            // 3단계: 생성자(CREATOR) 권한 확인
+            if (member.getRole() != com.paynalty.domain.challengemember.MemberRole.CREATOR) {
+                throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR);
+            }
+
+            // 4단계: 챌린지 삭제 (Cascade로 관련 데이터 자동 삭제)
+            challengeRepository.delete(challenge);
+        }
+
         
 
 

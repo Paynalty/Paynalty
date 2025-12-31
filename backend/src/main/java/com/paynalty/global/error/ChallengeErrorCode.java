@@ -18,6 +18,10 @@ public enum ChallengeErrorCode implements ErrorCode {
     INVALID_END_DATE_TODAY(HttpStatus.BAD_REQUEST, "CHA014", "마감일은 오늘 날짜일 수 없습니다. 최소 내일 이후로 설정해주세요."),
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "CHA015", "마감일은 시작일보다 이후여야 합니다."),
     INVALID_VERIFICATION_TIME(HttpStatus.BAD_REQUEST, "CHA016", "인증 시작 시간은 마감 시간보다 이전이어야 합니다."),
+    
+    // 챌린지 권한 에러
+    NOT_CHALLENGE_CREATOR(HttpStatus.FORBIDDEN, "CHA020", "챌린지 생성자만 삭제할 수 있습니다."),
+    NOT_CHALLENGE_MEMBER(HttpStatus.FORBIDDEN, "CHA021", "챌린지 참여자가 아닙니다."),
     ;
 
     private final HttpStatus status;
