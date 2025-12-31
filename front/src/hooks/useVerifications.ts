@@ -14,8 +14,7 @@ export const useLatestVerification = (challengeId: string) => {
           name: response.data.userName,
           // avatar: response.data.userAvatar,
           image: response.data.imageUrl,
-          date: formatDate(response.data.dateTime),
-          time: formatTime(response.data.dateTime),
+          dateTime: response.data.dateTime,
         };
       }
       return null;

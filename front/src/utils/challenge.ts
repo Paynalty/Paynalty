@@ -153,6 +153,7 @@ export const formatDate = (dateString: string) => {
   if (!dateString) return '';
   const date = getTimeDate(dateString);
   return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
     month: 'long',
     day: 'numeric',
   });

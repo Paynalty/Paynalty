@@ -1,11 +1,11 @@
-import { Asset, Txt, ListHeader, FixedBottomCTA, FixedBottomCTAProvider, Top, BarChart } from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
 import { createRoute, Spacing } from '@granite-js/react-native';
+import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
+import { useAdaptive } from '@toss/tds-react-native/private';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useChallengeStore } from '../../src/stores/challengeStore';
+import { formatDate, formatTime, getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
-import { getVerificationMessage, getChallengeStatusBadge, formatDate, formatTime } from 'utils/challenge';
 import { useLatestVerification } from '../../src/hooks/useVerifications';
+import { useChallengeStore } from '../../src/stores/challengeStore';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -92,31 +92,35 @@ function Page() {
       <View style={[styles.verificationCard, !latestVerification && styles.emptyCard]}>
         <View style={[styles.dateSection, !latestVerification && { marginBottom: 0 }]}>
           <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            {latestVerification?.date || '인증 내역이 없습니다.'}
+            {latestVerification ? formatDate(latestVerification.dateTime) : '인증 내역이 없습니다.'}
           </Txt>
         </View>
         {latestVerification && (
           <>
             <View style={styles.userSection}>
+              {/* TODO 추후 적용 */}
+              {/* <Asset.Image frameShape={{ width: 32, height: 32 }} source={{ uri: latestVerification.avatar }} /> */}
               <Asset.Image
                 frameShape={{ width: 32, height: 32 }}
                 source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
               />
-              {/* TODO 추후 적용 */}
-              {/* <Asset.Image frameShape={{ width: 32, height: 32 }} source={{ uri: latestVerification.avatar }} /> */}
               <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
                 {latestVerification.name}
               </Txt>
             </View>
             <View style={styles.imageSection}>
-              <Asset.Image frameShape={{ width: 300, height: 300 }} source={{ uri: latestVerification.image }} />
+              <Asset.Image
+                frameShape={{ width: 300, height: 300 }}
+                source={{ uri: latestVerification.image }}
+                style={{ width: 300, height: 300, borderRadius: 12 }}
+              />
             </View>
             <View style={styles.bottomSection}>
               <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
                 이의제기
               </Txt>
               <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                {latestVerification.time}
+                {formatTime(latestVerification.dateTime)}
               </Txt>
             </View>
           </>
