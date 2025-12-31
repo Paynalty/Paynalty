@@ -1,6 +1,5 @@
 package com.paynalty.domain.challengemember;
 
-import com.paynalty.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,24 +23,20 @@ public class ChallengeMemberController {
             description = "특정 챌린지에 참여 중인 멤버 목록을 조회합니다."
     )
     @GetMapping("/{challengeId}")
-    public ResponseEntity<ApiResponse<List<ChallengeMemberResponse>>> getMembers(
+    public ResponseEntity<List<ChallengeMemberResponse>> getMembers(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId
     ) {
         List<ChallengeMemberResponse> response = challengeMemberService.getMembersByChallengeId(challengeId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(response);
     }
 
     @Operation(
             summary = "챌린지에 친구 초대 (멤버 추가)",
-            description = "챌린지 생성 후 추가로 친구를 초대하여 멤버로 추가합니다.\n\n" +
-                    "1. 이름과 전화번호로 User 테이블에서 사용자 검색\n" +
-                    "2. 사용자가 존재하면 챌린지 멤버로 추가\n" +
-                    "3. 이미 멤버인 경우 중복 추가 방지\n\n" +
-                    "4. 테스트용 데이터 Name:테스트유저6 , 전화번호:010-0000-0006"
+            description = "챌린지 생성 후 추가로 친구를 초대하여 멤버로 추가합니다.\n\n"
     )
     @PostMapping
-    public ResponseEntity<ApiResponse<String>> addMember(
+    public ResponseEntity<String> addMember(
             @Parameter(description = "삭제 또는 수정 예정 ( 챌린지 맴버 초대)", required = true)
             @Valid @RequestBody ChallengeMemberRequest request
     ) {
@@ -54,7 +49,7 @@ public class ChallengeMemberController {
                 request.getInviteePhoneNumber()
         );
         
-        return ResponseEntity.ok(ApiResponse.success(result));
+        return ResponseEntity.ok(result);
     }
 
 }

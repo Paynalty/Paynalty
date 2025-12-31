@@ -14,8 +14,10 @@ public class ChallengeUpdateRequest {
 
     private String title;
 
+    @Schema(example = "2026-01-25")
     private LocalDate startDate;
 
+    @Schema(example = "2026-04-25")
     private LocalDate endDate;
 
     @Schema(example = "07:00:00")
@@ -24,14 +26,18 @@ public class ChallengeUpdateRequest {
     @Schema(example = "15:00:00")
     private LocalTime verifyEndAt;
 
+    @Schema(example = "7777777")
     private Long penaltyAmount;
 
+    @Schema(example = "[\"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\", \"SAT\", \"SUN\"]",
+            allowableValues = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"})
     private List<DayOfWeekType> daysOfWeek;
 
     private Integer frequency;
 
     private VerificationType verifyType;
 
+    @Schema(example = "[7,8,9]")
     private List<Long> userIds;
    
 
