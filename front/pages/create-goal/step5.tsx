@@ -4,6 +4,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { formatTime } from '../../src/utils/challenge';
 
 export const Route = createRoute('/create-goal/step5', {
   component: Page,
@@ -68,7 +69,7 @@ function Page() {
                 시작 시간
               </Txt>
               <Txt typography="t3" color={adaptive.grey900} fontWeight="bold">
-                {startTime}
+                {formatTime(startTime)}
               </Txt>
             </View>
             <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-right-mono" color={adaptive.grey400} />
@@ -83,7 +84,7 @@ function Page() {
                 마감 시간
               </Txt>
               <Txt typography="t3" color={adaptive.grey900} fontWeight="bold">
-                {endTime}
+                {formatTime(endTime)}
               </Txt>
             </View>
             <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-right-mono" color={adaptive.grey400} />

@@ -4,7 +4,8 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
-import { getVerificationMessage, getChallengeStatusBadge } from 'utils/challenge';
+import { getVerificationMessage, getChallengeStatusBadge, formatDate, formatTime } from 'utils/challenge';
+import { useLatestVerification } from '../../src/hooks/useVerifications';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -15,6 +16,7 @@ function Page() {
   const navigation = Route.useNavigation();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
+  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
 
   if (!selectedChallenge) {
     return <Txt color={adaptive.grey600}>챌린지 정보를 불러올 수 없습니다.</Txt>;
@@ -87,35 +89,34 @@ function Page() {
           </Pressable>
         }
       />
-      <View style={[styles.verificationCard, !selectedChallenge.recentVerification && styles.emptyCard]}>
-        <View style={[styles.dateSection, !selectedChallenge.recentVerification && { marginBottom: 0 }]}>
+      <View style={[styles.verificationCard, !latestVerification && styles.emptyCard]}>
+        <View style={[styles.dateSection, !latestVerification && { marginBottom: 0 }]}>
           <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            {selectedChallenge.recentVerification?.date || '인증 내역이 없습니다.'}
+            {latestVerification?.date || '인증 내역이 없습니다.'}
           </Txt>
         </View>
-        {selectedChallenge.recentVerification && (
+        {latestVerification && (
           <>
             <View style={styles.userSection}>
               <Asset.Image
                 frameShape={{ width: 32, height: 32 }}
-                source={{ uri: selectedChallenge.recentVerification.avatar }}
+                source={{ uri: 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png' }}
               />
+              {/* TODO 추후 적용 */}
+              {/* <Asset.Image frameShape={{ width: 32, height: 32 }} source={{ uri: latestVerification.avatar }} /> */}
               <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
-                {selectedChallenge.recentVerification.name}
+                {latestVerification.name}
               </Txt>
             </View>
             <View style={styles.imageSection}>
-              <Asset.Image
-                frameShape={{ width: 300, height: 300 }}
-                source={{ uri: selectedChallenge.recentVerification.image }}
-              />
+              <Asset.Image frameShape={{ width: 300, height: 300 }} source={{ uri: latestVerification.image }} />
             </View>
             <View style={styles.bottomSection}>
               <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
                 이의제기
               </Txt>
               <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                {selectedChallenge.recentVerification.time}
+                {latestVerification.time}
               </Txt>
             </View>
           </>
@@ -133,7 +134,7 @@ function Page() {
           </ListHeader.TitleSelector>
         }
       />
-      <BarChart data={selectedChallenge.weeklyStatus || []} fill={{ type: 'all-bar', theme: 'blue' }} />
+      <BarChart data={[]} fill={{ type: 'all-bar', theme: 'blue' }} />
       <ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
@@ -157,7 +158,7 @@ function Page() {
             마감일
           </Txt>
           <Txt color={adaptive.grey900} typography="t5" fontWeight="bold">
-            {selectedChallenge.deadline}
+            {formatDate(selectedChallenge.endAt)}
           </Txt>
         </View>
         <View style={styles.gridRow}>
@@ -167,7 +168,7 @@ function Page() {
               인증 시간
             </Txt>
             <Txt color={adaptive.grey900} typography="t6" fontWeight="semibold">
-              {selectedChallenge.verifyEnd}
+              {formatTime(selectedChallenge.verifyEnd)}
             </Txt>
           </View>
           <View style={styles.gridDivider} />

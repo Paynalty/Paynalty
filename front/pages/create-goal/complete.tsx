@@ -4,6 +4,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateGoalStore } from '../../src/stores/createGoalStore';
 import { createChallenge } from '../../src/api/challenges';
+import { formatDate, formatTime } from '../../src/utils/challenge';
 
 export const Route = createRoute('/create-goal/complete', {
   component: Page,
@@ -57,7 +58,7 @@ export default function Page() {
 
       // 성공 시 데이터 초기화
       resetCreateGoalData();
-        alert('목표를 만들었습니다.');
+      alert('목표를 만들었습니다.');
       // 메인 페이지로 이동
       navigation.navigate('/');
     } catch (error) {
@@ -122,7 +123,7 @@ export default function Page() {
               type="2RowTypeD"
               top="마감일"
               topProps={{ color: adaptive.grey600 }}
-              bottom={challengeData.endDate}
+              bottom={formatDate(challengeData.endDate || '')}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -142,7 +143,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${challengeData.period} \n${challengeData.verifyStartAt} ~ ${challengeData.verifyEndAt === '23:59:59' ? '24:00' : challengeData.verifyEndAt}`}
+              bottom={`${challengeData.period} \n${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt === '23:59:59' ? '24:00' : challengeData.verifyEndAt || '')}`}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }

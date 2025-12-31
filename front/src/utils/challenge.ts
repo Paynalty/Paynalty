@@ -145,3 +145,28 @@ export const getChallengeStatusBadge = (
   // 3. 그 외 -> Blue
   return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
 };
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 "M월 D일" 형식으로 변환합니다.
+ */
+export const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = getTimeDate(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 "오전/오후 HH:mm" 형식으로 변환합니다.
+ */
+export const formatTime = (dateString: string) => {
+  if (!dateString) return '';
+  const date = getTimeDate(dateString);
+  return date.toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
