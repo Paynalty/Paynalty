@@ -160,16 +160,28 @@ export const formatDate = (dateString: string) => {
 };
 
 /**
- * ISO 날짜 문자열 또는 시간 문자열을 받아 "오전/오후 HH:mm" 형식으로 변환합니다.
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 24시간제 형식으로 변환합니다.
+ * 백엔드에서 23:59:59 등으로 오는 마감 시간은 "24:00"으로 표시합니다.
  */
-export const formatTime = (dateString: string) => {
-    if (!dateString) return '';
-    const date = getTimeDate(dateString);
-    return date.toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-    });
+export const formatTime = (timeString: string) => {
+  if (!timeString) return '';
+
+  // 1. 마감 시간 처리 (23:59:59, 23:59, 24:00 -> 24시)
+  if (timeString.includes('23:59') || timeString.startsWith('24:00')) {
+    return '24시';
+  }
+
+  // 2. 시간 파싱
+  const date = getTimeDate(timeString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // 3. 24시간제 형식으로 반환 (XX시 또는 XX시 YY분)
+  if (minutes === 0) {
+    return `${hours}시`;
+  }
+
+  return `${hours}시 ${minutes}분`;
 };
 
 export const formatDaysOfWeek = (days: string[] | undefined) => {

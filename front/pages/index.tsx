@@ -231,7 +231,7 @@ function Page() {
         challenges.map((challenge, index) => (
           <View key={challenge.id || `challenge-${index}`}>
             {index > 0 && <Spacing size={16} />}
-            <ChallengeCard challenge={challenge} />
+            <ChallengeCard challenge={{ ...challenge, status: currentStatus }} />
           </View>
         ))
       ) : (

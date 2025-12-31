@@ -14,4 +14,5 @@ export type Challenge = {
   daysOfWeek: string[];
   endAt: string;
   verificationType: string;
+  status?: 'ACTIVE' | 'PENDING' | 'COMPLETE';
 };
