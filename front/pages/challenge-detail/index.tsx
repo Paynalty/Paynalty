@@ -4,6 +4,7 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
+import { getVerificationMessage, getChallengeStatusBadge } from 'utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -46,18 +47,25 @@ function Page() {
       <Top
         title=""
         subtitle1={
-          selectedChallenge.remainingTime ? (
-            <Top.SubtitleParagraph>남은 시간 : {selectedChallenge.remainingTime}</Top.SubtitleParagraph>
-          ) : null
+          <Top.SubtitleParagraph>
+            {selectedChallenge.verifyEnd
+              ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
+              : '시간 정보 없음'}
+          </Top.SubtitleParagraph>
         }
         subtitle2={
           <Top.SubtitleBadges
             items={[
-              { label: '지금 할 차례에요', type: 'yellow', style: 'weak' },
+              getChallengeStatusBadge(
+                selectedChallenge.verificationStatus,
+                selectedChallenge.daysOfWeek,
+                Number(selectedChallenge.weeklyRequiredCount),
+                selectedChallenge.weeklyProgressCount
+              ),
               {
-                label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.totalCount}`,
-                type: 'yellow',
-                style: 'weak',
+                label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
+                type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+                style: 'weak' as const,
               },
               { label: `${selectedChallenge.penaltyAmount.toLocaleString()}원`, type: 'blue', style: 'weak' },
             ]}

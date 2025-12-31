@@ -189,7 +189,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Active selected');
               setCurrentStatus('ACTIVE');
               setShowDropdown(false);
             }}
@@ -202,7 +201,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Pending selected');
               setCurrentStatus('PENDING');
               setShowDropdown(false);
             }}
@@ -215,7 +213,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Complete selected');
               setCurrentStatus('COMPLETE');
               setShowDropdown(false);
             }}

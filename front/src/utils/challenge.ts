@@ -1,3 +1,5 @@
+import { verificationStatus } from '../components/challenge/types';
+
 /**
  * "HH:mm:ss" 형식의 시간 문자열을 받아 오늘 날짜의 Date 객체로 변환합니다.
  * 백엔드에서 LocalTime이나 LocalDateTime(ISO string) 어떤 것을 보내도 처리할 수 있습니다.
@@ -119,4 +121,27 @@ export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string
   if (nextDay === undefined) return ''; // 예외 케이스
 
   return `다음 인증일 : ${DAYS_LABEL[nextDay]}요일`;
+};
+
+/**
+ * 챌린지 상태에 따른 뱃지(라벨, 색상) 정보를 반환합니다.
+ */
+export const getChallengeStatusBadge = (
+  status: verificationStatus,
+  daysOfWeek: string[],
+  weeklyRequiredCount: number,
+  weeklyProgressCount: number
+) => {
+  // 1. 이미 인증을 완료한 경우 -> Green
+  if (status === 'VERIFIED') {
+    return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
+  }
+
+  // 2. 오늘 인증해야 하는 경우 (isTodayChallenge 활용) -> Yellow
+  if (isTodayChallenge(daysOfWeek, weeklyRequiredCount, weeklyProgressCount)) {
+    return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+  }
+
+  // 3. 그 외 -> Blue
+  return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
 };
