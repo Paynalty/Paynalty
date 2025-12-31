@@ -2,6 +2,7 @@ package com.paynalty.domain.challenge;
 
 import com.paynalty.domain.challengebank.ChallengeBank;
 import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.user.User;
 import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -102,8 +103,8 @@ public class Challenge extends BaseTimeEntity {
 
     // ChallengeVerification은 ChallengeMember와 연관되어 있으며 Challenge와 직접 연결되지 않음
     // 따라서 아래 필드는 매핑 오류를 유발하므로 주석 처리함
-    // @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
-    // private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
+     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 
     // Penalty는 이제 ChallengeMember를 통해 접근하므로 Challenge와의 직접 관계 제거
     // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
