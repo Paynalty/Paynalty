@@ -1,19 +1,39 @@
 package com.paynalty.domain.toss;
 
 import com.paynalty.global.config.TossApiConfig;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.paynalty.global.toss.TLSClient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+
+import javax.net.ssl.SSLContext;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class TossApiClient {
 
-    private final WebClient webClient;
+    private final SSLContext tossSslContext;
     private final TossApiConfig tossApiConfig;
 
-    public TossApiClient(@Qualifier("tossWebClient") WebClient webClient, TossApiConfig tossApiConfig) {
-        this.webClient = webClient;
-        this.tossApiConfig = tossApiConfig;
+    public String fetchToken(String authorizationCode, String referrer) throws Exception {
+        // Correctly format credentials for Basic Auth as "apiKey:"
+        String credentials = tossApiConfig.getApiKey() + ":";
+        String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        Map<String, String> headers = Map.of("Authorization", basicAuthHeader);
+
+        String jsonBody = String.format(
+                "{\"authorizationCode\":\"%s\",\"referrer\":\"%s\"}",
+                authorizationCode,
+                referrer
+        );
+
+        return TLSClient.postJson(
+                "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/generate-token",
+                tossSslContext,
+                jsonBody,
+                headers
+        );
     }
 }
