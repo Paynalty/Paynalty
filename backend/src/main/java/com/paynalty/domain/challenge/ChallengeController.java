@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,42 +64,6 @@ public class ChallengeController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // 필요없어서 수정할거. getMyProgressChallengesDetail와 비슷한 기능. -> 챌린지 진행 상황 파악을 위한 내용을 변경할 예정
-    @Operation(
-            summary = "삭제예정"
-
-    )
-    @GetMapping("/{challengeId}/myChallenge/detail")
-    public ResponseEntity<ApiResponse<ChallengeDetailResponse>> detail(
-            @Parameter(description = "챌린지 ID", required = true, example = "1")
-            @PathVariable Long challengeId
-    ) {
-        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
-        // 현재는 임시로 userId = 1L 사용
-        Long userId = 1L;
-        
-        ChallengeDetailResponse response = challengeService.getMyChallengeDetail(challengeId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
-
-
-    @Operation(
-            summary = "삭제 예정",
-            description = "삭제 예정"
-
-    )
-    @GetMapping("/{challengeId}/detail")
-    public ResponseEntity<ApiResponse<ChallengeResponse>> getChallengeDetail(
-            @Parameter(description = "챌린지 ID", required = true, example = "1")
-            @PathVariable Long challengeId
-    ) {
-        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 userId 사용
-        // 현재는 임시로 userId = 1L 사용
-        Long userId = 1L;
-        
-        ChallengeResponse response = challengeService.getChallengeDetail(challengeId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
 
     // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
     @Operation(
@@ -122,12 +85,12 @@ public class ChallengeController {
     )
     @PutMapping("/{challengeId}/")
     public ResponseEntity<ApiResponse<ChallengeDetailResponse>> updateChallenge(
+            @PathVariable Long challengeId,
             @RequestBody ChallengeUpdateRequest updateRequest,
-            @PathVariable Long challengeId
+            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
+            @RequestParam(required = false, defaultValue = "1") Long userId
     )
     {
-        // 사용자 id값 대신 임시로 userId =1L 로 사용
-        Long userId = 1L;
         ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
