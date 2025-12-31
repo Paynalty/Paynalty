@@ -84,6 +84,11 @@ public class TLSClient {
     // mTLS가 적용된 HTTPS POST 요청으로 JSON을 보내고, 응답을 문자열로 받는 메서드
     public static String postJson(String url, SSLContext sslContext, String jsonBody)
             throws Exception {
+        return postJson(url, sslContext, jsonBody, java.util.Collections.emptyMap());
+    }
+
+    public static String postJson(String url, SSLContext sslContext, String jsonBody, java.util.Map<String, String> headers)
+            throws Exception {
 
         // HTTPS 연결 생성
         HttpsURLConnection conn =
@@ -95,8 +100,14 @@ public class TLSClient {
         conn.setRequestMethod("POST");
         // 요청 Body 사용 선언 (POST이므로 필요)
         conn.setDoOutput(true);
-        // JSON 요청임을 명시
+        // 기본 헤더 설정
         conn.setRequestProperty("Content-Type", "application/json");
+        // 추가 헤더 설정
+        if (headers != null) {
+            for (java.util.Map.Entry<String, String> entry : headers.entrySet()) {
+                conn.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
         // 타임아웃 설정
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
