@@ -44,12 +44,17 @@ public class ChallengeMember {
     @Column(name = "end_at")
     private LocalDate endAt;
 
+    // 역할 : 생성자 or 참가자
+    @Column(name = "role")
+    private MemberRole role;
+
     @Builder
-    public ChallengeMember(User user, Challenge challenge,ChallengeStatus isSuccess, LocalDate endAt){
+    public ChallengeMember(User user, Challenge challenge,ChallengeStatus isSuccess, LocalDate endAt, MemberRole role){
         this.user = user;
         this.challenge = challenge;
         this.joinedAt = LocalDateTime.now();
         this.isSuccess = isSuccess;
+        this.role = role;
         this.endAt = endAt;
     }
 }

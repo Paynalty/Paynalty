@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,13 +44,20 @@ public class ChallengeMemberService {
         boolean isAlreadyMember = challengeMemberRepository
                 .findByUserIdAndChallengeId(user.getId(), challenge.getId())
                 .isPresent();
-        
+
+        MemberRole role = MemberRole.CHALLENGER;
         if (!isAlreadyMember) {
+            // 챌린지의 user 과 매개변수 user 이 서로 같다면 role = creator 아니면 challenger
+            if(Objects.equals(challenge.getUser().getId(), user.getId())){
+                 role = MemberRole.CREATOR;
+            }
+
             ChallengeMember challengeMember = ChallengeMember.builder()
                     .user(user)
                     .challenge(challenge)
                     .isSuccess(challenge.getStatus()) // 초기 상태 설정
                     .endAt(challenge.getEndDate())
+                    .role(role)
                     .build();
             challengeMemberRepository.save(challengeMember);
         }
@@ -77,11 +85,7 @@ public class ChallengeMemberService {
     }
 
 
-    // 챌린지 생성 이후 친구 챌린지 맴버로 초대
-    // 1.챌린지 유효성 검사
-    // 2.초대한 친구가 user데이터 존재 하는지 검사
-    // 3.이미 챌린지 맴버인지 검사
-    // 4.챌린지 맴버 데이터 생성
+    // 안쓰고있는것
     @Transactional
     public String addMemberByInvitation(Long challengeId, String inviteName, String invitePhoneNum) {
         
