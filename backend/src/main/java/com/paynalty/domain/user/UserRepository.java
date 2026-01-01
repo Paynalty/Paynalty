@@ -10,8 +10,16 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    // email로 user 찾기
-    @Query("SELECT u FROM User u WHERE u.email  LIKE %:identifier% OR u.name LIKE %:identifier% ")
+    /**
+     * 이메일 또는 이름으로 사용자 검색
+     * - 이메일: @ 앞부분(로컬 파트)만 검색
+     * - 이름: 부분 일치 검색
+     */
+    @Query("""
+        SELECT u FROM User u 
+        WHERE SUBSTRING(u.email, 1, LOCATE('@', u.email) - 1) LIKE %:identifier%
+           OR u.name LIKE %:identifier%
+        """)
     List<User> findByEmailOrName(@Param("identifier") String identifier);
 
 

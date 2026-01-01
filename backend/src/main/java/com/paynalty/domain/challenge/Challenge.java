@@ -154,7 +154,7 @@ public class Challenge extends BaseTimeEntity {
         this.verificationType = request.getVerifyType();
     }
 
-    // frequency만 업데이트 (요일 변경 시 자동 계산용)
+    // frequency만 업데이트 (요일 변경 시 자동 계산용).
     public void updateFrequency(int frequency) {
         this.frequency = frequency;
     }
