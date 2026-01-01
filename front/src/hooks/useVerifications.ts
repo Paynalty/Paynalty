@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getLatestVerification, getVerifications } from '../api/verifications';
+import { getLatestVerification, getVerifications, getMemberVerificationCounts } from '../api/verifications';
 
 export const useLatestVerification = (challengeId: string) => {
   return useQuery({
@@ -26,6 +26,20 @@ export const useVerifications = (challengeId: string) => {
       if (!challengeId) return [];
       const data = await getVerifications(challengeId);
       return data.content;
+    },
+    enabled: !!challengeId,
+  });
+};
+
+/**
+ * 멤버별 주간 인증 횟수를 조회하는 Hook
+ */
+export const useMemberVerificationCounts = (challengeId: string) => {
+  return useQuery({
+    queryKey: ['memberVerificationCounts', challengeId],
+    queryFn: async () => {
+      if (!challengeId) return [];
+      return await getMemberVerificationCounts(challengeId);
     },
     enabled: !!challengeId,
   });

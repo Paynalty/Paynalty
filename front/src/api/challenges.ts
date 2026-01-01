@@ -13,6 +13,7 @@ export interface CreateChallengeRequest {
   verifyStartAt?: string;
   verifyEndAt?: string;
   verificationType: VerificationType;
+  userIds?: number[];
 }
 
 export interface CreateChallengeResponse {

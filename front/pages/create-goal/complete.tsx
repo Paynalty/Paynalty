@@ -56,6 +56,7 @@ export default function Page() {
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
+        userIds: challengeData.invitedUsers,
       });
 
       await queryClient.invalidateQueries({ queryKey: ['challenges'] });

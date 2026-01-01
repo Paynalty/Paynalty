@@ -4,7 +4,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
-import { useLatestVerification } from '../../src/hooks/useVerifications';
+import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import {
   formatDate,
@@ -25,6 +25,7 @@ function Page() {
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
   const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
+  const { data: memberCounts } = useMemberVerificationCounts(selectedChallenge?.id || '');
 
   if (!selectedChallenge) {
     return (
@@ -131,7 +132,15 @@ function Page() {
           </ListHeader.TitleSelector>
         }*/
       />
-      <BarChart data={[]} fill={{ type: 'all-bar', theme: 'blue' }} />
+      <BarChart
+        data={
+          memberCounts?.map(member => ({
+            label: member.userName,
+            value: member.verificationCount,
+          })) ?? []
+        }
+        fill={{ type: 'all-bar', theme: 'blue' }}
+      />
       <ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
