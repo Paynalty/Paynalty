@@ -3,7 +3,7 @@ import {createRoute, Spacing, useNavigation} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {View} from "react-native";
 
-export const Route = createRoute('/create-goal', {
+export const Route = createRoute('/create-challenge', {
     component: Page,
 });
 
@@ -51,7 +51,7 @@ function Page() {
             />
             <FixedBottomCTAProvider>
                 <FixedBottomCTA loading={false} onPress={() =>
-                    navigation.navigate('/create-goal/step2')}>목표 만들기</FixedBottomCTA>
+                    navigation.navigate('/create-challenge/step2')}>목표 만들기</FixedBottomCTA>
             </FixedBottomCTAProvider>
         </>
     );

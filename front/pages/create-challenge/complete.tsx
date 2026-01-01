@@ -2,12 +2,12 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { createChallenge } from '../../src/api/challenges';
 import { formatDate, formatTime } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
 
-export const Route = createRoute('/create-goal/complete', {
+export const Route = createRoute('/create-challenge/complete', {
   component: Page,
 });
 
@@ -18,7 +18,7 @@ export default function Page() {
   type StartType = 'nextWeek' | 'tomorrow';
   const [loading, setLoading] = useState<StartType | null>(null);
 
-  const { data: challengeData, resetData: resetCreateGoalData } = useCreateGoalStore();
+  const { data: challengeData, resetData: resetChallengeData } = useCreateChallengeStore();
 
   // startDate 계산 함수
   const calculateStartDate = (option: 'tomorrow' | 'nextWeek'): string => {
@@ -63,7 +63,7 @@ export default function Page() {
       await queryClient.invalidateQueries({ queryKey: ['missionChallenges'] });
 
       // 성공 시 데이터 초기화
-      resetCreateGoalData();
+      resetChallengeData();
       alert('목표를 만들었습니다.');
       // 메인 페이지로 이동
       navigation.navigate('/');

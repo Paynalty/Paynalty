@@ -13,10 +13,10 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useState } from 'react';
 import { View, ActivityIndicator, Pressable } from 'react-native';
 import { useUserSearch } from '../../src/hooks/useUsers';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { UserResponse } from '../../src/api/users';
 
-export const Route = createRoute('/create-goal/invite-friends', {
+export const Route = createRoute('/create-challenge/invite-friends', {
   component: Page,
 });
 
@@ -25,7 +25,7 @@ export default function Page() {
   const navigation = Route.useNavigation();
   const [searchText, setSearchText] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>([]);
-  const { updateData } = useCreateGoalStore();
+  const { updateData } = useCreateChallengeStore();
 
   // 사용자 검색 Hook
   const { data: searchResults = [], isLoading } = useUserSearch(searchText);
@@ -45,7 +45,7 @@ export default function Page() {
   // 다음 단계로 이동 시 선택된 사용자 ID를 store에 저장
   const handleNext = () => {
     updateData({ invitedUsers: selectedUsers.map(u => u.userId) });
-    navigation.navigate('/create-goal/complete');
+    navigation.navigate('/create-challenge/complete');
   };
 
   return (
@@ -176,7 +176,7 @@ export default function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step8')}
+              onPress={() => navigation.navigate('/create-challenge/step8')}
             >
               이전
             </Button>

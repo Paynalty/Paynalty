@@ -3,16 +3,16 @@ import { Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Asset
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step3', {
+export const Route = createRoute('/create-challenge/step3', {
   component: Page,
 });
 
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
 
   const currentDate = new Date();
   const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
@@ -252,7 +252,7 @@ function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step2')}
+              onPress={() => navigation.navigate('/create-challenge/step2')}
             >
               이전
             </Button>
@@ -271,7 +271,7 @@ function Page() {
                   endDate: isoDate,
                 });
                 // 다음 단계로 이동
-                navigation.navigate('/create-goal/step4');
+                navigation.navigate('/create-challenge/step4');
               }}
             >
               다음

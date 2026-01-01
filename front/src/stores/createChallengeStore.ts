@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-// 목표 생성 데이터 타입
-export interface CreateGoalData {
+// 챌린지 생성 데이터 타입
+export interface CreateChallengeData {
   title?: string;
   verificationType?: string;
   period?: string;
@@ -16,13 +16,13 @@ export interface CreateGoalData {
   invitedUsers?: number[]; // 초대된 사용자 ID 배열
 }
 
-interface CreateGoalStore {
-  data: CreateGoalData;
-  updateData: (data: Partial<CreateGoalData>) => void;
+interface CreateChallengeStore {
+  data: CreateChallengeData;
+  updateData: (data: Partial<CreateChallengeData>) => void;
   resetData: () => void;
 }
 
-export const useCreateGoalStore = create<CreateGoalStore>((set) => ({
+export const useCreateChallengeStore = create<CreateChallengeStore>((set) => ({
   data: {},
   updateData: (newData) =>
     set((state) => ({

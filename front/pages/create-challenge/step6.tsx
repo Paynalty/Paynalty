@@ -12,16 +12,16 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { View } from 'react-native';
 import { useState } from 'react';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step6', {
+export const Route = createRoute('/create-challenge/step6', {
   component: Page,
 });
 
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
 
   const [selectedMethod, setSelectedMethod] = useState('사진');
 
@@ -95,7 +95,7 @@ export default function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step5')}
+              onPress={() => navigation.navigate('/create-challenge/step5')}
             >
               이전
             </Button>
@@ -116,7 +116,7 @@ export default function Page() {
                 updateData({
                   verificationType: methodMapping[selectedMethod],
                 });
-                navigation.navigate('/create-goal/step7');
+                navigation.navigate('/create-challenge/step7');
               }}
             >
               다음

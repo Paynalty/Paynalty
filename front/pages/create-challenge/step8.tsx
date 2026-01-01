@@ -3,7 +3,7 @@ import {Asset, ProgressBar, Top, ListRow, FixedBottomCTA, FixedBottomCTAProvider
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Pressable, View} from "react-native";
 
-export const Route = createRoute('/create-goal/step8', {
+export const Route = createRoute('/create-challenge/step8', {
     component: Page,
 })
 
@@ -28,7 +28,7 @@ export default function Page() {
                     </Top.SubtitleParagraph>
                 }
             />
-            <Pressable onPress={() => navigation.navigate('/create-goal/invite-friends')}>
+            <Pressable onPress={() => navigation.navigate('/create-challenge/invite-friends')}>
                 <ListRow
                     contents={
                         <ListRow.Texts
@@ -58,7 +58,7 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/step7')}
+                            onPress={() => navigation.navigate('/create-challenge/step7')}
                         >
                             이전
                         </Button>
@@ -70,7 +70,7 @@ export default function Page() {
                             display="block"
                             disabled={false}
                             loading={false}
-                            onPress={() => navigation.navigate('/create-goal/complete')}
+                            onPress={() => navigation.navigate('/create-challenge/complete')}
                         >
                             다음
                         </Button>

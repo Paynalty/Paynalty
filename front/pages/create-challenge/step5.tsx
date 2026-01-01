@@ -3,17 +3,17 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { formatTime } from '../../src/utils/challenge';
 
-export const Route = createRoute('/create-goal/step5', {
+export const Route = createRoute('/create-challenge/step5', {
   component: Page,
 });
 
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
 
   const [startTime, setStartTime] = useState('00:00');
   const [endTime, setEndTime] = useState('24:00');
@@ -40,7 +40,7 @@ function Page() {
       verifyStartAt: startTime,
       verifyEndAt: normalizedEndTime,
     });
-    navigation.navigate('/create-goal/step6');
+    navigation.navigate('/create-challenge/step6');
   };
 
   return (
@@ -166,7 +166,7 @@ function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step4')}
+              onPress={() => navigation.navigate('/create-challenge/step4')}
             >
               이전
             </Button>
