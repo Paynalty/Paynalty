@@ -1,6 +1,7 @@
 package com.paynalty.global.config;
 
 import com.paynalty.global.toss.TLSClient;
+import com.paynalty.global.toss.TossDataDecryptor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,9 @@ public class TossApiConfig {
     @Value("${toss.api.key}")
     private String apiKey;
 
+    @Value("${toss.api.data-secret-key}")
+    private String dataSecretKey;
+
     public TossApiConfig(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
@@ -34,6 +38,11 @@ public class TossApiConfig {
         Resource keyResource = resourceLoader.getResource(keyPath);
 
         return TLSClient.createSSLContext(certResource, keyResource);
+    }
+
+    @Bean
+    public TossDataDecryptor tossDataDecryptor() {
+        return new TossDataDecryptor(dataSecretKey);
     }
 }
 
