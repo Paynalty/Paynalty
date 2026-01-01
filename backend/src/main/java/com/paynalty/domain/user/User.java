@@ -49,6 +49,18 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
+    public void updateUserInfo(String name, String phoneNum, String email) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (phoneNum != null) {
+            this.phoneNum = phoneNum;
+        }
+        if (email != null) {
+            this.email = email;
+        }
+    }
+
 
     // 관계 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
