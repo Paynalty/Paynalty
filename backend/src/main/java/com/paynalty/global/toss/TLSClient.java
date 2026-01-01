@@ -132,11 +132,22 @@ public class TLSClient {
 
 
     public static String makeRequest(String url, SSLContext sslContext) throws Exception {
+        return makeRequest(url, sslContext, java.util.Collections.emptyMap());
+    }
+
+    public static String makeRequest(String url, SSLContext sslContext, java.util.Map<String, String> headers) throws Exception {
         HttpsURLConnection conn = (HttpsURLConnection) new URL(url).openConnection();
         conn.setSSLSocketFactory(sslContext.getSocketFactory());
         conn.setRequestMethod("GET");
         conn.setConnectTimeout(5000);
         conn.setReadTimeout(5000);
+
+        // 추가 헤더 설정
+        if (headers != null) {
+            for (java.util.Map.Entry<String, String> entry : headers.entrySet()) {
+                conn.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
 
         int status = conn.getResponseCode();
 
@@ -145,12 +156,7 @@ public class TLSClient {
                 : conn.getErrorStream();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            return response.toString();
+            return reader.lines().collect(Collectors.joining("\n"));
         } finally {
             conn.disconnect();
         }
