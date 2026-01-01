@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { UserResponse } from '../api/users';
 
 // 챌린지 생성 데이터 타입
 export interface CreateChallengeData {
@@ -13,7 +14,7 @@ export interface CreateChallengeData {
   verifyEndAt?: string;
   dayOfWeeks?: string[]; // 영문 요일 (MON, TUE, ...)
   frequency?: number; // 주 n회
-  invitedUsers?: number[]; // 초대된 사용자 ID 배열
+  invitedUsers?: UserResponse[]; // 초대된 사용자 정보 배열
 }
 
 interface CreateChallengeStore {

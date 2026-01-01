@@ -24,8 +24,8 @@ export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
   const [searchText, setSearchText] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>([]);
-  const { updateData } = useCreateChallengeStore();
+  const { data, updateData } = useCreateChallengeStore();
+  const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>(data.invitedUsers || []);
 
   // 사용자 검색 Hook
   const { data: searchResults = [], isLoading } = useUserSearch(searchText);
@@ -44,7 +44,7 @@ export default function Page() {
 
   // 다음 단계로 이동 시 선택된 사용자 ID를 store에 저장
   const handleNext = () => {
-    updateData({ invitedUsers: selectedUsers.map(u => u.userId) });
+    updateData({ invitedUsers: selectedUsers });
     navigation.navigate('/create-challenge/complete');
   };
 
@@ -176,7 +176,10 @@ export default function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-challenge/step8')}
+              onPress={() => {
+                updateData({ invitedUsers: selectedUsers });
+                navigation.navigate('/create-challenge/step8');
+              }}
             >
               이전
             </Button>

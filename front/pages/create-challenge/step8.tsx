@@ -2,6 +2,7 @@ import {createRoute, Spacing} from '@granite-js/react-native';
 import {Asset, ProgressBar, Top, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Pressable, View} from "react-native";
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
 export const Route = createRoute('/create-challenge/step8', {
     component: Page,
@@ -10,6 +11,13 @@ export const Route = createRoute('/create-challenge/step8', {
 export default function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+    const { data } = useCreateChallengeStore();
+
+    const invitedCount = data.invitedUsers?.length || 0;
+    const displayText = invitedCount === 0
+      ? '아직 초대한 친구가 없어요'
+      : `${invitedCount}명이 참여하고 있어요`;
+
     return (
         <>
             <Spacing size={30}/>
@@ -35,7 +43,7 @@ export default function Page() {
                             type="2RowTypeC"
                             top="추가하기"
                             topProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            bottom="5명이 참여하고 있어요"
+                            bottom={displayText}
                             bottomProps={{color: adaptive.grey500}}
                         />
                     }
