@@ -11,9 +11,9 @@ import {
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View } from 'react-native';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step2', {
+export const Route = createRoute('/create-challenge/step2', {
   component: Page,
 });
 
@@ -22,7 +22,7 @@ const MAX_TITLE_LENGTH = 30;
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
   const [goalTitle, setGoalTitle] = useState('');
 
   // 목표 제목 변경 처리
@@ -76,7 +76,7 @@ function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal')}
+              onPress={() => navigation.navigate('/create-challenge')}
             >
               이전
             </Button>
@@ -92,7 +92,7 @@ function Page() {
                 // 데이터 저장
                 updateData({ title: goalTitle.trim() });
                 // 다음 단계로 이동
-                navigation.navigate('/create-goal/step3');
+                navigation.navigate('/create-challenge/step3');
               }}
             >
               다음

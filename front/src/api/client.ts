@@ -23,5 +23,5 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     return {} as T;
   }
 
-  return JSON.parse(text);
+  return JSON.parse(text) as T;
 }

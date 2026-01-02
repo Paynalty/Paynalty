@@ -1,3 +1,5 @@
+import { verificationStatus } from '../components/challenge/types';
+
 /**
  * "HH:mm:ss" 형식의 시간 문자열을 받아 오늘 날짜의 Date 객체로 변환합니다.
  * 백엔드에서 LocalTime이나 LocalDateTime(ISO string) 어떤 것을 보내도 처리할 수 있습니다.
@@ -119,4 +121,87 @@ export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string
   if (nextDay === undefined) return ''; // 예외 케이스
 
   return `다음 인증일 : ${DAYS_LABEL[nextDay]}요일`;
+};
+
+/**
+ * 챌린지 상태에 따른 뱃지(라벨, 색상) 정보를 반환합니다.
+ */
+export const getChallengeStatusBadge = (
+  status: verificationStatus,
+  daysOfWeek: string[],
+  weeklyRequiredCount: number,
+  weeklyProgressCount: number
+) => {
+  // 1. 이미 인증을 완료한 경우 -> Green
+  if (status === 'VERIFIED') {
+    return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
+  }
+
+  // 2. 오늘 인증해야 하는 경우 (isTodayChallenge 활용) -> Yellow
+  if (isTodayChallenge(daysOfWeek, weeklyRequiredCount, weeklyProgressCount)) {
+    return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+  }
+
+  // 3. 그 외 -> Blue
+  return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
+};
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 "M월 D일" 형식으로 변환합니다.
+ */
+export const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = getTimeDate(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 24시간제 형식으로 변환합니다.
+ * 백엔드에서 23:59:59 등으로 오는 마감 시간은 "24:00"으로 표시합니다.
+ */
+export const formatTime = (timeString: string) => {
+  if (!timeString) return '';
+
+  // 1. 마감 시간 처리 (23:59:59, 23:59, 24:00 -> 24시)
+  if (timeString.includes('23:59') || timeString.startsWith('24:00')) {
+    return '24시';
+  }
+
+  // 2. 시간 파싱
+  const date = getTimeDate(timeString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // 3. 24시간제 형식으로 반환 (XX시 또는 XX시 YY분)
+  if (minutes === 0) {
+    return `${hours}시`;
+  }
+
+  return `${hours}시 ${minutes}분`;
+};
+
+export const formatDaysOfWeek = (days: string[] | undefined) => {
+  if (!days || days.length === 0) return '';
+  return days
+    .map((day) => {
+      const dayNum = DAYS_MAP[day];
+      return dayNum !== undefined ? DAYS_LABEL[dayNum] : day;
+    })
+    .join(', ');
+};
+
+/**
+ * 영문 인증 방식을 한글 명칭으로 변환합니다.
+ */
+export const getVerificationTypeLabel = (type: string) => {
+  const typeMap: { [key: string]: string } = {
+    PHOTO: '사진',
+    TEXT: '텍스트',
+    VOTE: '투표',
+  };
+  return typeMap[type] || type;
 };
