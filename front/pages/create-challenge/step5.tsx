@@ -3,16 +3,17 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
+import { formatTime } from '../../src/utils/challenge';
 
-export const Route = createRoute('/create-goal/step5', {
+export const Route = createRoute('/create-challenge/step5', {
   component: Page,
 });
 
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
 
   const [startTime, setStartTime] = useState('00:00');
   const [endTime, setEndTime] = useState('24:00');
@@ -39,7 +40,7 @@ function Page() {
       verifyStartAt: startTime,
       verifyEndAt: normalizedEndTime,
     });
-    navigation.navigate('/create-goal/step6');
+    navigation.navigate('/create-challenge/step6');
   };
 
   return (
@@ -68,7 +69,7 @@ function Page() {
                 시작 시간
               </Txt>
               <Txt typography="t3" color={adaptive.grey900} fontWeight="bold">
-                {startTime}
+                {formatTime(startTime)}
               </Txt>
             </View>
             <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-right-mono" color={adaptive.grey400} />
@@ -83,7 +84,7 @@ function Page() {
                 마감 시간
               </Txt>
               <Txt typography="t3" color={adaptive.grey900} fontWeight="bold">
-                {endTime}
+                {formatTime(endTime)}
               </Txt>
             </View>
             <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-right-mono" color={adaptive.grey400} />
@@ -110,7 +111,7 @@ function Page() {
                   style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey100 }}
                 >
                   <Txt typography="t5" color={time === startTime ? adaptive.blue500 : adaptive.grey900}>
-                    {time}
+                    {formatTime(time)}
                   </Txt>
                 </Pressable>
               ))}
@@ -143,7 +144,7 @@ function Page() {
                   style={{ padding: 16, borderBottomWidth: 1, borderBottomColor: adaptive.grey100 }}
                 >
                   <Txt typography="t5" color={time === endTime ? adaptive.blue500 : adaptive.grey900}>
-                    {time}
+                    {formatTime(time)}
                   </Txt>
                 </Pressable>
               ))}
@@ -165,7 +166,7 @@ function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step4')}
+              onPress={() => navigation.navigate('/create-challenge/step4')}
             >
               이전
             </Button>

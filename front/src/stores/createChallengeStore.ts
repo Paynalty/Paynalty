@@ -1,7 +1,8 @@
 import { create } from 'zustand';
+import { UserResponse } from '../api/users';
 
-// 목표 생성 데이터 타입
-export interface CreateGoalData {
+// 챌린지 생성 데이터 타입
+export interface CreateChallengeData {
   title?: string;
   verificationType?: string;
   period?: string;
@@ -13,15 +14,16 @@ export interface CreateGoalData {
   verifyEndAt?: string;
   dayOfWeeks?: string[]; // 영문 요일 (MON, TUE, ...)
   frequency?: number; // 주 n회
+  invitedUsers?: UserResponse[]; // 초대된 사용자 정보 배열
 }
 
-interface CreateGoalStore {
-  data: CreateGoalData;
-  updateData: (data: Partial<CreateGoalData>) => void;
+interface CreateChallengeStore {
+  data: CreateChallengeData;
+  updateData: (data: Partial<CreateChallengeData>) => void;
   resetData: () => void;
 }
 
-export const useCreateGoalStore = create<CreateGoalStore>((set) => ({
+export const useCreateChallengeStore = create<CreateChallengeStore>((set) => ({
   data: {},
   updateData: (newData) =>
     set((state) => ({

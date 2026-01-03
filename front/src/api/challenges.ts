@@ -13,6 +13,7 @@ export interface CreateChallengeRequest {
   verifyStartAt?: string;
   verifyEndAt?: string;
   verificationType: VerificationType;
+  userIds?: number[];
 }
 
 export interface CreateChallengeResponse {
@@ -22,6 +23,7 @@ export interface CreateChallengeResponse {
 }
 
 export interface ChallengeDetailResponse {
+  verificationStatus: string;
   id: number;
   title: string;
   weeklyProgressCount: number;
@@ -34,12 +36,6 @@ export interface ChallengeDetailResponse {
   endAt: string;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-  message: string | null;
-}
-
 export const createChallenge = (data: CreateChallengeRequest) => {
   return apiFetch<CreateChallengeResponse>('/api/challenge', {
     method: 'POST',
@@ -48,7 +44,7 @@ export const createChallenge = (data: CreateChallengeRequest) => {
 };
 
 export const getMyProgressChallenges = (userId: number = 1, status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
-  return apiFetch<ApiResponse<ChallengeDetailResponse[]>>(`/api/challenge/${userId}/${status}`, {
+  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${userId}/${status}`, {
     method: 'GET',
   });
 };

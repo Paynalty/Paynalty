@@ -11,16 +11,16 @@ import {
 import { useAdaptive, Paragraph } from '@toss/tds-react-native/private';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useState } from 'react';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step4', {
+export const Route = createRoute('/create-challenge/step4', {
   component: Page,
 });
 
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((state) => state.updateData);
+  const updateData = useCreateChallengeStore((state) => state.updateData);
 
   const [selectionType, setSelectionType] = useState<'day' | 'count'>('day');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -135,7 +135,7 @@ function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step3')}
+              onPress={() => navigation.navigate('/create-challenge/step3')}
             >
               이전
             </Button>
@@ -169,7 +169,7 @@ function Page() {
                   dayOfWeek: mappedDays,
                   frequency: selectionType === 'day' ? mappedDays?.length : Number(selectedCount.replace('회', '')),
                 });
-                navigation.navigate('/create-goal/step5');
+                navigation.navigate('/create-challenge/step5');
               }}
             >
               다음

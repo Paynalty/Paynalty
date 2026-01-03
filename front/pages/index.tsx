@@ -141,7 +141,7 @@ function Page() {
             친구들과 달성해보세요!
           </Top.TitleParagraph>
         }
-        right={<Top.RightButton onPress={() => navigation.navigate('/create-goal')}>만들기</Top.RightButton>}
+        right={<Top.RightButton onPress={() => navigation.navigate('/create-challenge')}>만들기</Top.RightButton>}
       />
 
       {showTooltip && todayMissions.length > 0 && (
@@ -189,7 +189,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Active selected');
               setCurrentStatus('ACTIVE');
               setShowDropdown(false);
             }}
@@ -202,7 +201,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Pending selected');
               setCurrentStatus('PENDING');
               setShowDropdown(false);
             }}
@@ -215,7 +213,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              console.log('Complete selected');
               setCurrentStatus('COMPLETE');
               setShowDropdown(false);
             }}
@@ -234,13 +231,13 @@ function Page() {
         challenges.map((challenge, index) => (
           <View key={challenge.id || `challenge-${index}`}>
             {index > 0 && <Spacing size={16} />}
-            <ChallengeCard challenge={challenge} />
+            <ChallengeCard challenge={{ ...challenge, status: currentStatus }} />
           </View>
         ))
       ) : (
         <OnboardingView
           adaptive={adaptive}
-          onCreateObjective={() => navigation.navigate('/create-goal')}
+          onCreateObjective={() => navigation.navigate('/create-challenge')}
           currentStatus={currentStatus}
         />
       )}

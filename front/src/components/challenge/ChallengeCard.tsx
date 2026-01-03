@@ -1,34 +1,31 @@
-import { View, StyleSheet } from 'react-native';
 import { Spacing, useNavigation } from '@granite-js/react-native';
-import { Badge, Top, ListHeader } from '@toss/tds-react-native';
+import { Badge, ListHeader, Top } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+import { StyleSheet, View } from 'react-native';
 
-import { Challenge, ChallengeStatus } from './types';
 import { setSelectedChallenge } from '../../stores/challengeStore';
-import { getVerificationMessage, isTodayChallenge, getNextScheduleMessage } from '../../utils/challenge';
+import {
+  getChallengeStatusBadge,
+  getNextScheduleMessage,
+  getVerificationMessage,
+  isTodayChallenge,
+} from '../../utils/challenge';
+import { Challenge } from './types';
 
 export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const adaptive = useAdaptive();
   const navigation = useNavigation();
 
-  const getStatusBadge = (status: ChallengeStatus) => {
-    switch (status) {
-      case 'COMPLETE':
-        return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
-      case 'ACTIVE':
-        return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
-      case 'PENDING':
-        return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
-      default:
-        return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
-    }
-  };
-
   const badges = [
-    getStatusBadge(challenge.status),
+    getChallengeStatusBadge(
+      challenge.verificationStatus,
+      challenge.daysOfWeek,
+      Number(challenge.weeklyRequiredCount),
+      challenge.weeklyProgressCount
+    ),
     {
       label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,
-      type: (challenge.status === 'COMPLETE' ? 'green' : 'yellow') as any,
+      type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
       style: 'weak' as const,
     },
     { label: `${challenge.penaltyAmount}원`, type: 'blue' as any, style: 'weak' as const },
@@ -39,7 +36,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{challenge.title}</Top.TitleParagraph>}
         subtitle1={
-          challenge.verifyEnd ? (
+          challenge.status === 'ACTIVE' && challenge.verifyEnd ? (
             <Top.SubtitleParagraph>
               {isTodayChallenge(
                 challenge.daysOfWeek,
@@ -51,7 +48,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
             </Top.SubtitleParagraph>
           ) : undefined
         }
-        subtitle2={<Top.SubtitleBadges items={badges} />}
+        subtitle2={challenge.status === 'ACTIVE' ? <Top.SubtitleBadges items={badges} /> : undefined}
         right={
           <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
             <View>

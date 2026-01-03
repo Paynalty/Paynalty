@@ -12,16 +12,16 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { View } from 'react-native';
 import { useState } from 'react';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step6', {
+export const Route = createRoute('/create-challenge/step6', {
   component: Page,
 });
 
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
 
   const [selectedMethod, setSelectedMethod] = useState('사진');
 
@@ -53,6 +53,7 @@ export default function Page() {
           style={selectedMethod === '텍스트' ? 'fill' : 'weak'}
           type={selectedMethod === '텍스트' ? 'primary' : 'dark'}
           onPress={() => setSelectedMethod('텍스트')}
+          disabled={true}
         >
           텍스트
         </Button>
@@ -61,6 +62,7 @@ export default function Page() {
           style={selectedMethod === '체크' ? 'fill' : 'weak'}
           type={selectedMethod === '체크' ? 'primary' : 'dark'}
           onPress={() => setSelectedMethod('체크')}
+          disabled={true}
         >
           체크
         </Button>
@@ -69,11 +71,11 @@ export default function Page() {
       <ListRow
         left={<ListRow.ImageContainer type="square" style={{}} />}
         contents={
-          <ListRow.Texts type="1RowTypeA" top="가이드라인을 정하시겠어요 ?" topProps={{ color: adaptive.grey700 }} />
+          <ListRow.Texts type="1RowTypeA" top="현재는 사진으로만 인증 가능해요" topProps={{ color: adaptive.grey700 }} />
         }
         verticalPadding={8}
       />
-      <TextField
+      {/*<TextField
         variant="box"
         label=""
         labelOption="sustain"
@@ -85,7 +87,7 @@ export default function Page() {
             <Asset.Icon frameShape={Asset.frameShape.CleanW24} name="icon-arrow-down-mono" color={adaptive.grey400} />
           </>
         }
-      />
+      />*/}
       <FixedBottomCTAProvider>
         <FixedBottomCTA.Double
           leftButton={
@@ -95,7 +97,7 @@ export default function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step5')}
+              onPress={() => navigation.navigate('/create-challenge/step5')}
             >
               이전
             </Button>
@@ -116,7 +118,7 @@ export default function Page() {
                 updateData({
                   verificationType: methodMapping[selectedMethod],
                 });
-                navigation.navigate('/create-goal/step7');
+                navigation.navigate('/create-challenge/step7');
               }}
             >
               다음

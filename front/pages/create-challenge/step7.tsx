@@ -11,9 +11,9 @@ import {
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { View } from 'react-native';
 import { useState } from 'react';
-import { useCreateGoalStore } from '../../src/stores/createGoalStore';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 
-export const Route = createRoute('/create-goal/step7', {
+export const Route = createRoute('/create-challenge/step7', {
   component: Page,
 });
 
@@ -27,7 +27,7 @@ const PENALTY_OPTIONS = [
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateGoalStore((s) => s.updateData);
+  const updateData = useCreateChallengeStore((s) => s.updateData);
   const [selectAmount, setSelectAmount] = useState<number | string>(10000);
   const [customAmount, setCustomAmount] = useState('');
 
@@ -113,7 +113,7 @@ export default function Page() {
               display="block"
               disabled={false}
               loading={false}
-              onPress={() => navigation.navigate('/create-goal/step6')}
+              onPress={() => navigation.navigate('/create-challenge/step6')}
             >
               이전
             </Button>
@@ -130,7 +130,7 @@ export default function Page() {
                   penaltyAmount: selectAmount,
                   customAmount: selectAmount === 'custom' ? customAmount : undefined,
                 });
-                navigation.navigate('/create-goal/step8');
+                navigation.navigate('/create-challenge/step8');
               }}
             >
               다음
