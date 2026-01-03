@@ -16,8 +16,8 @@ public class TossApiClient {
 
     private final SSLContext tossSslContext;
     private final TossApiConfig tossApiConfig;
- public String fetchToken
-   (String authorizationCode, String referrer) throws Exception {
+
+    public String fetchToken(String authorizationCode, String referrer) throws Exception {
         String credentials = tossApiConfig.getApiKey() + ":";
         String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         Map<String, String> headers = Map.of("Authorization", basicAuthHeader);
