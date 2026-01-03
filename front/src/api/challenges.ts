@@ -1,50 +1,59 @@
+import { z } from 'zod';
 import { apiFetch } from './client';
 
-export type VerificationType = 'PHOTO' | 'TEXT' | 'VOTE';
-export type DayOfWeekType = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
+export const VerificationTypeSchema = z.enum(['PHOTO', 'TEXT', 'VOTE']);
+export type VerificationType = z.infer<typeof VerificationTypeSchema>;
 
-export interface CreateChallengeRequest {
-  title: string;
-  startDate: string;
-  endDate: string;
-  frequency?: number; // 주 n회 인증
-  dayOfWeek?: DayOfWeekType[]; // 지정 요일 (선택사항)
-  penaltyAmount: number;
-  verifyStartAt?: string;
-  verifyEndAt?: string;
-  verificationType: VerificationType;
-  userIds?: number[];
-}
+export const DayOfWeekSchema = z.enum(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']);
+export type DayOfWeekType = z.infer<typeof DayOfWeekSchema>;
 
-export interface CreateChallengeResponse {
-  id: number;
-  title: string;
-  status: string;
-}
+export const CreateChallengeRequestSchema = z.object({
+  title: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  frequency: z.number().optional(),
+  dayOfWeek: z.array(DayOfWeekSchema).optional(),
+  penaltyAmount: z.number(),
+  verifyStartAt: z.string().optional(),
+  verifyEndAt: z.string().optional(),
+  verificationType: VerificationTypeSchema,
+  userIds: z.array(z.number()).optional(),
+});
+export type CreateChallengeRequest = z.infer<typeof CreateChallengeRequestSchema>;
 
-export interface ChallengeDetailResponse {
-  verificationStatus: string;
-  id: number;
-  title: string;
-  weeklyProgressCount: number;
-  weeklyRequiredCount: number;
-  penaltyAmount: number;
-  verifyStart: string;
-  verifyEnd: string;
-  verificationType: string;
-  daysOfWeek: string[];
-  endAt: string;
-}
+export const CreateChallengeResponseSchema = z.number();
+export type CreateChallengeResponse = z.infer<typeof CreateChallengeResponseSchema>;
+
+export const VerificationStatusSchema = z.enum(['VERIFIED', 'NOT_VERIFIED']);
+export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+
+export const ChallengeDetailResponseSchema = z.object({
+  verificationStatus: VerificationStatusSchema,
+  id: z.coerce.number(),
+  title: z.coerce.string(),
+  weeklyProgressCount: z.coerce.number(),
+  weeklyRequiredCount: z.coerce.number(),
+  penaltyAmount: z.coerce.number(),
+  verifyStart: z.coerce.string(),
+  verifyEnd: z.coerce.string(),
+  verificationType: z.coerce.string(),
+  daysOfWeek: z.array(z.string()).default([]),
+  startAt: z.string().optional(),
+  endAt: z.coerce.string(),
+});
+export type ChallengeDetailResponse = z.infer<typeof ChallengeDetailResponseSchema>;
 
 export const createChallenge = (data: CreateChallengeRequest) => {
   return apiFetch<CreateChallengeResponse>('/api/challenge', {
     method: 'POST',
     body: JSON.stringify(data),
+    schema: CreateChallengeResponseSchema,
   });
 };
 
 export const getMyProgressChallenges = (userId: number = 1, status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
   return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${userId}/${status}`, {
     method: 'GET',
+    schema: z.array(ChallengeDetailResponseSchema),
   });
 };

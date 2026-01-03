@@ -197,6 +197,26 @@ export const formatDaysOfWeek = (days: string[] | undefined) => {
 /**
  * 영문 인증 방식을 한글 명칭으로 변환합니다.
  */
+/**
+ * 목표 날짜까지 남은 일수(D-Day)를 계산합니다.
+ */
+export const getDDay = (dateString: string | undefined): string => {
+  if (!dateString) return '';
+
+  const targetDate = new Date(dateString);
+  targetDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = targetDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'D-Day';
+  if (diffDays < 0) return '진행 중';
+  return `D-${diffDays}`;
+};
+
 export const getVerificationTypeLabel = (type: string) => {
   const typeMap: { [key: string]: string } = {
     PHOTO: '사진',

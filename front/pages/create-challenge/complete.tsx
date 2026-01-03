@@ -3,9 +3,10 @@ import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, T
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
-import { createChallenge } from '../../src/api/challenges';
+import { createChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
 import { formatDate, formatTime } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 export const Route = createRoute('/create-challenge/complete', {
   component: Page,
@@ -32,7 +33,7 @@ export default function Page() {
     }
 
     // ISO date string (YYYY-MM-DD)
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0] ?? '';
   };
 
   // API로 목표 생성 요청
@@ -42,22 +43,28 @@ export default function Page() {
 
       const startDate = calculateStartDate(option);
 
-      // API 요청
-      await createChallenge({
+      // 1. 전송할 데이터 구성
+      const payload = {
         title: challengeData.title || '',
         startDate: startDate,
         endDate: challengeData.endDate || '',
         penaltyAmount:
           challengeData.penaltyAmount === 'custom'
-            ? Number(challengeData.customAmount)
-            : Number(challengeData.penaltyAmount),
+            ? Number(challengeData.customAmount || 0)
+            : Number(challengeData.penaltyAmount || 0),
         frequency: challengeData.frequency,
         dayOfWeek: challengeData.dayOfWeeks as any,
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
-        userIds: challengeData.invitedUsers?.map(u => u.userId),
-      });
+        userIds: challengeData.invitedUsers?.map((u) => u.userId),
+      };
+
+      // 2. [Zod] 최종 제출 전 데이터 검증
+      CreateChallengeRequestSchema.parse(payload);
+
+      // 3. API 요청
+      await createChallenge(payload as any);
 
       await queryClient.invalidateQueries({ queryKey: ['challenges'] });
       await queryClient.invalidateQueries({ queryKey: ['missionChallenges'] });
@@ -68,6 +75,11 @@ export default function Page() {
       // 메인 페이지로 이동
       navigation.navigate('/');
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        console.error('Validation Error:', error.issues);
+        alert('입력 정보가 올바르지 않습니다. 다시 확인해주세요.');
+        return;
+      }
       console.error('목표 생성 실패:', error);
       alert('목표 생성에 실패했습니다.');
     } finally {
