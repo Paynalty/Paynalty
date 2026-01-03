@@ -70,7 +70,7 @@ logging:
 toss:
   api:
     base-url: ${TOSS_API_BASE_URL:https://apps-in-toss-api.toss.im}
-    key: ${TOSS_API_KEY:temp-toss-api-key} // 임시 값
+    key: ${TOSS_API_KEY}
     data-secret-key: ${TOSS_DATA_SECRET_KEY}
 
     # mTLS 인증서 경로 (classpath 리소스)

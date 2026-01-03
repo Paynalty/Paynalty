@@ -45,7 +45,11 @@ function Page() {
   );
 
   const totalPenalty = useMemo(
-    () => todayMissions.reduce((sum, challenge) => sum + challenge.penaltyAmount, 0),
+    () =>
+      todayMissions.reduce(
+        (sum, challenge) => (challenge.verificationStatus === 'NOT_VERIFIED' ? sum + challenge.penaltyAmount : sum),
+        0
+      ),
     [todayMissions]
   );
 
