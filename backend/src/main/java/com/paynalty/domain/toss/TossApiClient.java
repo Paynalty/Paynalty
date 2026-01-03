@@ -16,9 +16,8 @@ public class TossApiClient {
 
     private final SSLContext tossSslContext;
     private final TossApiConfig tossApiConfig;
-
-    public String fetchToken(String authorizationCode, String referrer) throws Exception {
-        // Correctly format credentials for Basic Auth as "apiKey:"
+ public String fetchToken
+   (String authorizationCode, String referrer) throws Exception {
         String credentials = tossApiConfig.getApiKey() + ":";
         String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         Map<String, String> headers = Map.of("Authorization", basicAuthHeader);
@@ -33,6 +32,17 @@ public class TossApiClient {
                 "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/generate-token",
                 tossSslContext,
                 jsonBody,
+                headers
+        );
+    }
+
+    public String fetchUserInfo(String accessToken) throws Exception {
+        String bearerAuthHeader = "Bearer " + accessToken;
+        Map<String, String> headers = Map.of("Authorization", bearerAuthHeader);
+
+        return TLSClient.makeRequest(
+                "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/login-me",
+                tossSslContext,
                 headers
         );
     }

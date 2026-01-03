@@ -4,9 +4,6 @@ import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +29,12 @@ public class User {
     @Column
     private String email;
 
+    @Column(name = "access_token", length = 1000)
+    private String accessToken;
+
+    @Column(name = "refresh_token", length = 1000)
+    private String refreshToken;
+
     @Builder
     public User(String email, Long tossId, String name, String phoneNum ){
         this.email = email;
@@ -41,6 +44,23 @@ public class User {
 
     }
 
+    public void updateTokens(String accessToken, String refreshToken) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
+    public void updateUserInfo(String name, String phoneNum, String email) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (phoneNum != null) {
+            this.phoneNum = phoneNum;
+        }
+        if (email != null) {
+            this.email = email;
+        }
+    }
+
 
     // 관계 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -48,8 +68,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
-
-    // Penalty는 이제 ChallengeMember를 통해 접근하므로 User와의 직접 관계 제거
-    // 벌금 내역은 ChallengeMember -> Penalty 경로로 조회 가능
 }
 

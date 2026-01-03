@@ -54,5 +54,42 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(()->new CustomException(UserErrorCode.USER_NOT_FOUND));
     }
 
+    // 토스 ID로 사용자 찾기
+    public User getByTossId(Long tossId) {
+        return userRepository.findByTossId(tossId)
+                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    // 토스 토큰 저장/업데이트
+    @Transactional
+    public void saveTokens(Long tossId, String accessToken, String refreshToken) {
+        User user = userRepository.findByTossId(tossId)
+                .orElseGet(() -> {
+                    // User가 없으면 새로 생성
+                    User newUser = User.builder()
+                            .tossId(tossId)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+        
+        user.updateTokens(accessToken, refreshToken);
+        userRepository.save(user);
+    }
+
+    // 토스 사용자 정보 저장/업데이트
+    @Transactional
+    public void saveUserInfo(Long tossId, String name, String phoneNum, String email) {
+        User user = userRepository.findByTossId(tossId)
+                .orElseGet(() -> {
+                    // User가 없으면 새로 생성
+                    User newUser = User.builder()
+                            .tossId(tossId)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+        
+        user.updateUserInfo(name, phoneNum, email);
+        userRepository.save(user);
+    }
 }
 
