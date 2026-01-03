@@ -30,16 +30,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
           },
         ];
       case 'COMPLETE':
-        return [
-          { label: '종료됨', type: 'blue' as const, style: 'weak' as const },
-          {
-            label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount} 인증`,
-            type: (challenge.weeklyProgressCount >= Number(challenge.weeklyRequiredCount) ? 'green' : 'red') as
-              | 'green'
-              | 'red',
-            style: 'weak' as const,
-          },
-        ];
+        return [{ label: '종료됨', type: 'blue' as const, style: 'weak' as const }];
       default: // ACTIVE
         return [
           getChallengeStatusBadge(
