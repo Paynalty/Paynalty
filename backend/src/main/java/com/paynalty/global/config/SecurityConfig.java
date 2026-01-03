@@ -22,12 +22,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
         private final JwtProvider jwtProvider;
+        private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+        private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
                                 // CSRF 비활성화 (JWT 사용 시)
                                 .csrf(AbstractHttpConfigurer::disable)
+
+                                // JWT 예외 처리
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                                .accessDeniedHandler(jwtAccessDeniedHandler))
 
                                 // CORS 설정
                                 .cors(cors -> cors.configure(http))
