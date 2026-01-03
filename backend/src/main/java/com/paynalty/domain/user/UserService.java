@@ -75,5 +75,21 @@ public class UserService {
         user.updateTokens(accessToken, refreshToken);
         userRepository.save(user);
     }
+
+    // 토스 사용자 정보 저장/업데이트
+    @Transactional
+    public void saveUserInfo(Long tossId, String name, String phoneNum, String email) {
+        User user = userRepository.findByTossId(tossId)
+                .orElseGet(() -> {
+                    // User가 없으면 새로 생성
+                    User newUser = User.builder()
+                            .tossId(tossId)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+        
+        user.updateUserInfo(name, phoneNum, email);
+        userRepository.save(user);
+    }
 }
 
