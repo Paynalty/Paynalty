@@ -38,19 +38,29 @@ public class TossLoginController {
 
             log.debug("토스 API 응답: {}", tossApiResponse);
 
-            // 2. JSON 응답 파싱 (토큰 발급 응답)
-            JsonNode tokenResponseNode = objectMapper.readTree(tossApiResponse);
-            JsonNode successNode = tokenResponseNode.get("success");
+                        // 2. JSON 응답 파싱 (토큰 발급 응답)
+                        JsonNode responseNode = objectMapper.readTree(tossApiResponse);
             
-            if (successNode == null) {
-                log.error("토스 API 응답에 success 필드가 없습니다: {}", tossApiResponse);
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(TossLoginResponse.builder().build());
-            }
+                        // API 응답 실패 처리
+                        if (responseNode.has("resultType") && "FAIL".equals(responseNode.get("resultType").asText())) {
+                            JsonNode errorNode = responseNode.get("error");
+                            log.error("토스 API 토큰 발급 실패: errorCode={}, reason={}",
+                                    errorNode.get("errorCode").asText(),
+                                    errorNode.get("reason").asText());
+                            return ResponseEntity.status(HttpStatus.BAD_GATEWAY) // 502 Bad Gateway or other appropriate error
+                                    .body(null);
+                        }
             
-            TossLoginResponse loginResponse = objectMapper.treeToValue(successNode, TossLoginResponse.class);
-            log.info("토스 로그인 성공: accessToken 발급 완료");
-
+                        JsonNode successNode = responseNode.get("success");
+            
+                        if (successNode == null || successNode.isNull()) {
+                            log.error("토스 API 응답에 success 필드가 없거나 null입니다: {}", tossApiResponse);
+                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                    .body(TossLoginResponse.builder().build());
+                        }
+            
+                        TossLoginResponse loginResponse = objectMapper.treeToValue(successNode, TossLoginResponse.class);
+                        log.info("토스 로그인 성공: accessToken 발급 완료");
             // 3. AccessToken으로 사용자 정보 조회하여 userKey 얻기
             String userInfoResponse = tossApiClient.fetchUserInfo(loginResponse.getAccessToken());
             log.debug("사용자 정보 API 응답: {}", userInfoResponse);
