@@ -5,6 +5,7 @@ import { VerificationGroup } from '../../src/components/verification/Verificatio
 import { useVerifications } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
+import { ChallengeVerificationResponse } from '../../src/api/verifications';
 
 export default function Page() {
   const adaptive = useAdaptive();
@@ -21,34 +22,22 @@ export default function Page() {
   }
 
   // 데이터를 날짜별로 그룹화 (YYYY-MM-DD 기준)
-  const groupedVerifications = verifications.reduce(
-    (acc, current) => {
+  const groupedVerifications = (verifications as ChallengeVerificationResponse[]).reduce(
+    (acc: { date: string; items: ChallengeVerificationResponse[] }[], current) => {
       const dateKey = current.dateTime.split('T')[0];
-      const existingGroup = acc.find((group) => group.date.startsWith(dateKey));
+      const existingGroup = acc.find((group) => group.date.startsWith(dateKey || ''));
 
       if (existingGroup) {
-        existingGroup.items.push({
-          id: current.id,
-          userName: current.userName,
-          imageUrl: current.imageUrl,
-          dateTime: current.dateTime,
-        });
+        existingGroup.items.push(current);
       } else {
         acc.push({
           date: current.dateTime,
-          items: [
-            {
-              id: current.id,
-              userName: current.userName,
-              imageUrl: current.imageUrl,
-              dateTime: current.dateTime,
-            },
-          ],
+          items: [current],
         });
       }
       return acc;
     },
-    [] as { date: string; items: any[] }[]
+    []
   );
 
   return (
