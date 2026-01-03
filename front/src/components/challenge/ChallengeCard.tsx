@@ -5,6 +5,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { setSelectedChallenge } from '../../stores/challengeStore';
 import {
+  formatDate,
+  getDDay,
   getChallengeStatusBadge,
   getNextScheduleMessage,
   getVerificationMessage,
@@ -16,60 +18,101 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   const adaptive = useAdaptive();
   const navigation = useNavigation();
 
-  const badges = [
-    getChallengeStatusBadge(
-      challenge.verificationStatus,
-      challenge.daysOfWeek,
-      Number(challenge.weeklyRequiredCount),
-      challenge.weeklyProgressCount
-    ),
-    {
-      label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,
-      type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
-      style: 'weak' as const,
-    },
-    { label: `${challenge.penaltyAmount}원`, type: 'blue' as any, style: 'weak' as const },
-  ];
+  const getBadges = (): any[] => {
+    switch (challenge.status) {
+      case 'PENDING':
+        return [
+          { label: getDDay(challenge.startAt), type: 'blue' as const, style: 'weak' as const },
+          {
+            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            type: 'blue' as const,
+            style: 'weak' as const,
+          },
+        ];
+      case 'COMPLETE':
+        return [
+          { label: '종료됨', type: 'blue' as const, style: 'weak' as const },
+          {
+            label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount} 인증`,
+            type: (challenge.weeklyProgressCount >= Number(challenge.weeklyRequiredCount) ? 'green' : 'red') as
+              | 'green'
+              | 'red',
+            style: 'weak' as const,
+          },
+        ];
+      default: // ACTIVE
+        return [
+          getChallengeStatusBadge(
+            challenge.verificationStatus,
+            challenge.daysOfWeek || [],
+            Number(challenge.weeklyRequiredCount),
+            challenge.weeklyProgressCount
+          ),
+          {
+            label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,
+            type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as 'green' | 'yellow',
+            style: 'weak' as const,
+          },
+          {
+            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            type: 'blue' as const,
+            style: 'weak' as const,
+          },
+        ];
+    }
+  };
+
+  const badges = getBadges();
+
+  const getSubtitle = () => {
+    if (challenge.status === 'PENDING') {
+      return `시작일 : ${formatDate(challenge.startAt || '')}`;
+    }
+    if (challenge.status === 'COMPLETE') {
+      return `종료일 : ${formatDate(challenge.endAt || '')}`;
+    }
+    if (challenge.status === 'ACTIVE' && challenge.verifyEnd) {
+      return isTodayChallenge(
+        challenge.daysOfWeek,
+        Number(challenge.weeklyRequiredCount),
+        challenge.weeklyProgressCount
+      )
+        ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
+        : getNextScheduleMessage(challenge.daysOfWeek);
+    }
+    return undefined;
+  };
 
   return (
     <View style={styles.challengeCard}>
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{challenge.title}</Top.TitleParagraph>}
-        subtitle1={
-          challenge.status === 'ACTIVE' && challenge.verifyEnd ? (
-            <Top.SubtitleParagraph>
-              {isTodayChallenge(
-                challenge.daysOfWeek,
-                Number(challenge.weeklyRequiredCount),
-                challenge.weeklyProgressCount
-              )
-                ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
-                : getNextScheduleMessage(challenge.daysOfWeek)}
-            </Top.SubtitleParagraph>
-          ) : undefined
-        }
-        subtitle2={challenge.status === 'ACTIVE' ? <Top.SubtitleBadges items={badges} /> : undefined}
-        right={
-          <View style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
-            <View>
-              <ListHeader.RightArrow
-                typography="t7"
-                color={adaptive.blue500}
-                onPress={() => {
-                  setSelectedChallenge(challenge);
-                  navigation.navigate('/challenge-detail');
-                }}
-              >
-                자세히 보기
-              </ListHeader.RightArrow>
-            </View>
-            <Spacing size={8} />
-
-            <View>
-              <Badge size="small" type="blue" badgeStyle="weak">
-                {challenge.participants}
+        subtitle1={<Top.SubtitleParagraph color={adaptive.grey600}>{getSubtitle()}</Top.SubtitleParagraph>}
+        subtitle2={
+          <View style={{ flexDirection: 'row', gap: 2, flexWrap: 'wrap' }}>
+            {badges.map((badge, index) => (
+              <Badge key={index} type={badge.type} badgeStyle={badge.style} size="small">
+                {badge.label}
               </Badge>
-            </View>
+            ))}
+          </View>
+        }
+        right={
+          <View style={{ flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
+            <ListHeader.RightArrow
+              typography="t7"
+              color={adaptive.blue500}
+              onPress={() => {
+                setSelectedChallenge(challenge);
+                navigation.navigate('/challenge-detail');
+              }}
+            >
+              자세히 보기
+            </ListHeader.RightArrow>
+            <Spacing size={6} />
+            <Badge size="small" type="blue" badgeStyle="weak">
+              {challenge.participants || '친구 0명'}
+            </Badge>
           </View>
         }
       />

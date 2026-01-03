@@ -1,6 +1,11 @@
+import { z } from 'zod';
 import { ENV } from '../config/env';
 
-export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+interface ApiOptions extends RequestInit {
+  schema?: z.ZodTypeAny;
+}
+
+export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const response = await fetch(`${ENV.API_BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -23,5 +28,20 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     return {} as T;
   }
 
-  return JSON.parse(text) as T;
+  const data = JSON.parse(text);
+
+  // Zod 스키마가 제공된 경우 검증 수행
+  if (options.schema) {
+    const result = options.schema.safeParse(data);
+    if (!result.success) {
+      console.group(`🔴 [Zod Validation Error] ${path}`);
+      console.error('Issues:', result.error.format());
+      console.error('Received Data:', data);
+      console.groupEnd();
+      throw result.error;
+    }
+    return result.data as T;
+  }
+
+  return data as T;
 }

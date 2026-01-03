@@ -1,13 +1,13 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import { View, StyleSheet, ScrollView, Pressable, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Asset, Top, ListRow, ListHeader, Icon, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState, useEffect, useMemo } from 'react';
 import { Storage } from '@apps-in-toss/framework';
 import { ChallengeCard } from 'components/challenge/ChallengeCard';
 import { useChallenges, useMissionChallenges } from '../src/hooks/useChallenges';
-import { LottieView } from '@granite-js/native/lottie-react-native';
 import { getVerificationMessage, isTodayChallenge } from '../src/utils/challenge';
+import { OnboardingView } from '../src/components/home/OnboardingView';
 
 export const Route = createRoute('/', {
   component: Page,
@@ -23,9 +23,6 @@ function Page() {
 
   const checkOnboarding = async () => {
     try {
-      // 테스트용: 저장된 온보딩 상태 삭제
-      // await Storage.removeItem('hasCompletedOnboarding');
-
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
         navigation.navigate('/auth');
@@ -47,7 +44,6 @@ function Page() {
     isTodayChallenge(mission.daysOfWeek, Number(mission.weeklyRequiredCount), mission.weeklyProgressCount)
   );
 
-  // 오늘 미션 벌금 합산
   const totalPenalty = useMemo(
     () => todayMissions.reduce((sum, challenge) => sum + challenge.penaltyAmount, 0),
     [todayMissions]
@@ -55,8 +51,6 @@ function Page() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* 오늘의 미션 */}
-      {/*TODO : 로그인 안했을 때, 로그인 했을 때 , 미션이 없을 때로 구분*/}
       <Pressable onPress={() => setIsMissionExpanded(!isMissionExpanded)}>
         <View
           style={{
@@ -71,9 +65,9 @@ function Page() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Top.TitleParagraph color={adaptive.background}>오늘의 미션</Top.TitleParagraph>
                 {todayMissions.length > 0 && (
-                  <Text style={{ color: adaptive.background, fontSize: 16, fontWeight: 'bold' }}>
+                  <Txt typography="t5" fontWeight="bold" color={adaptive.background}>
                     {isMissionExpanded ? '∨' : '>'}
-                  </Text>
+                  </Txt>
                 )}
               </View>
             }
@@ -133,7 +127,6 @@ function Page() {
 
       <Spacing size={20} />
 
-      {/* 목표 설정 섹션 */}
       <Top
         title={
           <Top.TitleParagraph color={adaptive.grey900}>
@@ -165,7 +158,6 @@ function Page() {
         />
       )}
 
-      {/* 진행중인 챌린지 헤더 */}
       <ListHeader
         title={
           <ListHeader.TitleSelector
@@ -245,74 +237,6 @@ function Page() {
   );
 }
 
-function OnboardingView({
-  adaptive,
-  onCreateObjective,
-  currentStatus,
-}: {
-  adaptive: any;
-  onCreateObjective: () => void;
-  currentStatus: 'ACTIVE' | 'PENDING' | 'COMPLETE';
-}) {
-  const getMessage = () => {
-    switch (currentStatus) {
-      case 'ACTIVE':
-        return {
-          title: '아직 진행 중인 챌린지가 없어요',
-          description: '작은 습관 하나가 큰 변화를 만들어요.\n지금 바로 첫 번째 목표를 세워볼까요?',
-        };
-      case 'PENDING':
-        return {
-          title: '예정된 챌린지가 없어요',
-          description: '새로운 챌린지를 시작할 준비가 되셨나요?\n목표를 설정하고 시작해보세요!',
-        };
-      case 'COMPLETE':
-        return {
-          title: '완료된 챌린지가 없어요',
-          description: '첫 번째 챌린지를 완료하고\n성취감을 느껴보세요!',
-        };
-    }
-  };
-
-  const message = getMessage();
-
-  return (
-    <View style={styles.onboardingContainer}>
-      <View style={{ marginTop: -80, marginBottom: -60 }} pointerEvents="none">
-        <LottieView
-          source={{ uri: 'https://lottie.host/ab39ffda-09a1-44fe-ade6-1236d48e6720/AixS7quFKd.lottie' }}
-          autoPlay
-          loop
-          renderMode="SOFTWARE"
-          style={{ width: 200, height: 200 }}
-        />
-      </View>
-      <Txt typography="t5" fontWeight="bold" color={adaptive.grey800} style={{ textAlign: 'center' }}>
-        {message.title}
-      </Txt>
-      <Spacing size={8} />
-      <Txt typography="t6" color={adaptive.grey600} style={{ textAlign: 'center' }}>
-        {message.description}
-      </Txt>
-      <Spacing size={12} />
-      <ListHeader
-        title={<ListHeader.TitleParagraph color={adaptive.grey700}>이런 목표는 어때요?</ListHeader.TitleParagraph>}
-      />
-      <Spacing size={12} />
-      <View style={styles.templateGrid}>
-        {['매일 물 2L 마시기', '아침 8시 기상하기', '하루 30분 독서'].map((template) => (
-          <Pressable key={template} style={styles.templateCard} onPress={onCreateObjective}>
-            <Txt typography="t6" fontWeight="semibold" color={adaptive.grey800}>
-              {template}
-            </Txt>
-            <Icon name="icon-arrow-right-small-mono" color={adaptive.grey400} size={16} />
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -320,26 +244,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: 20,
-  },
-  onboardingContainer: {
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  templateGrid: {
-    width: '100%',
-    gap: 12,
-    marginTop: 8,
-  },
-  templateCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f9fafb',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#f2f4f6',
   },
   dropdownMenu: {
     backgroundColor: 'white',
