@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, queryOptions } from '@tanstack/react-query';
 import { getMyProgressChallenges, ChallengeDetailResponse } from '../api/challenges';
 import { Challenge } from '../components/challenge/types';
 
@@ -14,22 +14,30 @@ const mapToChallenge = (item: ChallengeDetailResponse, status?: 'ACTIVE' | 'PEND
   status,
 });
 
+export const challengeQueries = {
+  all: ['challenges'] as const,
+  lists: (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') =>
+    queryOptions({
+      queryKey: [...challengeQueries.all, status],
+      queryFn: async () => {
+        const data = await getMyProgressChallenges(1, status);
+        return data.map((item) => mapToChallenge(item, status));
+      },
+    }),
+  missions: () =>
+    queryOptions({
+      queryKey: [...challengeQueries.all, 'missions'],
+      queryFn: async () => {
+        const data = await getMyProgressChallenges(1, 'ACTIVE');
+        return data.map((item) => mapToChallenge(item, 'ACTIVE'));
+      },
+    }),
+};
+
 export const useChallenges = (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
-  return useQuery({
-    queryKey: ['challenges', status],
-    queryFn: async () => {
-      const data = await getMyProgressChallenges(1, status);
-      return data.map((item) => mapToChallenge(item, status));
-    },
-  });
+  return useQuery(challengeQueries.lists(status));
 };
 
 export const useMissionChallenges = () => {
-  return useQuery({
-    queryKey: ['missionChallenges'],
-    queryFn: async () => {
-      const data = await getMyProgressChallenges(1, 'ACTIVE');
-      return data.map((item) => mapToChallenge(item, 'ACTIVE'));
-    },
-  });
+  return useQuery(challengeQueries.missions());
 };

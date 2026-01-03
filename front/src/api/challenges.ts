@@ -29,16 +29,17 @@ export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 
 export const ChallengeDetailResponseSchema = z.object({
   verificationStatus: VerificationStatusSchema,
-  id: z.number(),
-  title: z.string(),
-  weeklyProgressCount: z.number(),
-  weeklyRequiredCount: z.number(),
-  penaltyAmount: z.number(),
-  verifyStart: z.string(),
-  verifyEnd: z.string(),
-  verificationType: z.string(),
-  daysOfWeek: z.array(z.string()),
-  endAt: z.string(),
+  id: z.coerce.number(),
+  title: z.coerce.string(),
+  weeklyProgressCount: z.coerce.number(),
+  weeklyRequiredCount: z.coerce.number(),
+  penaltyAmount: z.coerce.number(),
+  verifyStart: z.coerce.string(),
+  verifyEnd: z.coerce.string(),
+  verificationType: z.coerce.string(),
+  daysOfWeek: z.array(z.string()).default([]),
+  startAt: z.string().optional(),
+  endAt: z.coerce.string(),
 });
 export type ChallengeDetailResponse = z.infer<typeof ChallengeDetailResponseSchema>;
 

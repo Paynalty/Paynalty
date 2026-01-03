@@ -32,14 +32,15 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
 
   // Zod 스키마가 제공된 경우 검증 수행
   if (options.schema) {
-    try {
-      return options.schema.parse(data) as T;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error(`[Zod Validation Error] ${path}:`, error.issues);
-      }
-      throw error;
+    const result = options.schema.safeParse(data);
+    if (!result.success) {
+      console.group(`🔴 [Zod Validation Error] ${path}`);
+      console.error('Issues:', result.error.format());
+      console.error('Received Data:', data);
+      console.groupEnd();
+      throw result.error;
     }
+    return result.data as T;
   }
 
   return data as T;

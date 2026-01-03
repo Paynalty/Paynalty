@@ -1,5 +1,5 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import { View, StyleSheet, ScrollView, Pressable, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Asset, Top, ListRow, ListHeader, Icon, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState, useEffect, useMemo } from 'react';
@@ -65,9 +65,9 @@ function Page() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Top.TitleParagraph color={adaptive.background}>오늘의 미션</Top.TitleParagraph>
                 {todayMissions.length > 0 && (
-                  <Text style={{ color: adaptive.background, fontSize: 16, fontWeight: 'bold' }}>
+                  <Txt typography="t5" fontWeight="bold" color={adaptive.background}>
                     {isMissionExpanded ? '∨' : '>'}
-                  </Text>
+                  </Txt>
                 )}
               </View>
             }
