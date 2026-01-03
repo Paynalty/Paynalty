@@ -6,14 +6,7 @@ import { VerificationGroup } from '../../src/components/verification/Verificatio
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
-import {
-  formatDate,
-  formatDaysOfWeek,
-  formatTime,
-  getChallengeStatusBadge,
-  getVerificationMessage,
-  getVerificationTypeLabel,
-} from '../../src/utils/challenge';
+import {formatDate, formatDaysOfWeek, formatTime, getChallengeStatusBadge, getVerificationMessage, getVerificationTypeLabel,} from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
