@@ -25,10 +25,10 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
     ),
     {
       label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,
-      type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+      type: (challenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as 'green' | 'yellow',
       style: 'weak' as const,
     },
-    { label: `${challenge.penaltyAmount}원`, type: 'blue' as any, style: 'weak' as const },
+    { label: `${challenge.penaltyAmount}원`, type: 'blue' as const, style: 'weak' as const },
   ];
 
   return (

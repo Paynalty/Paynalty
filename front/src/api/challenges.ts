@@ -21,15 +21,14 @@ export const CreateChallengeRequestSchema = z.object({
 });
 export type CreateChallengeRequest = z.infer<typeof CreateChallengeRequestSchema>;
 
-export const CreateChallengeResponseSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  status: z.string(),
-});
+export const CreateChallengeResponseSchema = z.number();
 export type CreateChallengeResponse = z.infer<typeof CreateChallengeResponseSchema>;
 
+export const VerificationStatusSchema = z.enum(['VERIFIED', 'NOT_VERIFIED']);
+export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
+
 export const ChallengeDetailResponseSchema = z.object({
-  verificationStatus: z.string(),
+  verificationStatus: VerificationStatusSchema,
   id: z.number(),
   title: z.string(),
   weeklyProgressCount: z.number(),
