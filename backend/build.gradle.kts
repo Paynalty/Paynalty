@@ -40,6 +40,7 @@ dependencies {
 
         // Swagger (SpringDoc)
         implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
+        implementation("io.github.cdimascio:dotenv-java:3.0.0")
 
         // Database
         runtimeOnly("com.mysql:mysql-connector-j")
