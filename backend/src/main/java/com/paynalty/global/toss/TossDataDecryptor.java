@@ -30,30 +30,22 @@ public class TossDataDecryptor {
         }
 
         try {
-            // Base64 디코딩
             byte[] decoded = Base64.getDecoder().decode(encryptedText);
 
-            // IV 추출 (앞부분 12바이트)
-            byte[] iv = new byte[IV_LENGTH];
-            System.arraycopy(decoded, 0, iv, 0, IV_LENGTH);
+            if (decoded.length <= IV_LENGTH) {
+                throw new IllegalArgumentException("Invalid encrypted text: length is too short.");
+            }
 
-            // 암호문 추출 (IV 이후 부분)
-            byte[] ciphertext = new byte[decoded.length - IV_LENGTH];
-            System.arraycopy(decoded, IV_LENGTH, ciphertext, 0, ciphertext.length);
-
-            // AES 키 생성
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
             byte[] keyByteArray = Base64.getDecoder().decode(base64EncodedAesKey);
             SecretKeySpec key = new SecretKeySpec(keyByteArray, "AES");
 
-            // GCM 파라미터 설정
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
+            GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, decoded, 0, IV_LENGTH);
 
-            // 복호화 수행
-            Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, key, gcmSpec);
             cipher.updateAAD(AAD.getBytes());
 
-            byte[] decrypted = cipher.doFinal(ciphertext);  
+            byte[] decrypted = cipher.doFinal(decoded, IV_LENGTH, decoded.length - IV_LENGTH);
             return new String(decrypted);
 
         } catch (Exception e) {
