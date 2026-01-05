@@ -35,23 +35,85 @@ export const getVerificationMessage = (verifyStart?: string, verifyEnd?: string)
   if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
 
   if (now < start) {
-    // 인증 시작 전: "대기 : X시간 Y분 후 인증 가능"
     const diff = start - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    if (h > 0) return `대기 : ${h}시간 ${m}분 후 가능`;
-    return `대기 : ${m}분 후 인증 가능`;
+
+    if (diff < 10 * 60000) {
+      return `곧 시작돼요!`;
+    }
+    if (h > 0) return `${h}시간 ${m}분 후 시작!`;
+    return `${m}분 후 시작!`;
   } else if (now <= end) {
-    // 인증 중: "인증 중 : X시간 Y분 남음"
     const diff = end - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    return `인증 중 : ${h}시간 ${m}분 남음`;
-  } else {
-    // 인증 종료
 
+    if (diff < 10 * 60000) {
+      return `🔥 마감 임박!`;
+    }
+    if (h > 0) return `${h}시간 ${m}분 남았어요`;
+    return `${m}분 남았어요`;
+  } else {
     return '오늘 인증을 못했어요';
   }
+};
+
+/**
+ * 챌린지 또는 미션 목록을 우선순위에 따라 정렬합니다.
+ * 1. 인증 가능 (IN_PROGRESS & NOT_VERIFIED)
+ * 2. 시작 대기 (WAITING & NOT_VERIFIED)
+ * 3. 완료 (VERIFIED)
+ * 4. 오늘 아님 (기타)
+ */
+export const sortChallengesByPriority = <
+  T extends {
+    verificationStatus: string;
+    verifyStart?: string;
+    verifyEnd?: string;
+    daysOfWeek?: string | string[];
+    weeklyRequiredCount?: number | string;
+    weeklyProgressCount?: number;
+  },
+>(
+  items: T[]
+) => {
+  const now = new Date().getTime();
+
+  const getPriority = (item: T) => {
+    const isVerified = item.verificationStatus === 'VERIFIED';
+    const start = item.verifyStart ? getTimeDate(item.verifyStart).getTime() : 0;
+    const end = item.verifyEnd ? getTimeDate(item.verifyEnd).getTime() : 0;
+
+    const days = Array.isArray(item.daysOfWeek) ? item.daysOfWeek : [item.daysOfWeek || ''];
+    const isToday = isTodayChallenge(
+      days as string[],
+      Number(item.weeklyRequiredCount || 0),
+      item.weeklyProgressCount || 0
+    );
+
+    if (isToday) {
+      if (!isVerified) {
+        if (now >= start && now <= end) return 1; // 인증 중 (최우선)
+        if (now < start) return 2; // 대기 중
+      }
+      if (isVerified) return 3; // 완료
+    }
+
+    return 4; // 오늘 아님 또는 기간 종료 등
+  };
+
+  return [...items].sort((a, b) => {
+    const pA = getPriority(a);
+    const pB = getPriority(b);
+
+    if (pA !== pB) return pA - pB;
+
+    // 같은 우선순위 내에서는 마감 시간이 빠른 순
+    const endA = a.verifyEnd ? getTimeDate(a.verifyEnd).getTime() : Infinity;
+    const endB = b.verifyEnd ? getTimeDate(b.verifyEnd).getTime() : Infinity;
+    return endA - endB;
+  });
 };
 
 // 요일 매핑 (Backend String -> JS Date.getDay())
