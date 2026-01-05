@@ -14,7 +14,7 @@ import {
   Platform,
   UIManager,
 } from 'react-native';
-import { getVerificationMessage, getTimeDate } from '../../utils/challenge';
+import { getVerificationMessage, getTimeDate, sortChallengesByPriority } from '../../utils/challenge';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -118,7 +118,7 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
             <View style={styles.expandedContent}>
               <View style={styles.divider} />
               <Spacing size={12} />
-              {missions.map((mission) => {
+              {sortChallengesByPriority(missions).map((mission) => {
                 const isVerified = mission.verificationStatus === 'VERIFIED';
                 const now = new Date().getTime();
                 const start = mission.verifyStart ? getTimeDate(mission.verifyStart).getTime() : 0;
