@@ -12,18 +12,9 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponse> create(
-            @RequestBody UserRequest request
-    ){
-        UserResponse response = userService.create(request);
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping("/all")
     public ResponseEntity<List<UserResponse>> getAllUserByContainString(
-            @RequestParam("keyword") String keyword
-    ){
+            @RequestParam("keyword") String keyword) {
         List<UserResponse> response = userService.findByNameAndEmail(keyword);
         return ResponseEntity.ok(response);
     }

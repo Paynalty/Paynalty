@@ -16,8 +16,8 @@ public class TossApiClient {
 
     private final SSLContext tossSslContext;
     private final TossApiConfig tossApiConfig;
- public String fetchToken
-   (String authorizationCode, String referrer) throws Exception {
+
+    public String fetchToken(String authorizationCode, String referrer) throws Exception {
         String credentials = tossApiConfig.getApiKey() + ":";
         String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
         Map<String, String> headers = Map.of("Authorization", basicAuthHeader);
@@ -44,6 +44,19 @@ public class TossApiClient {
                 "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/login-me",
                 tossSslContext,
                 headers
+        );
+    }
+
+    public String refreshToken(String refreshToken) throws Exception {
+        String url = "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/refresh-token";
+
+        String jsonBody = String.format("{\"refreshToken\":\"%s\"}", refreshToken);
+
+        return TLSClient.postJson(
+                url,
+                tossSslContext,
+                jsonBody,
+                java.util.Collections.emptyMap()
         );
     }
 }
