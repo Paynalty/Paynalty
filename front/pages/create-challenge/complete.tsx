@@ -4,7 +4,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { createChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
-import { formatDate, formatTime } from '../../src/utils/challenge';
+import { formatDate, formatTime, getVerificationTypeLabel } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
@@ -161,7 +161,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${challengeData.period} \n${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`}
+              bottom={`${challengeData.period} / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -181,7 +181,7 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 방법"
               topProps={{ color: adaptive.grey600 }}
-              bottom={challengeData.verificationType}
+              bottom={getVerificationTypeLabel(challengeData.verificationType)}
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }

@@ -18,19 +18,32 @@ function Page() {
   const navigation = Route.useNavigation();
 
   useEffect(() => {
-    checkOnboarding();
+    checkAuthAndOnboarding();
   }, []);
 
-  const checkOnboarding = async () => {
+  const checkAuthAndOnboarding = async () => {
     try {
-        // 테스트용: 저장된 온보딩 상태 삭제
-        await Storage.removeItem('hasCompletedOnboarding');
+      // 테스트용
+      // await Storage.removeItem("accessToken");
+      // await Storage.removeItem("hasCompletedOnboarding");
+
+      // 1. 우리 서버의 액세스 토큰 확인
+      const token = await Storage.getItem('accessToken');
+      if (token) {
+        console.log('Auto-login: Token found, skipping onboarding');
+        return; // 메인 화면 유지
+      }
+
+      // 2. 토큰이 없으면 온보딩 상태 확인
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
         navigation.navigate('/auth');
+      } else {
+        // 온보딩은 했지만 로그인은 안된 경우
+        navigation.navigate('/auth/login');
       }
     } catch (error) {
-      console.error('Failed to check onboarding status:', error);
+      console.error('Failed to check auth/onboarding status:', error);
     }
   };
 

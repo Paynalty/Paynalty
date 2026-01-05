@@ -63,7 +63,7 @@ function Page() {
         }
       />
 
-      <View style={{ paddingHorizontal: 16 }}>
+      <View style={{ paddingHorizontal: 24 }}>
         <Spacing size={24} />
 
         <Txt typography="t5" color={adaptive.grey700} fontWeight="bold" style={{ marginBottom: 12 }}>
@@ -113,7 +113,7 @@ function Page() {
           <Txt
             typography="t6"
             color={adaptive.red500}
-            style={{ textAlign: 'right', marginTop: 0, paddingHorizontal: 28 }}
+            style={{ textAlign: 'right', marginTop: 0, paddingHorizontal: 0 }}
           >
             {`마감일은 내일부터 설정할 수 있어요`}
           </Txt>

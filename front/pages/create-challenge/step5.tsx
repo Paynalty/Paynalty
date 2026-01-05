@@ -58,7 +58,7 @@ function Page() {
         }
       />
 
-      <View style={{ paddingHorizontal: 16, gap: 16 }}>
+      <View style={{ paddingHorizontal: 24, gap: 16 }}>
         <Spacing size={20} />
 
         {/* 시작 시간 */}

@@ -1,13 +1,4 @@
-import {
-  Asset,
-  ProgressBar,
-  Top,
-  Button,
-  ListRow,
-  TextField,
-  FixedBottomCTA,
-  FixedBottomCTAProvider,
-} from '@toss/tds-react-native';
+import { ProgressBar, Top, Button, ListRow, FixedBottomCTA, FixedBottomCTAProvider } from '@toss/tds-react-native';
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { View } from 'react-native';
@@ -39,7 +30,8 @@ export default function Page() {
           </Top.SubtitleParagraph>
         }
       />
-      <View style={{ flexDirection: 'row', alignSelf: 'center', gap: 12 }}>
+      <Spacing size={32} />
+      <View style={{ flexDirection: 'row', alignSelf: 'center', gap: 12, paddingHorizontal: 24 }}>
         <Button
           size="large"
           style={selectedMethod === '사진' ? 'fill' : 'weak'}
@@ -71,7 +63,11 @@ export default function Page() {
       <ListRow
         left={<ListRow.ImageContainer type="square" style={{}} />}
         contents={
-          <ListRow.Texts type="1RowTypeA" top="현재는 사진으로만 인증 가능해요" topProps={{ color: adaptive.grey700 }} />
+          <ListRow.Texts
+            type="1RowTypeA"
+            top="현재는 사진으로만 인증 가능해요"
+            topProps={{ color: adaptive.grey700 }}
+          />
         }
         verticalPadding={8}
       />

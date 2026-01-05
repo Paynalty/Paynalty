@@ -1,14 +1,19 @@
 import { z } from 'zod';
 import { ENV } from '../config/env';
 
+import { Storage } from '@apps-in-toss/framework';
+
 interface ApiOptions extends RequestInit {
   schema?: z.ZodTypeAny;
 }
 
 export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  const token = await Storage.getItem('accessToken');
+
   const response = await fetch(`${ENV.API_BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers ?? {}),
     },
     ...options,
