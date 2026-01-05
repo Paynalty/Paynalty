@@ -35,18 +35,18 @@ export const getVerificationMessage = (verifyStart?: string, verifyEnd?: string)
   if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
 
   if (now < start) {
-    // 인증 시작 전: "대기 : X시간 Y분 후 인증 가능"
+    // 인증 시작 전: "X시간 Y분 후 인증 가능"
     const diff = start - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    if (h > 0) return `대기 : ${h}시간 ${m}분 후 가능`;
-    return `대기 : ${m}분 후 인증 가능`;
+    if (h > 0) return `${h}시간 ${m}분 후 가능`;
+    return `${m}분 후 가능`;
   } else if (now <= end) {
-    // 인증 중: "인증 중 : X시간 Y분 남음"
+    // 인증 중: "X시간 Y분 남음"
     const diff = end - now;
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    return `인증 중 : ${h}시간 ${m}분 남음`;
+    return `${h}시간 ${m}분 남음`;
   } else {
     // 인증 종료
 

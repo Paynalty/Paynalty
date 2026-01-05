@@ -5,6 +5,8 @@ import { appLogin, Storage } from '@apps-in-toss/framework';
 import { useState } from 'react';
 import { apiFetch } from '../../src/api/client';
 
+import { setLoggedIn } from '../../src/stores/authStore';
+
 export const Route = createRoute('/auth/login', {
   component: Page,
 });
@@ -20,7 +22,7 @@ export default function Page() {
       const { authorizationCode, referrer } = await appLogin();
 
       console.log('Login Success:', { authorizationCode, referrer });
-      const jwtToken = await apiFetch<{ accessToken: string; refreshToken: string }>('/api/auth/toss/login', {
+      const response = await apiFetch<{ accessToken: string; refreshToken: string }>('/api/auth/toss/login', {
         method: 'POST',
         body: JSON.stringify({
           authorizationCode,
@@ -29,8 +31,9 @@ export default function Page() {
       });
 
       // 우리 서버에서 발급한 JWT 액세스 토큰 저장
-      if (jwtToken?.accessToken) {
-        await Storage.setItem('accessToken', jwtToken.accessToken);
+      if (response && response.accessToken) {
+        await Storage.setItem('accessToken', response.accessToken);
+        setLoggedIn(true); // 로그인 성공 상태 전역 업데이트
         console.log('Access token saved successfully');
       }
 
