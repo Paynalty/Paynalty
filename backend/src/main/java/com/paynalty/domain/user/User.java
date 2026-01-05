@@ -29,9 +29,6 @@ public class User {
     @Column
     private String email;
 
-    @Column(name = "access_token", length = 1000)
-    private String accessToken;
-
     @Column(name = "refresh_token", length = 1000)
     private String refreshToken;
 
@@ -44,8 +41,7 @@ public class User {
 
     }
 
-    public void updateTokens(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
+    public void updateTokens(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 
@@ -60,7 +56,6 @@ public class User {
             this.email = email;
         }
     }
-
 
     // 관계 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
