@@ -23,6 +23,8 @@ function Page() {
 
   const checkOnboarding = async () => {
     try {
+        // 테스트용: 저장된 온보딩 상태 삭제
+        await Storage.removeItem('hasCompletedOnboarding');
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
         navigation.navigate('/auth');
