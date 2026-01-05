@@ -8,19 +8,19 @@ import com.paynalty.domain.user.UserService;
 import com.paynalty.global.security.jwt.JwtProvider;
 import com.paynalty.global.security.jwt.dto.JwtToken;
 import com.paynalty.global.toss.TossDataDecryptor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/auth/toss")
 @RequiredArgsConstructor
+@Tag(name = "Toss Auth API", description = "토스 인증 API")
 public class TossLoginController {
 
     private final TossApiClient tossApiClient;
@@ -29,6 +29,10 @@ public class TossLoginController {
     private final TossDataDecryptor tossDataDecryptor;
     private final JwtProvider jwtProvider;
 
+    @Operation(
+            summary = "토스 로그인",
+            description = "토스 OAuth 인가 코드로 accessToken 발급 후 로그인"
+    )
     @PostMapping("/login")
     public ResponseEntity<JwtToken> handleTossLogin(@RequestBody TossLoginRequest loginRequest) {
         try {
@@ -125,7 +129,6 @@ public class TossLoginController {
         // 5. 토큰을 User 엔티티에 저장 (User가 없으면 생성)
         userService.saveTokens(
                 userKey,
-                loginResponse.getAccessToken(),
                 loginResponse.getRefreshToken());
         log.info("토큰 저장 완료: userKey={}", userKey);
 
