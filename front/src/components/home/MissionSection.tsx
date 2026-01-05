@@ -137,19 +137,19 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
                   switch (status) {
                     case 'VERIFIED':
                       return {
-                        bg: adaptive.background,
-                        icon: 'icon-check-bold',
-                        iconColor: adaptive.blue500,
+                        bg: 'rgba(255, 255, 255, 0.2)',
+                        icon: 'icon-emoji-check-blue',
+                        iconColor: adaptive.background,
                       };
                     case 'IN_PROGRESS':
                       return {
-                        bg: adaptive.yellow500, // TDS Yellow
+                        bg: adaptive.yellow500,
                         icon: 'icon-clock-mono',
                         iconColor: adaptive.background,
                       };
                     default:
                       return {
-                        bg: 'rgba(255, 255, 255, 0.2)', // 반투명은 유지하되 TDS 배경색 기반으로 고려 가능하나 현재 맥락 유지
+                        bg: 'rgba(255, 255, 255, 0.2)',
                         icon: 'icon-clock-mono',
                         iconColor: adaptive.background,
                       };
@@ -209,7 +209,7 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
             subtitle2={
               <View>
                 <Txt typography="t5" fontWeight="bold" color={adaptive.background}>
-                  목표를 더 만들어볼까요?
+                  목표를 만들어볼까요?
                 </Txt>
                 <Spacing size={4} />
                 <Txt typography="t7" color="rgba(255, 255, 255, 0.8)">
@@ -297,6 +297,13 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
     [adaptive]
   );
 
+  const [showPenalty, setShowPenalty] = useState(true);
+
+  const totalPenalty = useMemo(
+    () => missions.reduce((sum, m) => (m.verificationStatus === 'NOT_VERIFIED' ? sum + m.penaltyAmount : sum), 0),
+    [missions]
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: adaptive.blue500 }]}>
       <ScrollView
@@ -313,6 +320,33 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
           </View>
         ))}
       </ScrollView>
+
+      {/* 벌금 알림 영역 (index.tsx 스타일, 도트 위쪽) */}
+      {isExpanded && showPenalty && totalPenalty > 0 && (
+        <View style={{ paddingHorizontal: 16 }}>
+          <View style={{ borderRadius: 16, backgroundColor: adaptive.background, overflow: 'hidden' }}>
+            <ListRow
+              left={<ListRow.Icon name="icon-emoji-money-with-wings" />}
+              contents={
+                <ListRow.Texts
+                  type="2RowTypeD"
+                  top="오늘 미션을 하지 않으면"
+                  topProps={{ color: adaptive.grey600 }}
+                  bottom={`${totalPenalty.toLocaleString()}원을 납부해야 돼요`}
+                  bottomProps={{ color: adaptive.blue500, fontWeight: 'bold' }}
+                />
+              }
+              right={
+                <Pressable onPress={() => setShowPenalty(false)}>
+                  <Icon name="icon-x-mono" color={adaptive.grey600} size={16} />
+                </Pressable>
+              }
+              verticalPadding={16}
+            />
+          </View>
+          <Spacing size={36} />
+        </View>
+      )}
 
       {/* 도트 인디케이터 */}
       {carouselData.length > 1 && (

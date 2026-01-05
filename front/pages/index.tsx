@@ -1,6 +1,5 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Border, ListRow, Icon } from '@toss/tds-react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Storage } from '@apps-in-toss/framework';
@@ -47,53 +46,21 @@ function Page() {
   };
 
   const [currentStatus, setCurrentStatus] = useState<'ACTIVE' | 'PENDING' | 'COMPLETE'>('ACTIVE');
-  const [showPenalty, setShowPenalty] = useState(true);
 
   const { data: challenges = [] } = useChallenges(currentStatus);
   const { data: missionChallenges = [] } = useMissionChallenges();
 
-  const todayMissions = missionChallenges.filter((mission) =>
-    isTodayChallenge(mission.daysOfWeek, Number(mission.weeklyRequiredCount), mission.weeklyProgressCount)
-  );
-
-  const totalPenalty = useMemo(
+  const todayMissions = useMemo(
     () =>
-      todayMissions.reduce(
-        (sum, challenge) => (challenge.verificationStatus === 'NOT_VERIFIED' ? sum + challenge.penaltyAmount : sum),
-        0
+      missionChallenges.filter((mission) =>
+        isTodayChallenge(mission.daysOfWeek, Number(mission.weeklyRequiredCount), mission.weeklyProgressCount)
       ),
-    [todayMissions]
+    [missionChallenges]
   );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <MissionSection missions={todayMissions} onCreateChallenge={() => navigation.navigate('/create-challenge')} />
-
-      <Spacing size={20} />
-
-      {/* 벌금 알림 (원래 위치) */}
-      {showPenalty && totalPenalty > 0 && (
-        <>
-          <ListRow
-            left={<ListRow.Icon name="icon-emoji-money-with-wings" />}
-            contents={
-              <ListRow.Texts
-                type="2RowTypeD"
-                top="오늘 미션을 하지 않으면"
-                topProps={{ color: adaptive.grey600 }}
-                bottom={`${totalPenalty.toLocaleString()}원을 납부해야 돼요`}
-                bottomProps={{ color: adaptive.blue500, fontWeight: 'bold' }}
-              />
-            }
-            right={
-              <Pressable onPress={() => setShowPenalty(false)}>
-                <Icon name="icon-x-mono" color={adaptive.grey600} size={16} />
-              </Pressable>
-            }
-            verticalPadding={16}
-          />
-        </>
-      )}
 
       <Spacing size={12} />
 
