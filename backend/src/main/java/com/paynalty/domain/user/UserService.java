@@ -53,14 +53,14 @@ public class UserService {
 
     // 토스 토큰 저장/업데이트
     @Transactional
-    public User saveTokens(Long tossId, String accessToken, String refreshToken) {
+    public User saveTokens(Long tossId, String refreshToken) {
         User user = getOrCreateUser(tossId);
 
         if (user.getId() != null && userRepository.existsById(user.getId())) {
             log.debug("토큰 업데이트 진행: userId={}", user.getId());
         }
 
-        user.updateTokens(accessToken, refreshToken);
+        user.updateTokens(refreshToken);
         return userRepository.save(user);
     }
 
