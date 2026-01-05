@@ -46,4 +46,17 @@ public class TossApiClient {
                 headers
         );
     }
+
+    public String refreshToken(String refreshToken) throws Exception {
+        String url = "https://apps-in-toss-api.toss.im/api-partner/v1/apps-in-toss/user/oauth2/refresh-token";
+
+        String jsonBody = String.format("{\"refreshToken\":\"%s\"}", refreshToken);
+
+        return TLSClient.postJson(
+                url,
+                tossSslContext,
+                jsonBody,
+                java.util.Collections.emptyMap()
+        );
+    }
 }
