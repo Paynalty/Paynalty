@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +21,6 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    //TODO : 로그인 기능 구현 후 @AuthenticationPrincipal 사용자 정보 불러와서 create 매개변수에 nickName 추가)
-    // 현재는 주소에 변수 넣어서 사용중
     @Operation(
             summary = "챌린지 생성",
             description = "새로운 챌린지를 생성합니다.\n\n" +
@@ -34,32 +34,32 @@ public class ChallengeController {
                     "5. verifyStartAt은 verifyEndAt보다 이전이어야 함\n\n" +
                     "✅ 성공 시: 201 Created + 생성된 챌린지 ID 반환\n" +
                     "💡 상세 정보 조회는 GET /api/challenge/{challengeId}/detail 사용\n" +
-                    "⚠️ 로그인 기능 구현 전까지는 임시 사용자(userId=1)로 처리됩니다."
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
     @PostMapping()
     public ResponseEntity<Long> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
-            @Valid @RequestBody ChallengeRequest request) {
-        Long userId = 1L;
+            @Valid @RequestBody ChallengeRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         Long challengeId = challengeService.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(challengeId);
     }
 
-    // 사용자가 참여중인 챌린지 중 챌린지 상태(인증,미인증)에 따른 챌린지 목록 요청
-    // todo userId -> authId로 교체
     @Operation(
             summary = "진행 상황에 따른 챌린지 목록 불러오기",
-            description = "시작전 챌린지 : PENDING , 진행중 챌린지 : ACTIVE, 완료된 챌린지 : COMPLETE"
+            description = "시작전 챌린지 : PENDING , 진행중 챌린지 : ACTIVE, 완료된 챌린지 : COMPLETE\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
-    @GetMapping("/{userId}/{status}")
+    @GetMapping("/{status}")
     public ResponseEntity<List<ChallengeDetailResponse>> getByStatus(
-            @Parameter(description = "사용자 userId", required = true, example = "1")
-            @PathVariable Long userId,
             @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
-            @PathVariable ChallengeStatus status
+            @PathVariable ChallengeStatus status,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId , status);
+        Long userId = Long.parseLong(userDetails.getUsername());
+        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId, status);
         return ResponseEntity.ok(response);
     }
 
@@ -77,35 +77,37 @@ public class ChallengeController {
         return ResponseEntity.ok(response);
     }
 
-    // 전달 받은 데이터에서 수정 후 편집
     @Operation(
-            description = "getEditForm에 응답 받은 데이터 토대로 데이터 수정 후 업데이트 요청",
-            summary = "update 기능"
+            summary = "챌린지 수정",
+            description = "getEditForm에 응답 받은 데이터 토대로 데이터 수정 후 업데이트 요청\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "⚠️ 챌린지 생성자만 수정 가능"
     )
     @PutMapping("/{challengeId}/")
     public ResponseEntity<ChallengeDetailResponse> updateChallenge(
             @PathVariable Long challengeId,
             @RequestBody ChallengeUpdateRequest updateRequest,
-            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
-            @RequestParam(required = false, defaultValue = "1") Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     )
     {
+        Long userId = Long.parseLong(userDetails.getUsername());
         ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
         return ResponseEntity.ok(response);
     }
 
-    // todo userId 입력 -> 사용자 id 입력
     @Operation(
             summary = "챌린지 삭제",
-            description = "챌린지를 삭제합니다."
+            description = "챌린지를 삭제합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "⚠️ 챌린지 생성자만 삭제 가능"
     )
     @DeleteMapping("/{challengeId}")
     public ResponseEntity<Void> deleteChallenge(
             @Parameter(description = "삭제할 챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
-            @Parameter(description = "사용자 ID (테스트용)", required = false, example = "1")
-            @RequestParam(required = false, defaultValue = "1") Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         challengeService.delete(challengeId, userId);
         return ResponseEntity.ok().build();
     }

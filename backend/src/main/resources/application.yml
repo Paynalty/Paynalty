@@ -79,3 +79,8 @@ toss:
       client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/test-mTLS_private.key}
       # 인증서 비밀번호 (있는 경우만)
       key-password: ${TOSS_KEY_PASSWORD:}
+
+# 사진 업로드 설정
+file:
+  upload:
+    path:C:\Users\김재현\Desktop\seac\Paynalty_Main\uploads\verifications

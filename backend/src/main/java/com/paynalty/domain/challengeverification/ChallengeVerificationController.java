@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,18 +30,17 @@ public class ChallengeVerificationController {
                     "- 인증 요일 확인 (요일 지정된 경우)\n" +
                     "- 중복 인증 방지 (1일 1회)\n" +
                     "- 주간 인증 횟수 제한\n\n" +
-                    "⚠️ 로그인 기능 구현 전까지는 userId를 Query Parameter로 입력받습니다.\n" +
-                    "   예: POST /api/challenge-verifications/1?userId=2"
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
     @PostMapping("/{challengeId}")
     public ResponseEntity<ChallengeVerificationResponse> create(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
-            @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
-            @RequestParam(required = false, defaultValue = "1") Long userId,
             @Parameter(description = "챌린지 인증 요청 정보", required = true)
-            @Valid @RequestBody ChallengeVerificationRequest request
+            @Valid @RequestBody ChallengeVerificationRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, request);
         return ResponseEntity.ok(response);
     }
@@ -105,32 +106,36 @@ public class ChallengeVerificationController {
 
     @Operation(
             summary = "인증 데이터 수정",
-            description = "본인의 인증 데이터의 이미지 URL을 수정합니다."
+            description = "본인의 인증 데이터의 이미지 URL을 수정합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "⚠️ 본인의 인증만 수정 가능"
     )
     @PutMapping("/{verificationId}")
     public ResponseEntity<ChallengeVerificationResponse> update(
             @Parameter(description = "인증 ID", required = true, example = "1")
             @PathVariable Long verificationId,
-            @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
-            @RequestParam(required = false, defaultValue = "1") Long userId,
             @Parameter(description = "인증 수정 요청 정보", required = true)
-            @Valid @RequestBody ChallengeVerificationUpdateRequest request
+            @Valid @RequestBody ChallengeVerificationUpdateRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, userId, request);
         return ResponseEntity.ok(response);
     }
 
     @Operation(
             summary = "인증 데이터 삭제",
-            description = "본인의 인증 데이터를 삭제합니다."
+            description = "본인의 인증 데이터를 삭제합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "⚠️ 본인의 인증만 삭제 가능"
     )
     @DeleteMapping("/{verificationId}")
     public ResponseEntity<Void> delete(
             @Parameter(description = "인증 ID", required = true, example = "1")
             @PathVariable Long verificationId,
-            @Parameter(description = "사용자 ID (테스트용, 로그인 후 제거 예정)", required = false, example = "1")
-            @RequestParam(required = false, defaultValue = "1") Long userId
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         challengeVerificationService.delete(verificationId, userId);
         return ResponseEntity.ok().build();
     }
