@@ -47,7 +47,11 @@ function Page() {
   );
 
   const totalPenalty = useMemo(
-    () => todayMissions.reduce((sum, challenge) => sum + challenge.penaltyAmount, 0),
+    () =>
+      todayMissions.reduce(
+        (sum, challenge) => (challenge.verificationStatus === 'NOT_VERIFIED' ? sum + challenge.penaltyAmount : sum),
+        0
+      ),
     [todayMissions]
   );
 
@@ -183,18 +187,6 @@ function Page() {
           <Pressable
             style={styles.dropdownItem}
             onPress={() => {
-              setCurrentStatus('ACTIVE');
-              setShowDropdown(false);
-            }}
-          >
-            <Txt typography="t5" color={currentStatus === 'ACTIVE' ? adaptive.blue500 : adaptive.grey800}>
-              진행중인 챌린지
-            </Txt>
-            {currentStatus === 'ACTIVE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
-          </Pressable>
-          <Pressable
-            style={styles.dropdownItem}
-            onPress={() => {
               setCurrentStatus('PENDING');
               setShowDropdown(false);
             }}
@@ -203,6 +195,18 @@ function Page() {
               예정된 챌린지
             </Txt>
             {currentStatus === 'PENDING' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
+          </Pressable>
+          <Pressable
+            style={styles.dropdownItem}
+            onPress={() => {
+              setCurrentStatus('ACTIVE');
+              setShowDropdown(false);
+            }}
+          >
+            <Txt typography="t5" color={currentStatus === 'ACTIVE' ? adaptive.blue500 : adaptive.grey800}>
+              진행중인 챌린지
+            </Txt>
+            {currentStatus === 'ACTIVE' && <Icon name="icon-check-mono" color={adaptive.blue500} size={16} />}
           </Pressable>
           <Pressable
             style={styles.dropdownItem}
