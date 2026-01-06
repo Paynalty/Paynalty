@@ -1,7 +1,9 @@
 import {Asset, Txt, Top, FixedBottomCTA, FixedBottomCTAProvider, StepperRow,} from '@toss/tds-react-native';
 import {createRoute, Spacing, useNavigation} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {View} from "react-native";
+import { View } from "react-native";
+import { useCreateChallengeStore } from "../../src/stores/createChallengeStore";
+import { useEffect } from "react";
 
 export const Route = createRoute('/create-challenge', {
     component: Page,
@@ -10,6 +12,12 @@ export const Route = createRoute('/create-challenge', {
 function Page() {
     const adaptive = useAdaptive();
     const navigation = Route.useNavigation();
+    const resetData = useCreateChallengeStore((s) => s.resetData);
+
+    useEffect(() => {
+        resetData();
+    }, [resetData]);
+
     return (
         <>
             <Spacing size={12}/>

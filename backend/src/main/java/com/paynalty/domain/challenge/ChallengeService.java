@@ -14,6 +14,7 @@ import com.paynalty.global.error.ChallengeMemberErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
+import com.paynalty.domain.challengemember.MemberRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -343,19 +344,30 @@ public class ChallengeService {
                 .build();
     }
 
-        // updateRequest 데이터 설정 후 사용자 한테 전달
-        public ChallengeUpdateRequest getUpdateForm(Long challengeId){
-        // challengeId로 entity 찾기
-            Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
-            
-            List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
-            List<Long> userIds = challengeMembers.stream()
-                    .map(ChallengeMember::getUser)
-                    .map(User::getId)
-                    .collect(Collectors.toList());
-        // updateRequest 필드 값 설정 후 반환
-        return new ChallengeUpdateRequest(challenge,userIds);
+            // updateRequest 데이터 설정 후 사용자 한테 전달
+    public ChallengeUpdateRequest getUpdateForm(Long challengeId, Long tossId){
+        // 1. 챌린지 존재 확인
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+        
+        // 2. 권한 확인 (생성자인지 확인)
+        ChallengeMember member = challengeMemberRepository
+                .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
+                .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
+
+        if (member.getRole() != MemberRole.CREATOR) {
+            throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_UPDATE);
         }
+
+        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+        List<Long> userIds = challengeMembers.stream()
+                .map(ChallengeMember::getUser)
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        // updateRequest 필드 값 설정 후 반환
+        return new ChallengeUpdateRequest(challenge, userIds);
+    }
 
         //update
         @Transactional

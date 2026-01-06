@@ -71,9 +71,11 @@ public class ChallengeController {
     )
     @GetMapping("/{challengeId}/edit")
     public ResponseEntity<ChallengeUpdateRequest> getEditForm(
-        @PathVariable Long challengeId
+        @PathVariable Long challengeId,
+        @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        ChallengeUpdateRequest response = challengeService.getUpdateForm(challengeId);
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengeUpdateRequest response = challengeService.getUpdateForm(challengeId, tossId);
         return ResponseEntity.ok(response);
     }
 
