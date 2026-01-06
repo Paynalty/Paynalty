@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paynalty.domain.toss.dto.TossLoginRequest;
 import com.paynalty.domain.toss.dto.TossLoginResponse;
+import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserService;
 import com.paynalty.global.security.jwt.JwtProvider;
 import com.paynalty.global.security.jwt.dto.JwtToken;
@@ -127,20 +128,20 @@ public class TossLoginController {
         }
 
         // 5. 토큰을 User 엔티티에 저장 (User가 없으면 생성)
-        userService.saveTokens(
+        User user = userService.saveTokens(
                 userKey,
                 loginResponse.getRefreshToken());
-        log.info("토큰 저장 완료: userKey={}", userKey);
+        log.info("토큰 저장 완료: userKey={}, userId={}", userKey, user.getId());
 
         // 6. 복호화된 사용자 정보 저장/업데이트
         if (decryptedName != null || decryptedPhone != null || decryptedEmail != null) {
-            userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
-            log.info("사용자 정보 저장 완료: userKey={}", userKey);
+            user = userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
+            log.info("사용자 정보 저장 완료: userKey={}, userId={}", userKey, user.getId());
         }
 
-        // 7. JWT 토큰 발급 (자체 토큰)
-        JwtToken jwtToken = jwtProvider.generateToken(String.valueOf(userKey), "ROLE_USER");
-        log.info("JWT 토큰 발급 완료: accessToken={}", jwtToken.getAccessToken());
+        // 7. JWT 토큰 발급 (User.id를 subject로 저장!)
+        JwtToken jwtToken = jwtProvider.generateToken(String.valueOf(user.getId()), "ROLE_USER");
+        log.info("JWT 토큰 발급 완료: userId={}, accessToken={}", user.getId(), jwtToken.getAccessToken());
 
         return ResponseEntity.ok(jwtToken);
     }

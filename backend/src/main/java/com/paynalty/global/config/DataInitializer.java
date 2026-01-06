@@ -9,7 +9,6 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
-import com.paynalty.domain.challengeverification.VerificationStatus;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;

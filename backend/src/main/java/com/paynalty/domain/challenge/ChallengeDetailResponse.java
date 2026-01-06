@@ -47,6 +47,8 @@ public class ChallengeDetailResponse {
     //인증 타입
     private VerificationType verificationType;
 
+    // 챌린지 맴버 목록 담아서 전달.
+
 }
 
 

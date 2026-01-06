@@ -49,6 +49,7 @@ public class SecurityConfig {
                                                 .requestMatchers(
                                                                 "/toss/**",
                                                                 "/api/auth/**", // 인증 관련
+                                                                "/uploads/verifications/**", // 업로드된 인증 이미지
                                                                 "/h2-console/**", // H2 콘솔 (개발 환경)
                                                                 "/swagger-ui/**", // Swagger UI
                                                                 "/api-docs/**", // API 문서
