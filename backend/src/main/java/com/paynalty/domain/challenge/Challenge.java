@@ -152,7 +152,7 @@ public class Challenge extends BaseTimeEntity {
         this.penaltyAmount = request.getPenaltyAmount();
         this.daysOfWeek = request.getDaysOfWeek();
         this.frequency = request.getFrequency();
-        this.verificationType = request.getVerifyType();
+        this.verificationType = request.getVerificationType();
     }
 
     // frequency만 업데이트 (요일 변경 시 자동 계산용).
