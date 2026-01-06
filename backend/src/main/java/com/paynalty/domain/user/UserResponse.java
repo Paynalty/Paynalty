@@ -1,11 +1,8 @@
 package com.paynalty.domain.user;
 
-import com.paynalty.domain.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Schema(description = "사용자 정보 응답")
 @Getter
@@ -33,4 +30,3 @@ public class UserResponse {
                 .build();
     }
 }
-
