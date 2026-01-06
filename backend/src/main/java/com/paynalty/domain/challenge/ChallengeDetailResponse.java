@@ -1,5 +1,7 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.challengemember.ChallengeMember;
+import com.paynalty.domain.challengemember.ChallengeMemberResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,6 +50,7 @@ public class ChallengeDetailResponse {
     private VerificationType verificationType;
 
     // 챌린지 맴버 목록 담아서 전달.
+    private List<ChallengeMemberResponse> members;
 
 }
 
