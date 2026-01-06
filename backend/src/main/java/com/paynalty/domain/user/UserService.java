@@ -11,7 +11,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paynalty.domain.toss.TossApiClient;
-import com.paynalty.domain.toss.dto.TossLoginResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -81,50 +80,42 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // 토스 로그인 연결 끊기
+    // 회원 탈퇴 (Toss 연결 끊기 및 데이터 삭제)
     @Transactional
-    public void unlinkUser(Long userId) {
+    public void withdraw(Long userId) {
         User user = getById(userId);
 
-        if (user.getRefreshToken() == null) {
-            log.info("이미 연결이 해제되었거나 토큰이 없는 사용자입니다: userId={}", userId);
-            return;
-        }
+        if (user.getTossId() == null) {
+            log.warn("Toss ID(userKey)가 없는 사용자입니다: userId={}", userId);
+            // Toss ID가 없으면 그냥 DB에서 삭제 진행
+        } else {
+            try {
+                // 1. Toss API로 연결 끊기 요청 (remove-by-user-key)
+                String response = tossApiClient.removeByUserKey(user.getTossId());
 
-        try {
-            // 1. Refresh Token으로 Access Token 재발급
-            String refreshResponse = tossApiClient.refreshToken(user.getRefreshToken());
+                JsonNode responseNode = objectMapper.readTree(response);
+                if (responseNode.has("resultType") && "FAIL".equals(responseNode.get("resultType").asText())) {
+                    JsonNode errorNode = responseNode.get("error");
+                    log.error("Toss 연결 끊기 실패: errorCode={}, reason={}",
+                            errorNode.get("errorCode").asText(),
+                            errorNode.get("reason").asText());
+                    throw new CustomException(UserErrorCode.TOSS_API_ERROR);
+                }
 
-            JsonNode responseNode = objectMapper.readTree(refreshResponse);
+                log.info("Toss 연결 끊기 성공: userId={}, userKey={}", userId, user.getTossId());
 
-            if (responseNode.has("resultType") && "FAIL".equals(responseNode.get("resultType").asText())) {
-                log.error("토큰 재발급 실패: userId={}", userId);
+            } catch (Exception e) {
+                log.error("Toss 연결 끊기 처리 중 오류 발생", e);
+                // 외부 API 호출 실패 시 데이터 일관성을 위해 트랜잭션 롤백
+                // 사용자가 DB에서만 삭제되고 Toss에는 남아있는 상황을 방지
+                if (e instanceof CustomException) {
+                    throw (CustomException) e;
+                }
                 throw new CustomException(UserErrorCode.TOSS_API_ERROR);
             }
-
-            JsonNode successNode = responseNode.get("success");
-            TossLoginResponse loginResponse = objectMapper.treeToValue(successNode, TossLoginResponse.class);
-
-            // 2. Access Token으로 연결 끊기 요청
-            String unlinkResponse = tossApiClient.unlink(loginResponse.getAccessToken());
-
-            JsonNode unlinkNode = objectMapper.readTree(unlinkResponse);
-            if (unlinkNode.has("resultType") && "FAIL".equals(unlinkNode.get("resultType").asText())) {
-                log.error("토스 연결 끊기 API 실패: {}", unlinkResponse);
-                throw new CustomException(UserErrorCode.TOSS_API_ERROR);
-            }
-
-            log.info("토스 연결 끊기 성공: userId={}, userKey={}", userId, user.getTossId());
-
-        } catch (Exception e) {
-            log.error("토스 연결 끊기 중 오류 발생", e);
-            if (e instanceof CustomException) {
-                throw (CustomException) e;
-            }
-            throw new CustomException(UserErrorCode.TOSS_API_ERROR);
         }
 
-        // 3. 사용자 정보 삭제
+        // 2. 사용자 정보 영구 삭제
         userRepository.delete(user);
         log.info("사용자 정보 삭제 완료: userId={}", userId);
     }
