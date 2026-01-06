@@ -165,7 +165,7 @@ public class TestController {
                     .challenge(challenge)
                     .date(d)
                     .verifiedAt(d.atTime(10, 30)) // 오전 10시 30분
-                    .imageUrl("https://static.toss.im/ml-product/observer-binocular.png")
+                    .imageUrl("temp.png")
                     .build());
 
             // 2. 다른 더미 유저들 인증 추가 (최대 2명)
@@ -177,7 +177,7 @@ public class TestController {
                             .challenge(challenge)
                             .date(d)
                             .verifiedAt(d.atTime(11, 45)) // 오전 11시 45분
-                            .imageUrl("https://static.toss.im/ml-product/observer-binocular.png")
+                            .imageUrl("temp.png")
                             .build()));
         }
     }
@@ -192,7 +192,8 @@ public class TestController {
                     .challenge(challenge)
                     .date(d)
                     .verifiedAt(d.atTime(13, 0)) // 오후 1시
-                    .imageUrl("https://static.toss.im/ml-product/observer-binocular.png")
+                    .imageUrl("temp.png")
+                    
                     .build());
 
             allUsers.stream()
@@ -203,7 +204,7 @@ public class TestController {
                             .challenge(challenge)
                             .date(d)
                             .verifiedAt(d.atTime(14, 20)) // 오후 2시 20분
-                            .imageUrl("https://static.toss.im/ml-product/observer-binocular.png")
+                            .imageUrl("temp.png")
                             .build()));
         }
     }
