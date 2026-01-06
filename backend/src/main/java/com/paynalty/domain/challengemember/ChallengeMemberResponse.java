@@ -15,8 +15,8 @@ public class ChallengeMemberResponse {
     @Schema(description = "챌린지 멤버 ID", example = "Long")
     private Long id;
 
-    @Schema(description = "사용자 ID", example = "Long")
-    private Long userId;
+    @Schema(description = "사용자 토스 ID", example = "Long")
+    private Long tossId;
 
     @Schema(description = "사용자 이름", example = "김철수")
     private String userName;
@@ -38,7 +38,7 @@ public class ChallengeMemberResponse {
     public static ChallengeMemberResponse from(ChallengeMember cm) {
         return ChallengeMemberResponse.builder()
                 .id(cm.getId())
-                .userId(cm.getUser().getId())
+                .tossId(cm.getUser().getTossId())
                 .userName(cm.getUser().getName())
                 .challengeId(cm.getChallenge().getId())
                 .joinedAt(cm.getJoinedAt())
