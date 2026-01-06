@@ -1,16 +1,21 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
-import { Pressable, ScrollView, StyleSheet, View, Alert } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
-import { challengeQueries } from '../../src/hooks/useChallenges';
-import { useQueryClient } from '@tanstack/react-query';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
-import { getChallengeEditForm, deleteChallenge } from '../../src/api/challenges';
-import {formatDate, formatDaysOfWeek, formatTime, getChallengeStatusBadge, getVerificationMessage, getVerificationTypeLabel,} from '../../src/utils/challenge';
+import { getChallengeEditForm } from '../../src/api/challenges';
+import {
+  formatDate,
+  formatDaysOfWeek,
+  formatTime,
+  getChallengeStatusBadge,
+  getVerificationMessage,
+  getVerificationTypeLabel,
+} from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -19,7 +24,6 @@ export const Route = createRoute('/challenge-detail', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const queryClient = useQueryClient();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
   const updateData = useCreateChallengeStore((s) => s.updateData);
@@ -223,35 +227,6 @@ function Page() {
           </Pressable>
         }
       />
-      <Pressable
-        onPress={() => {
-          Alert.alert('챌린지를 삭제할까요?', '삭제하면 복구할 수 없어요.', [
-            { text: '취소', style: 'cancel' },
-            {
-              text: '삭제',
-              style: 'destructive',
-              onPress: async () => {
-                try {
-                  if (selectedChallenge) {
-                    await deleteChallenge(selectedChallenge.id.toString());
-                    await queryClient.invalidateQueries({ queryKey: challengeQueries.all });
-                    navigation.navigate('/');
-                    alert('챌린지가 삭제되었습니다.');
-                  }
-                } catch (error) {
-                  console.error('삭제 실패:', error);
-                  alert('삭제에 실패했습니다.');
-                }
-              },
-            },
-          ]);
-        }}
-        style={{ padding: 16, alignItems: 'center' }}
-      >
-        <Txt color={adaptive.red500} typography="t6">
-          이 챌린지 삭제하기
-        </Txt>
-      </Pressable>
       <View style={styles.rulesCard}>
         <View style={styles.gridCell}>
           <Asset.Icon

@@ -130,7 +130,11 @@ export default function Page() {
                   penaltyAmount: selectAmount,
                   customAmount: selectAmount === 'custom' ? customAmount : undefined,
                 });
-                navigation.navigate('/create-challenge/step8');
+                if (data.isEditing) {
+                  navigation.navigate('/create-challenge/complete');
+                } else {
+                  navigation.navigate('/create-challenge/step8');
+                }
               }}
             >
               다음

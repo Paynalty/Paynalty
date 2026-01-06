@@ -27,6 +27,9 @@ function Page() {
 
   const checkAuthAndOnboarding = async () => {
     try {
+        // 로그인 테스트용
+        // await Storage.removeItem('accessToken')
+        // await Storage.removeItem('hasCompletedOnboarding')
       const token = await Storage.getItem('accessToken');
       if (token) {
         setLoggedIn(true);

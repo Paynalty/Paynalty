@@ -47,7 +47,7 @@ export default function Page() {
       // 1. 전송할 데이터 구성
       const payload = {
         title: challengeData.title || '',
-        startDate: startDate,
+        startDate: challengeData.isEditing ? undefined : startDate,
         endDate: challengeData.endDate || '',
         penaltyAmount:
           challengeData.penaltyAmount === 'custom'
@@ -222,32 +222,43 @@ export default function Page() {
         />
       </List>
       <FixedBottomCTAProvider>
-        <FixedBottomCTA.Double
-          leftButton={
-            <Button
-              type="dark"
-              style="weak"
-              display="block"
-              disabled={loading !== null}
-              loading={loading === 'nextWeek'}
-              onPress={() => handleCreateChallenge('nextWeek')}
-            >
-              다음주부터 시작하기
-            </Button>
-          }
-          rightButton={
-            <Button
-              type="primary"
-              style="fill"
-              display="block"
-              disabled={loading !== null}
-              loading={loading === 'tomorrow'}
-              onPress={() => handleCreateChallenge('tomorrow')}
-            >
-              내일부터 시작하기
-            </Button>
-          }
-        />
+        {challengeData.isEditing ? (
+          <FixedBottomCTA
+            type="primary"
+            style="fill"
+            loading={loading !== null}
+            onPress={() => handleCreateChallenge()}
+          >
+            수정 완료
+          </FixedBottomCTA>
+        ) : (
+          <FixedBottomCTA.Double
+            leftButton={
+              <Button
+                type="dark"
+                style="weak"
+                display="block"
+                disabled={loading !== null}
+                loading={loading === 'nextWeek'}
+                onPress={() => handleCreateChallenge('nextWeek')}
+              >
+                다음주부터 시작하기
+              </Button>
+            }
+            rightButton={
+              <Button
+                type="primary"
+                style="fill"
+                display="block"
+                disabled={loading !== null}
+                loading={loading === 'tomorrow'}
+                onPress={() => handleCreateChallenge('tomorrow')}
+              >
+                내일부터 시작하기
+              </Button>
+            }
+          />
+        )}
       </FixedBottomCTAProvider>
     </>
   );

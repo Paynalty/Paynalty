@@ -10,8 +10,11 @@ import {
 } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
+import { deleteChallenge } from '../../src/api/challenges';
+import { challengeQueries } from '../../src/hooks/useChallenges';
 
 export const Route = createRoute('/create-challenge/step2', {
   component: Page,
@@ -22,8 +25,33 @@ const MAX_TITLE_LENGTH = 30;
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
+  const queryClient = useQueryClient();
   const { data, updateData } = useCreateChallengeStore();
   const [goalTitle, setGoalTitle] = useState(data.title || '');
+
+  // 챌린지 삭제 처리
+  const handleDelete = () => {
+    Alert.alert('챌린지를 삭제할까요?', '삭제하면 복구할 수 없어요.', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            if (data.challengeId) {
+              await deleteChallenge(data.challengeId);
+              await queryClient.invalidateQueries({ queryKey: challengeQueries.all });
+              navigation.navigate('/');
+              alert('챌린지가 삭제되었습니다.');
+            }
+          } catch (error) {
+            console.error('삭제 실패:', error);
+            alert('삭제에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
 
   // 목표 제목 변경 처리
   const handleChangeTitle = (text: string) => {
@@ -69,18 +97,28 @@ function Page() {
       {/* TODO : 템플릿 제공*/}
       <FixedBottomCTAProvider>
         {data.isEditing ? (
-          <FixedBottomCTA
-            type="primary"
-            style="fill"
-            disabled={!isNextButtonEnabled}
-            loading={false}
-            onPress={() => {
-              updateData({ title: goalTitle.trim() });
-              navigation.navigate('/create-challenge/step3');
-            }}
-          >
-            다음
-          </FixedBottomCTA>
+          <FixedBottomCTA.Double
+            leftButton={
+              <Button type="danger" style="weak" display="block" loading={false} onPress={handleDelete}>
+                삭제하기
+              </Button>
+            }
+            rightButton={
+              <Button
+                type="primary"
+                style="fill"
+                display="block"
+                disabled={!isNextButtonEnabled}
+                loading={false}
+                onPress={() => {
+                  updateData({ title: goalTitle.trim() });
+                  navigation.navigate('/create-challenge/step3');
+                }}
+              >
+                다음
+              </Button>
+            }
+          />
         ) : (
           <FixedBottomCTA.Double
             leftButton={

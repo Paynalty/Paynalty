@@ -14,9 +14,6 @@ public class ChallengeUpdateRequest {
 
     private String title;
 
-    @Schema(example = "2026-01-25")
-    private LocalDate startDate;
-
     @Schema(example = "2026-04-25")
     private LocalDate endDate;
 
@@ -44,7 +41,6 @@ public class ChallengeUpdateRequest {
     // 챌린지 수정 요청 시 챌린지 데이터 조회
     public ChallengeUpdateRequest (Challenge challenge,List<Long> userIds){
         this.title = challenge.getTitle();
-        this.startDate = challenge.getStartDate();
         this.endDate = challenge.getEndDate();
         this.verifyStartAt = challenge.getVerifyStartAt();
         this.verifyEndAt = challenge.getVerifyEndAt();
