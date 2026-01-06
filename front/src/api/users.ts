@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { apiFetch } from './client';
 
 export const UserResponseSchema = z.object({
-  userId: z.number(),
   tossId: z.number(),
   name: z.string(),
   email: z.string(),

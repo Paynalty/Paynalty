@@ -9,8 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MembersVerificationCountResponse {
 
-    @Schema(description = "사용자 ID", example = "Long")
-    private Long userId;
+    @Schema(description = "사용자 토스 ID", example = "Long")
+    private Long tossId;
 
     @Schema(description = "사용자 이름", example = "String")
     private String userName;

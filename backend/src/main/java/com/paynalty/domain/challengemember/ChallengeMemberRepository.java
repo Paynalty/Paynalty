@@ -14,18 +14,18 @@ import java.util.Optional;
 
 public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember, Long> {
 
-    List<ChallengeMember> findByUserId(Long userId);
+    List<ChallengeMember> findByUserTossId(Long tossId);
 
-    Optional<ChallengeMember> findByUserIdAndChallengeId(Long userId, Long challengeId);
+    Optional<ChallengeMember> findByUserTossIdAndChallengeId(Long tossId, Long challengeId);
 
     List<ChallengeMember> findByChallengeId(Long challengeId);
 
     /**
-     * 챌린지 ID와 사용자 ID로 ChallengeMember를 조회합니다.
+     * 챌린지 ID와 사용자 토스 ID로 ChallengeMember를 조회합니다.
      * User와 Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 토스 ID
      * @return ChallengeMember (User, Challenge 포함)
      */
     @Query("""
@@ -34,11 +34,11 @@ public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember
     JOIN FETCH cm.user
     JOIN FETCH cm.challenge
     WHERE cm.challenge.id = :challengeId
-    AND cm.user.id = :userId
+    AND cm.user.tossId = :tossId
     """)
-    Optional<ChallengeMember> findByChallengeIdAndUserIdWithFetch(
+    Optional<ChallengeMember> findByChallengeIdAndUserTossIdWithFetch(
             @Param("challengeId") Long challengeId,
-            @Param("userId") Long userId
+            @Param("tossId") Long tossId
     );
 
     @Query("""

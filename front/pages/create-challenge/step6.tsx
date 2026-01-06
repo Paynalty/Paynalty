@@ -12,9 +12,15 @@ export const Route = createRoute('/create-challenge/step6', {
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((s) => s.updateData);
+  const { data, updateData } = useCreateChallengeStore();
 
-  const [selectedMethod, setSelectedMethod] = useState('사진');
+  const methodMappingReverse: { [key: string]: string } = {
+    PHOTO: '사진',
+    TEXT: '텍스트',
+    VOTE: '체크',
+  };
+
+  const [selectedMethod, setSelectedMethod] = useState(methodMappingReverse[data.verificationType || ''] || '사진');
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { apiFetch } from './client';
 
-export const VerificationTypeSchema = z.enum(['PHOTO', 'TEXT', 'VOTE']);
+export const VerificationTypeSchema = z.string().default('PHOTO');
 export type VerificationType = z.infer<typeof VerificationTypeSchema>;
 
 export const DayOfWeekSchema = z.enum(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']);
@@ -11,13 +11,13 @@ export const CreateChallengeRequestSchema = z.object({
   title: z.string(),
   startDate: z.string(),
   endDate: z.string(),
-  frequency: z.number().optional(),
-  dayOfWeek: z.array(DayOfWeekSchema).optional(),
+  frequency: z.number().optional().nullable(),
+  daysOfWeek: z.array(z.string()).optional().nullable(),
   penaltyAmount: z.number(),
-  verifyStartAt: z.string().optional(),
-  verifyEndAt: z.string().optional(),
+  verifyStartAt: z.string().optional().nullable(),
+  verifyEndAt: z.string().optional().nullable(),
   verificationType: VerificationTypeSchema,
-  userIds: z.array(z.number()).optional(),
+  userIds: z.array(z.number()).optional().nullable(),
 });
 export type CreateChallengeRequest = z.infer<typeof CreateChallengeRequestSchema>;
 
@@ -51,9 +51,40 @@ export const createChallenge = (data: CreateChallengeRequest) => {
   });
 };
 
-export const getMyProgressChallenges = (userId: number = 1, status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
-  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${userId}/${status}`, {
+export const getMyProgressChallenges = (status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
+  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${status}`, {
     method: 'GET',
     schema: z.array(ChallengeDetailResponseSchema),
+  });
+};
+
+/**
+ * 수정을 위한 챌린지 기존 정보를 조회합니다.
+ */
+export const getChallengeEditForm = (challengeId: string) => {
+  return apiFetch<CreateChallengeRequest>(`/api/challenge/${challengeId}/edit`, {
+    method: 'GET',
+    schema: CreateChallengeRequestSchema,
+  });
+};
+
+/**
+ * 챌린지 정보를 수정합니다.
+ */
+export const updateChallenge = (challengeId: string, data: CreateChallengeRequest) => {
+  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+    schema: ChallengeDetailResponseSchema,
+  });
+};
+
+/**
+ * 챌린지를 삭제합니다.
+ */
+export const deleteChallenge = (challengeId: string) => {
+  return apiFetch<void>(`/api/challenge/${challengeId}`, {
+    method: 'DELETE',
+    schema: z.void(),
   });
 };

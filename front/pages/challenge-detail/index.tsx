@@ -6,7 +6,16 @@ import { VerificationGroup } from '../../src/components/verification/Verificatio
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
-import {formatDate, formatDaysOfWeek, formatTime, getChallengeStatusBadge, getVerificationMessage, getVerificationTypeLabel,} from '../../src/utils/challenge';
+import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
+import { getChallengeEditForm } from '../../src/api/challenges';
+import {
+  formatDate,
+  formatDaysOfWeek,
+  formatTime,
+  getChallengeStatusBadge,
+  getVerificationMessage,
+  getVerificationTypeLabel,
+} from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
   component: Page,
@@ -17,6 +26,7 @@ function Page() {
   const navigation = Route.useNavigation();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
+  const updateData = useCreateChallengeStore((s) => s.updateData);
   const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
   const {
     data: memberCounts,
@@ -88,6 +98,8 @@ function Page() {
         }
         upperGap={0}
       />
+
+      {/* 최근 인증 현황 */}
       <ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
@@ -121,17 +133,14 @@ function Page() {
           </Txt>
         </View>
       )}
+
+      {/* 주간 인증 현황 */}
       <ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
             주간 인증 현황
           </ListHeader.TitleParagraph>
         }
-        /*right={
-                  <ListHeader.TitleSelector typography="t7" color={adaptive.grey800} fontWeight="regular">
-                    보기 기준
-                  </ListHeader.TitleSelector>
-                }*/
       />
       {memberCountsError ? (
         <View style={[styles.verificationCard, styles.emptyCard]}>
@@ -149,13 +158,10 @@ function Page() {
         memberCounts.length > 0 &&
         memberCounts.some((m) => m.verificationCount && m.verificationCount > 0) ? (
         <BarChart
-          data={memberCounts.map((member) => {
-            const value = member.verificationCount ?? 0;
-            return {
-              xAxisLabel: member.userName,
-              value: Number(value),
-            };
-          })}
+          data={memberCounts.map((member) => ({
+            xAxisLabel: member.userName,
+            value: Number(member.verificationCount ?? 0),
+          }))}
           fill={{ type: 'all-bar', theme: 'blue' }}
         />
       ) : (
@@ -165,17 +171,61 @@ function Page() {
           </Txt>
         </View>
       )}
+
+      {/* 챌린지 규칙 */}
       <ListHeader
         title={
           <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
             챌린저 규칙
           </ListHeader.TitleParagraph>
         }
-        /*right={
-                  <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-                    수정하기
-                  </ListHeader.RightArrow>
-                }*/
+        right={
+          <Pressable
+            onPress={async () => {
+              try {
+                const editForm = await getChallengeEditForm(selectedChallenge.id.toString());
+                const dayMapping: { [key: string]: string } = {
+                  MON: '월',
+                  TUE: '화',
+                  WED: '수',
+                  THU: '목',
+                  FRI: '금',
+                  SAT: '토',
+                  SUN: '일',
+                };
+
+                const isDayType = editForm.daysOfWeek && editForm.daysOfWeek.length > 0;
+                const periodValue = isDayType
+                  ? editForm.daysOfWeek!.map((d: string) => dayMapping[d] || d).join(', ')
+                  : `${editForm.frequency}회`;
+
+                updateData({
+                  isEditing: true,
+                  challengeId: selectedChallenge.id.toString(),
+                  title: editForm.title,
+                  verificationType: editForm.verificationType,
+                  penaltyAmount: editForm.penaltyAmount,
+                  endDate: editForm.endDate,
+                  verifyStartAt: editForm.verifyStartAt ?? undefined,
+                  verifyEndAt: editForm.verifyEndAt ?? undefined,
+                  daysOfWeek: editForm.daysOfWeek || [],
+                  frequency: editForm.frequency || 0,
+                  period: periodValue,
+                  startDate: isDayType ? 'day' : 'count',
+                });
+
+                navigation.navigate('/create-challenge/step2');
+              } catch (error) {
+                console.error('수정 데이터 로드 실패:', error);
+                alert('챌린지 정보를 불러오지 못했습니다.');
+              }
+            }}
+          >
+            <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+              수정하기
+            </ListHeader.RightArrow>
+          </Pressable>
+        }
       />
       <View style={styles.rulesCard}>
         <View style={styles.gridCell}>
@@ -262,8 +312,9 @@ function Page() {
           </ListHeader.RightArrow>
         }
       />*/}
+
       <FixedBottomCTAProvider>
-        <FixedBottomCTA loading={false} onPress={openVerificationModal}>
+        <FixedBottomCTA loading={false} onPress={selectedChallenge ? openVerificationModal : undefined}>
           바로 인증하기
         </FixedBottomCTA>
       </FixedBottomCTAProvider>
@@ -285,20 +336,6 @@ const styles = StyleSheet.create({
     minHeight: 180,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  dateSection: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  userSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 16,
-  },
-  imageSection: {
-    alignItems: 'center',
-    marginVertical: 16,
   },
   bottomSection: {
     flexDirection: 'row',

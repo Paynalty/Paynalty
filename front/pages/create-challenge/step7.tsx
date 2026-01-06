@@ -27,9 +27,9 @@ const PENALTY_OPTIONS = [
 export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((s) => s.updateData);
-  const [selectAmount, setSelectAmount] = useState<number | string>(10000);
-  const [customAmount, setCustomAmount] = useState('');
+  const { data, updateData } = useCreateChallengeStore();
+  const [selectAmount, setSelectAmount] = useState<number | string>(data.penaltyAmount ?? 10000);
+  const [customAmount, setCustomAmount] = useState(data.customAmount || '');
 
   const isNextButtonEnabled =
     (selectAmount !== 'custom' && Number(selectAmount) > 0) ||
@@ -130,7 +130,11 @@ export default function Page() {
                   penaltyAmount: selectAmount,
                   customAmount: selectAmount === 'custom' ? customAmount : undefined,
                 });
-                navigation.navigate('/create-challenge/step8');
+                if (data.isEditing) {
+                  navigation.navigate('/create-challenge/complete');
+                } else {
+                  navigation.navigate('/create-challenge/step8');
+                }
               }}
             >
               다음

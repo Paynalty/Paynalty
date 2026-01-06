@@ -15,9 +15,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // username은 JWT의 subject인 tossId
-        Long tossId = Long.parseLong(username);
+    public UserDetails loadUserByUsername(String tossId) throws UsernameNotFoundException {
+        try {
+            return loadUserByTossId(Long.parseLong(tossId));
+        } catch (NumberFormatException e) {
+            throw new UsernameNotFoundException("올바르지 않은 형식의 tossId입니다: " + tossId);
+        }
+    }
+
+    public UserDetails loadUserByTossId(Long tossId) {
         User user = userRepository.findByTossId(tossId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당하는 유저를 찾을 수 없습니다. tossId=" + tossId));
         return new CustomUserDetails(user);

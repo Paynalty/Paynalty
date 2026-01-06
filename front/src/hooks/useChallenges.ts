@@ -2,6 +2,7 @@ import { useQuery, queryOptions } from '@tanstack/react-query';
 import { getMyProgressChallenges, ChallengeDetailResponse } from '../api/challenges';
 import { Challenge } from '../components/challenge/types';
 import { sortChallengesByPriority } from '../utils/challenge';
+import { ApiError } from '../api/client';
 
 /**
  * API 응답 데이터를 UI용 Challenge 객체로 변환합니다.
@@ -48,18 +49,32 @@ export const challengeQueries = {
     queryOptions({
       queryKey: [...challengeQueries.all, status],
       queryFn: async () => {
-        const data = await getMyProgressChallenges(1, status);
-        const mapped = data.map((item) => mapToChallenge(item, status));
-        return sortChallenges(mapped, status);
+        try {
+          const data = await getMyProgressChallenges(status);
+          const mapped = data.map((item) => mapToChallenge(item, status));
+          return sortChallenges(mapped, status);
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 404) {
+            return [];
+          }
+          throw error;
+        }
       },
     }),
   missions: () =>
     queryOptions({
       queryKey: [...challengeQueries.all, 'missions'],
       queryFn: async () => {
-        const data = await getMyProgressChallenges(1, 'ACTIVE');
-        const mapped = data.map((item) => mapToChallenge(item, 'ACTIVE'));
-        return sortChallenges(mapped, 'ACTIVE');
+        try {
+          const data = await getMyProgressChallenges('ACTIVE');
+          const mapped = data.map((item) => mapToChallenge(item, 'ACTIVE'));
+          return sortChallenges(mapped, 'ACTIVE');
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 404) {
+            return [];
+          }
+          throw error;
+        }
       },
     }),
 };

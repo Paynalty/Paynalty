@@ -1,11 +1,13 @@
 package com.paynalty.domain.challengemember;
 
+import com.paynalty.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,14 +39,15 @@ public class ChallengeMemberController {
     )
     @PostMapping
     public ResponseEntity<String> addMember(
-            @Parameter(description = "삭제 또는 수정 예정 ( 챌린지 맴버 초대)", required = true)
-            @Valid @RequestBody ChallengeMemberRequest request
+            @Parameter(description = "챌린지 멤버 초대 요청 정보", required = true)
+            @Valid @RequestBody ChallengeMemberRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        // TODO: 로그인 기능 구현 후 @AuthenticationPrincipal로 현재 사용자 정보 가져오기
-        // 초대하는 사람이 챌린지에 참여중인 맴버인지(맴버 중 관리자 역할인지)
+        Long tossId = userDetails.getUser().getTossId();
         
         String result = challengeMemberService.addMemberByInvitation(
                 request.getChallengeId(),
+                tossId,
                 request.getInviteeName(),
                 request.getInviteePhoneNumber()
         );

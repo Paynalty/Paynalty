@@ -11,7 +11,10 @@ export default function Page() {
   const adaptive = useAdaptive();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const challengeId = selectedChallenge?.id ? String(selectedChallenge.id) : '';
-  const { data: verifications = [] } = useVerifications(challengeId);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useVerifications(challengeId);
+
+  // 무한 쿼리 데이터를 단일 배열로 평탄화
+  const verifications = data?.pages?.flatMap((page) => page.content) ?? [];
 
   if (!selectedChallenge) {
     return (
@@ -40,9 +43,18 @@ export default function Page() {
     []
   );
 
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
+
+    if (isCloseToBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView>
+      <ScrollView onScroll={handleScroll} scrollEventThrottle={16}>
         <Top
           title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
           subtitle2={
@@ -108,6 +120,12 @@ export default function Page() {
         ) : (
           <View style={{ padding: 40, alignItems: 'center' }}>
             <Txt color={adaptive.grey500}>아직 인증 내역이 없습니다.</Txt>
+          </View>
+        )}
+
+        {isFetchingNextPage && (
+          <View style={{ padding: 20, alignItems: 'center' }}>
+            <Txt color={adaptive.grey600}>더 불러오는 중...</Txt>
           </View>
         )}
 

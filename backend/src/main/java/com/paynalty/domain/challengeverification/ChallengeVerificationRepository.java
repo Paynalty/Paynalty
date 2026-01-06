@@ -26,12 +26,12 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      */
     @Query("SELECT COUNT(cv) FROM ChallengeVerification cv " +
            "WHERE cv.challenge.id = :challengeId " +
-           "AND cv.user.id = :userId " +
+           "AND cv.user.tossId = :tossId " +
            "AND cv.date >= :weekStart " +
            "AND cv.date <= :weekEnd")
     Long countWeeklyVerifications(
             @Param("challengeId") Long challengeId,
-            @Param("userId") Long userId,
+            @Param("tossId") Long tossId,
             @Param("weekStart") LocalDate weekStart,
             @Param("weekEnd") LocalDate weekEnd
     );
@@ -45,10 +45,10 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      */
     @Query("SELECT COUNT(cv) FROM ChallengeVerification cv " +
            "WHERE cv.challenge.id = :challengeId " +
-           "AND cv.user.id = :userId")
+           "AND cv.user.tossId = :tossId")
     Long countTotalVerifications(
             @Param("challengeId") Long challengeId,
-            @Param("userId") Long userId
+            @Param("tossId") Long tossId
     );
 
     /**
@@ -60,14 +60,18 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * @param date 확인할 날짜
      * @return 해당 날짜에 인증 기록이 있으면 true, 없으면 false
      */
-    boolean existsByChallengeIdAndUserIdAndDate(
-            Long challengeId,
-            Long userId,
-            LocalDate date
+    @Query("SELECT (COUNT(cv) > 0) FROM ChallengeVerification cv " +
+           "WHERE cv.challenge.id = :challengeId " +
+           "AND cv.user.tossId = :tossId " +
+           "AND cv.date = :date")
+    boolean existsByChallengeIdAndUserTossIdAndDate(
+            @Param("challengeId") Long challengeId,
+            @Param("tossId") Long tossId,
+            @Param("date") LocalDate date
     );
 
     // 특정 챌린지와 사용자의 가장 최근 인증을 조회합니다.
-    Optional<ChallengeVerification> findTopByChallengeIdAndUserIdOrderByDateDesc(Long challengeId, Long userId);
+    Optional<ChallengeVerification> findTopByChallengeIdAndUserTossIdOrderByDateDesc(Long challengeId, Long tossId);
 
     // 특정 챌린지의 모든 인증 데이터 중 가장 최근 인증을 조회합니다.
     Optional<ChallengeVerification> findTopByChallengeIdOrderByDateDescIdDesc(Long challengeId);
@@ -81,9 +85,9 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * @param pageable 페이징 정보 (page, size, sort)
      * @return Slice<ChallengeVerification> (다음 페이지 존재 여부 포함)
      */
-    Slice<ChallengeVerification> findByChallengeIdAndUserIdOrderByDateDescIdDesc(
+    Slice<ChallengeVerification> findByChallengeIdAndUserTossIdOrderByDateDescIdDesc(
             Long challengeId, 
-            Long userId, 
+            Long tossId, 
             Pageable pageable
     );
 

@@ -12,13 +12,17 @@ export const Route = createRoute('/create-challenge/step3', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((s) => s.updateData);
+  const { data, updateData } = useCreateChallengeStore();
 
   const currentDate = new Date();
   const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
-  const [year, setYear] = useState(nextMonthDate.getFullYear());
-  const [month, setMonth] = useState(nextMonthDate.getMonth() + 1);
-  const [day, setDay] = useState(nextMonthDate.getDate());
+
+  // 기존 데이터가 있으면 파싱하고, 없으면 다음 달 오늘을 기본값으로 사용
+  const initialDate = data.endDate ? new Date(data.endDate) : nextMonthDate;
+
+  const [year, setYear] = useState(initialDate.getFullYear());
+  const [month, setMonth] = useState(initialDate.getMonth() + 1);
+  const [day, setDay] = useState(initialDate.getDate());
 
   const [showYearPicker, setShowYearPicker] = useState(false);
   const [showMonthPicker, setShowMonthPicker] = useState(false);

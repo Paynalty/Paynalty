@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -35,10 +34,10 @@ public class ChallengeVerificationService {
 
 
     @Transactional
-    public ChallengeVerificationResponse create(Long challengeId, Long userId, MultipartFile image) {
+    public ChallengeVerificationResponse create(Long challengeId, Long tossId, MultipartFile image) {
         // 1단계: 챌린지 멤버 확인 (Challenge + User 함께 조회하여 성능 최적화)
         ChallengeMember member = challengeMemberRepository
-                .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
                 .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
         
         Challenge challenge = member.getChallenge();
@@ -76,7 +75,7 @@ public class ChallengeVerificationService {
         LocalDate today = LocalDate.now();
         
         boolean alreadyVerifiedToday = challengeVerificationRepository
-                .existsByChallengeIdAndUserIdAndDate(challengeId, user.getId(), today);
+                .existsByChallengeIdAndUserTossIdAndDate(challengeId, tossId, today);
         
         if (alreadyVerifiedToday) {
             throw new CustomException(ChallengeVerificationErrorCode.ALREADY_VERIFIED_TODAY);
@@ -87,7 +86,7 @@ public class ChallengeVerificationService {
         LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
         
         Long weeklyCount = challengeVerificationRepository
-                .countWeeklyVerifications(challengeId, user.getId(), weekStart, weekEnd);
+                .countWeeklyVerifications(challengeId, tossId, weekStart, weekEnd);
         
         Integer maxFrequency = challenge.getFrequency();
         if (weeklyCount >= maxFrequency) {
@@ -115,12 +114,12 @@ public class ChallengeVerificationService {
      * 사용자가 오늘 해당 챌린지에 대해 인증했는지 확인합니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 토스 ID
      * @return 오늘 인증했으면 true, 아니면 false
      */
-    public Boolean checkVerification(Long challengeId, Long userId){
+    public Boolean checkVerification(Long challengeId, Long tossId){
         LocalDate today = LocalDate.now();
-        return challengeVerificationRepository.existsByChallengeIdAndUserIdAndDate(challengeId, userId, today);
+        return challengeVerificationRepository.existsByChallengeIdAndUserTossIdAndDate(challengeId, tossId, today);
     }
 
 
@@ -146,7 +145,7 @@ public class ChallengeVerificationService {
     // 인증 데이터 최신순 불러오기(사용자것만) // 현재 사용 안하는 매서드
     public Slice<ChallengeVerificationResponse> getMyVerifications(
             Long challengeId, 
-            Long userId, 
+            Long tossId, 
             int page, 
             int size
     ) {
@@ -155,7 +154,7 @@ public class ChallengeVerificationService {
         
         // Slice<ChallengeVerification> 조회
         Slice<ChallengeVerification> verificationSlice = challengeVerificationRepository
-                .findByChallengeIdAndUserIdOrderByDateDescIdDesc(challengeId, userId, pageable);
+                .findByChallengeIdAndUserTossIdOrderByDateDescIdDesc(challengeId, tossId, pageable);
         
         // Slice<ChallengeVerification> → Slice<ChallengeVerificationResponse> 변환
         return verificationSlice.map(ChallengeVerificationResponse::from);
@@ -175,14 +174,14 @@ public class ChallengeVerificationService {
 
     // 인증 데이터 수정 (이미지 파일 변경)
     @Transactional
-    public ChallengeVerificationResponse update(Long verificationId, Long userId, MultipartFile image) {
+    public ChallengeVerificationResponse update(Long verificationId, Long tossId, MultipartFile image) {
         // 1단계: 인증 데이터 조회
         ChallengeVerification verification = challengeVerificationRepository
                 .findById(verificationId)
                 .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.VERIFICATION_NOT_FOUND));
 
         // 2단계: 본인 인증 데이터인지 확인
-        if (!verification.getUser().getId().equals(userId)) {
+        if (!verification.getUser().getTossId().equals(tossId)) {
             throw new CustomException(ChallengeVerificationErrorCode.NOT_VERIFICATION_OWNER_FOR_UPDATE);
         }
 
@@ -240,14 +239,14 @@ public class ChallengeVerificationService {
 
     // 인증 데이터 삭제
     @Transactional
-    public void delete(Long verificationId, Long userId) {
+    public void delete(Long verificationId, Long tossId) {
         // 1단계: 인증 데이터 조회
         ChallengeVerification verification = challengeVerificationRepository
                 .findById(verificationId)
                 .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.VERIFICATION_NOT_FOUND));
 
         // 2단계: 본인 인증 데이터인지 확인
-        if (!verification.getUser().getId().equals(userId)) {
+        if (!verification.getUser().getTossId().equals(tossId)) {
             throw new CustomException(ChallengeVerificationErrorCode.NOT_VERIFICATION_OWNER_FOR_DELETE);
         }
 
