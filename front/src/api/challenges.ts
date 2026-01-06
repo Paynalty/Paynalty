@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { apiFetch } from './client';
 
-export const VerificationTypeSchema = z.enum(['PHOTO', 'TEXT', 'VOTE']);
+export const VerificationTypeSchema = z.string().default('PHOTO');
 export type VerificationType = z.infer<typeof VerificationTypeSchema>;
 
 export const DayOfWeekSchema = z.enum(['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']);

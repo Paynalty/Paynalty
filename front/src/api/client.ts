@@ -9,6 +9,18 @@ interface ApiOptions extends RequestInit {
   schema?: z.ZodTypeAny;
 }
 
+export class ApiError extends Error {
+  status: number;
+  data: any;
+
+  constructor(status: number, data: any) {
+    super(typeof data === 'object' ? data.message || JSON.stringify(data) : data || 'API 요청 실패');
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
 export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const token = await Storage.getItem('accessToken');
   const url = `${ENV.API_BASE_URL}${path}`;
@@ -30,13 +42,24 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
     if (response.status === 401) {
       console.error(`🔒 [Unauthorized] JWT Expired or Invalid. Logging out... (${url})`);
       await logout();
-      throw new Error('인증이 만료되었습니다. 다시 로그인해주세요.');
+      throw new ApiError(401, '인증이 만료되었습니다. 다시 로그인해주세요.');
     }
 
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`❌ [API Error Response] ${url}\nBody: ${errorBody.substring(0, 200)}`);
-      throw new Error(errorBody || 'API 요청 실패');
+      const errorText = await response.text();
+      let errorBody;
+      try {
+        errorBody = JSON.parse(errorText);
+      } catch {
+        errorBody = errorText;
+      }
+
+      if (response.status === 404) {
+        console.log(`ℹ️ [API 404 Not Found] ${url}`);
+      } else {
+        console.error(`❌ [API Error Response] ${url} (Status: ${response.status})\nBody:`, errorBody);
+      }
+      throw new ApiError(response.status, errorBody);
     }
 
     if (response.status === 204) {
@@ -66,6 +89,8 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
 
       return data as T;
     } catch (e) {
+      if (e instanceof z.ZodError) throw e;
+
       console.error(`🔥 [JSON Parse Error] ${url}\nBody Start: ${text.substring(0, 100)}`);
       if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
         throw new Error(
@@ -75,7 +100,11 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
       throw new Error(`JSON 파싱 실패: ${text.substring(0, 100)}...`);
     }
   } catch (error) {
-    if (!(error instanceof Error && (error.message.includes('JSON') || error.message.includes('인증')))) {
+    if (error instanceof ApiError || error instanceof z.ZodError) {
+      throw error;
+    }
+
+    if (!(error instanceof Error && error.message.includes('인증'))) {
       console.error(`⚠️ [Network/Fetch Error] ${url}\n`, error);
     }
     throw error;
