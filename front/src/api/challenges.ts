@@ -51,8 +51,8 @@ export const createChallenge = (data: CreateChallengeRequest) => {
   });
 };
 
-export const getMyProgressChallenges = (userId: number = 1, status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
-  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${userId}/${status}`, {
+export const getMyProgressChallenges = (status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
+  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${status}`, {
     method: 'GET',
     schema: z.array(ChallengeDetailResponseSchema),
   });
@@ -71,8 +71,8 @@ export const getChallengeEditForm = (challengeId: string) => {
 /**
  * 챌린지 정보를 수정합니다.
  */
-export const updateChallenge = (challengeId: string, data: CreateChallengeRequest, userId: number = 1) => {
-  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/?userId=${userId}`, {
+export const updateChallenge = (challengeId: string, data: CreateChallengeRequest) => {
+  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/`, {
     method: 'PUT',
     body: JSON.stringify(data),
     schema: ChallengeDetailResponseSchema,
@@ -82,8 +82,8 @@ export const updateChallenge = (challengeId: string, data: CreateChallengeReques
 /**
  * 챌린지를 삭제합니다.
  */
-export const deleteChallenge = (challengeId: string, userId: number = 1) => {
-  return apiFetch<void>(`/api/challenge/${challengeId}?userId=${userId}`, {
+export const deleteChallenge = (challengeId: string) => {
+  return apiFetch<void>(`/api/challenge/${challengeId}`, {
     method: 'DELETE',
     schema: z.void(),
   });

@@ -58,7 +58,7 @@ export default function Page() {
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
-        userIds: challengeData.invitedUsers?.map((u) => u.userId),
+        userIds: challengeData.invitedUsers?.map((u) => u.tossId),
       };
 
       // 2. [Zod] 최종 제출 전 데이터 검증

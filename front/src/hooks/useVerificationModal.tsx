@@ -89,9 +89,7 @@ export function useVerificationModal() {
       if (!selectedChallenge?.id) {
         throw new Error('선택된 챌린지가 없습니다.');
       }
-      // TODO: 로그인 구현 후 userId를 동적으로 가져오기
-      const userId = 1;
-      return await createVerification(selectedChallenge!.id, userId, { imageUrl });
+      return await createVerification(selectedChallenge!.id, { imageUrl });
     },
     onSuccess: () => {
       // 관련 쿼리 무효화하여 자동 리페칭

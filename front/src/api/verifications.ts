@@ -26,7 +26,7 @@ export const ChallengeVerificationResponseSchema = z.object({
 export type ChallengeVerificationResponse = z.infer<typeof ChallengeVerificationResponseSchema>;
 
 export const MemberVerificationCountSchema = z.object({
-  userId: z.number(),
+  tossId: z.number(),
   userName: z.string(),
   verificationCount: z.number(),
 });
@@ -70,11 +70,10 @@ export const getMemberVerificationCounts = (challengeId: string) => {
 /**
  * 챌린지 인증을 생성합니다.
  * @param challengeId 챌린지 ID
- * @param userId 사용자 ID (임시, 로그인 후 제거)
  * @param request 인증 요청 데이터
  */
-export const createVerification = (challengeId: string, userId: number, request: CreateVerificationRequest) => {
-  return apiFetch<ChallengeVerificationResponse>(`/api/challenge-verifications/${challengeId}?userId=${userId}`, {
+export const createVerification = (challengeId: string, request: CreateVerificationRequest) => {
+  return apiFetch<ChallengeVerificationResponse>(`/api/challenge-verifications/${challengeId}`, {
     method: 'POST',
     body: JSON.stringify(request),
     schema: ChallengeVerificationResponseSchema,

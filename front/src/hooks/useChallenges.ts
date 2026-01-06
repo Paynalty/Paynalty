@@ -50,7 +50,7 @@ export const challengeQueries = {
       queryKey: [...challengeQueries.all, status],
       queryFn: async () => {
         try {
-          const data = await getMyProgressChallenges(1, status);
+          const data = await getMyProgressChallenges(status);
           const mapped = data.map((item) => mapToChallenge(item, status));
           return sortChallenges(mapped, status);
         } catch (error) {
@@ -66,7 +66,7 @@ export const challengeQueries = {
       queryKey: [...challengeQueries.all, 'missions'],
       queryFn: async () => {
         try {
-          const data = await getMyProgressChallenges(1, 'ACTIVE');
+          const data = await getMyProgressChallenges('ACTIVE');
           const mapped = data.map((item) => mapToChallenge(item, 'ACTIVE'));
           return sortChallenges(mapped, 'ACTIVE');
         } catch (error) {
