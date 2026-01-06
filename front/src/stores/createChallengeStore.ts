@@ -12,9 +12,11 @@ export interface CreateChallengeData {
   endDate?: string;
   verifyStartAt?: string;
   verifyEndAt?: string;
-  dayOfWeeks?: string[]; // 영문 요일 (MON, TUE, ...)
-  frequency?: number; // 주 n회
-  invitedUsers?: UserResponse[]; // 초대된 사용자 정보 배열
+  daysOfWeek?: string[];
+  frequency?: number;
+  invitedUsers?: UserResponse[];
+  isEditing?: boolean;
+  challengeId?: string;
 }
 
 interface CreateChallengeStore {

@@ -3,9 +3,10 @@ import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, T
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
-import { createChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
-import { formatDate, formatTime, getVerificationTypeLabel } from '../../src/utils/challenge';
+import { createChallenge, updateChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
+import { formatDate, formatTime, getVerificationTypeLabel, formatDaysOfWeek } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
+import { challengeQueries } from '../../src/hooks/useChallenges';
 import { z } from 'zod';
 
 export const Route = createRoute('/create-challenge/complete', {
@@ -46,32 +47,36 @@ export default function Page() {
       // 1. 전송할 데이터 구성
       const payload = {
         title: challengeData.title || '',
-        startDate: startDate,
+        startDate: challengeData.isEditing ? undefined : startDate,
         endDate: challengeData.endDate || '',
         penaltyAmount:
           challengeData.penaltyAmount === 'custom'
             ? Number(challengeData.customAmount || 0)
             : Number(challengeData.penaltyAmount || 0),
         frequency: challengeData.frequency,
-        dayOfWeek: challengeData.dayOfWeeks as any,
+        daysOfWeek: challengeData.daysOfWeek as any,
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
-        userIds: challengeData.invitedUsers?.map((u) => u.userId),
+        userIds: challengeData.invitedUsers?.map((u) => u.tossId),
       };
 
       // 2. [Zod] 최종 제출 전 데이터 검증
-      CreateChallengeRequestSchema.parse(payload);
+      const validatedPayload = CreateChallengeRequestSchema.parse(payload);
 
       // 3. API 요청
-      await createChallenge(payload as any);
+      if (challengeData.isEditing && challengeData.challengeId) {
+        await updateChallenge(challengeData.challengeId, validatedPayload as any);
+        alert('목표를 수정했습니다.');
+      } else {
+        await createChallenge(validatedPayload as any);
+        alert('목표를 만들었습니다.');
+      }
 
-      await queryClient.invalidateQueries({ queryKey: ['challenges'] });
-      await queryClient.invalidateQueries({ queryKey: ['missionChallenges'] });
+      await queryClient.invalidateQueries({ queryKey: challengeQueries.all });
 
       // 성공 시 데이터 초기화
       resetChallengeData();
-      alert('목표를 만들었습니다.');
       // 메인 페이지로 이동
       navigation.navigate('/');
     } catch (error) {
@@ -161,7 +166,11 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${challengeData.period} / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`}
+              bottom={
+                challengeData.daysOfWeek && challengeData.daysOfWeek.length > 0
+                  ? `${formatDaysOfWeek(challengeData.daysOfWeek)} / 주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+                  : `주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+              }
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }
@@ -213,32 +222,43 @@ export default function Page() {
         />
       </List>
       <FixedBottomCTAProvider>
-        <FixedBottomCTA.Double
-          leftButton={
-            <Button
-              type="dark"
-              style="weak"
-              display="block"
-              disabled={loading !== null}
-              loading={loading === 'nextWeek'}
-              onPress={() => handleCreateChallenge('nextWeek')}
-            >
-              다음주부터 시작하기
-            </Button>
-          }
-          rightButton={
-            <Button
-              type="primary"
-              style="fill"
-              display="block"
-              disabled={loading !== null}
-              loading={loading === 'tomorrow'}
-              onPress={() => handleCreateChallenge('tomorrow')}
-            >
-              내일부터 시작하기
-            </Button>
-          }
-        />
+        {challengeData.isEditing ? (
+          <FixedBottomCTA
+            type="primary"
+            style="fill"
+            loading={loading !== null}
+            onPress={() => handleCreateChallenge()}
+          >
+            수정 완료
+          </FixedBottomCTA>
+        ) : (
+          <FixedBottomCTA.Double
+            leftButton={
+              <Button
+                type="dark"
+                style="weak"
+                display="block"
+                disabled={loading !== null}
+                loading={loading === 'nextWeek'}
+                onPress={() => handleCreateChallenge('nextWeek')}
+              >
+                다음주부터 시작하기
+              </Button>
+            }
+            rightButton={
+              <Button
+                type="primary"
+                style="fill"
+                display="block"
+                disabled={loading !== null}
+                loading={loading === 'tomorrow'}
+                onPress={() => handleCreateChallenge('tomorrow')}
+              >
+                내일부터 시작하기
+              </Button>
+            }
+          />
+        )}
       </FixedBottomCTAProvider>
     </>
   );

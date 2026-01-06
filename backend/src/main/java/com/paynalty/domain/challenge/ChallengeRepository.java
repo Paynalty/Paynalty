@@ -24,10 +24,10 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
         FROM Challenge c
         JOIN FETCH c.user
         JOIN ChallengeMember cm ON cm.challenge = c
-        WHERE cm.user.id = :userId
+        WHERE cm.user.tossId = :tossId
         AND c.status = :status
     """)
-    List<Challenge> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") ChallengeStatus status);
+    List<Challenge> findByUserTossIdAndStatus(@Param("tossId") Long tossId, @Param("status") ChallengeStatus status);
 
     // WHERE start_date <= today AND end_date >= until과 동일
     List<Challenge> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate periodStartDate, LocalDate periodEndDate);

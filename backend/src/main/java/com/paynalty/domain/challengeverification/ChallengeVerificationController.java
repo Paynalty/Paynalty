@@ -1,5 +1,6 @@
 package com.paynalty.domain.challengeverification;
 
+import com.paynalty.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,7 +9,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,15 +42,10 @@ public class ChallengeVerificationController {
             @PathVariable Long challengeId,
             @Parameter(description = "인증 이미지 파일", required = true)
             @RequestPart("image") MultipartFile image,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, image);
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, tossId, image);
         return ResponseEntity.ok(response);
     }
 
@@ -128,15 +123,10 @@ public class ChallengeVerificationController {
             @PathVariable Long verificationId,
             @Parameter(description = "수정할 인증 이미지 파일", required = true)
             @RequestPart("image") MultipartFile image,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, userId, image);
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, tossId, image);
         return ResponseEntity.ok(response);
     }
 
@@ -150,15 +140,10 @@ public class ChallengeVerificationController {
     public ResponseEntity<Void> delete(
             @Parameter(description = "인증 ID", required = true, example = "1")
             @PathVariable Long verificationId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        challengeVerificationService.delete(verificationId, userId);
+        Long tossId = userDetails.getUser().getTossId();
+        challengeVerificationService.delete(verificationId, tossId);
         return ResponseEntity.ok().build();
     }
 

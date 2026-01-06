@@ -5,6 +5,7 @@ import com.paynalty.domain.challenge.ChallengeRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
+import com.paynalty.global.error.ChallengeMemberErrorCode;
 import com.paynalty.global.error.ChallengeErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
@@ -12,11 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,13 +40,13 @@ public class ChallengeMemberService {
     public void addMemberIfNotExists(User user, Challenge challenge) {
         // 이미 챌린지 멤버인지 확인
         boolean isAlreadyMember = challengeMemberRepository
-                .findByUserIdAndChallengeId(user.getId(), challenge.getId())
+                .findByUserTossIdAndChallengeId(user.getTossId(), challenge.getId())
                 .isPresent();
 
         MemberRole role = MemberRole.CHALLENGER;
         if (!isAlreadyMember) {
             // 챌린지의 user 과 매개변수 user 이 서로 같다면 role = creator 아니면 challenger
-            if(Objects.equals(challenge.getUser().getId(), user.getId())){
+            if(Objects.equals(challenge.getUser().getTossId(), user.getTossId())){
                  role = MemberRole.CREATOR;
             }
 
@@ -75,7 +73,7 @@ public class ChallengeMemberService {
         }
 
         // usersId 값으로 user찾아서 list에 넣고 아래 초대된 친구 추가에 전달
-        List<User> users = userRepository.findAllById(userIds);
+        List<User> users = userRepository.findAllByTossIdIn(userIds);
 
 
         // 2. 초대된 친구들 추가
@@ -87,16 +85,25 @@ public class ChallengeMemberService {
 
     // 안쓰고있는것
     @Transactional
-    public String addMemberByInvitation(Long challengeId, String inviteName, String invitePhoneNum) {
+    public String addMemberByInvitation(Long challengeId, Long inviterTossId, String inviteName, String invitePhoneNum) {
         
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+        // 0. 초대하는 사람이 챌린지 멤버인지 확인
+        boolean isInviterMember = challengeMemberRepository
+                .findByUserTossIdAndChallengeId(inviterTossId, challengeId)
+                .isPresent();
+        
+        if (!isInviterMember) {
+            throw new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER);
+        }
         
         User invite = userRepository.findByNameAndPhoneNum(inviteName, invitePhoneNum)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
         
         boolean isAlreadyMember = challengeMemberRepository
-                .findByUserIdAndChallengeId(invite.getId(), challengeId)
+                .findByUserTossIdAndChallengeId(invite.getTossId(), challengeId)
                 .isPresent();
         
         if (isAlreadyMember) {

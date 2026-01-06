@@ -6,6 +6,7 @@ import { context } from '../require.context';
 import { TDSProvider } from '@toss/tds-react-native';
 import { QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 function onAppStateChange(status: AppStateStatus) {
   if (Platform.OS !== 'web') {
@@ -20,11 +21,13 @@ function AppContainer({ children }: PropsWithChildren<InitialProps>) {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TDSProvider>
-        <>{children}</>
-      </TDSProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <TDSProvider>
+          <>{children}</>
+        </TDSProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 

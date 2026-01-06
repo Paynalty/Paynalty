@@ -32,14 +32,14 @@ export default function Page() {
 
   // 사용자 추가
   const handleAddUser = (user: UserResponse) => {
-    if (!selectedUsers.find((u) => u.userId === user.userId)) {
+    if (!selectedUsers.find((u) => u.tossId === user.tossId)) {
       setSelectedUsers([...selectedUsers, user]);
     }
   };
 
   // 사용자 제거
-  const handleRemoveUser = (userId: number) => {
-    setSelectedUsers(selectedUsers.filter((u) => u.userId !== userId));
+  const handleRemoveUser = (tossId: number) => {
+    setSelectedUsers(selectedUsers.filter((u) => u.tossId !== tossId));
   };
 
   // 다음 단계로 이동 시 선택된 사용자 ID를 store에 저장
@@ -80,9 +80,9 @@ export default function Page() {
             ) : (
               <List rowSeparator="none">
                 {searchResults.map((user) => {
-                  const isSelected = selectedUsers.find((u) => u.userId === user.userId);
+                  const isSelected = selectedUsers.find((u) => u.tossId === user.tossId);
                   return (
-                    <Pressable key={user.userId} onPress={() => handleAddUser(user)} disabled={!!isSelected}>
+                    <Pressable key={user.tossId} onPress={() => handleAddUser(user)} disabled={!!isSelected}>
                       <ListRow
                         contents={
                           <ListRow.Texts
@@ -124,7 +124,7 @@ export default function Page() {
             <List rowSeparator="none">
               {selectedUsers.map((user) => (
                 <ListRow
-                  key={user.userId}
+                  key={user.tossId}
                   contents={
                     <ListRow.Texts
                       type="2RowTypeB"
@@ -136,7 +136,7 @@ export default function Page() {
                   }
                   verticalPadding="small"
                   right={
-                    <Pressable onPress={() => handleRemoveUser(user.userId)}>
+                    <Pressable onPress={() => handleRemoveUser(user.tossId)}>
                       <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24} />
                     </Pressable>
                   }

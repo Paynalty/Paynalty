@@ -9,9 +9,6 @@ import lombok.Getter;
 @Builder
 public class UserResponse {
 
-    @Schema(description = "사용자 ID", example = "Long")
-    private Long userId;
-
     @Schema(description = "토스 사용자 ID", example = "Long")
     private Long tossId;
 
@@ -23,7 +20,6 @@ public class UserResponse {
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
-                .userId(user.getId())
                 .tossId(user.getTossId())
                 .name(user.getName())
                 .email(user.getEmail())

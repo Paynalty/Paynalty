@@ -1,5 +1,6 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,14 +40,9 @@ public class ChallengeController {
     public ResponseEntity<Long> createChallenge(
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        Long challengeId = challengeService.create(request, userId);
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long tossId = userDetails.getUser().getTossId();
+        Long challengeId = challengeService.create(request, tossId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(challengeId);
     }
@@ -61,15 +56,10 @@ public class ChallengeController {
     public ResponseEntity<List<ChallengeDetailResponse>> getByStatus(
             @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
             @PathVariable ChallengeStatus status,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId, status);
+        Long tossId = userDetails.getUser().getTossId();
+        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(tossId, status);
         return ResponseEntity.ok(response);
     }
 
@@ -97,16 +87,11 @@ public class ChallengeController {
     public ResponseEntity<ChallengeDetailResponse> updateChallenge(
             @PathVariable Long challengeId,
             @RequestBody ChallengeUpdateRequest updateRequest,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     )
     {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, tossId);
         return ResponseEntity.ok(response);
     }
 
@@ -120,15 +105,10 @@ public class ChallengeController {
     public ResponseEntity<Void> deleteChallenge(
             @Parameter(description = "삭제할 챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String username = userDetails.getUsername();
-        // "toss-user-1" 형식인 경우 숫자 부분만 추출
-        if (username.startsWith("toss-user-")) {
-            username = username.substring("toss-user-".length());
-        }
-        Long userId = Long.parseLong(username);
-        challengeService.delete(challengeId, userId);
+        Long tossId = userDetails.getUser().getTossId();
+        challengeService.delete(challengeId, tossId);
         return ResponseEntity.ok().build();
     }
 

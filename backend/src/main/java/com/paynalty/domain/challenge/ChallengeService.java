@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,8 +38,8 @@ public class ChallengeService {
 
 
     @Transactional
-    public Long create(ChallengeRequest request, Long userId) {
-        User user = userRepository.findById(userId)
+    public Long create(ChallengeRequest request, Long tossId) {
+        User user = userRepository.findByTossId(tossId)
                 .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
         // frequency 자동 계산 로직
@@ -101,9 +99,9 @@ public class ChallengeService {
     }
 
 
-    public List<ChallengeResponse> findByStatus(Long userId, ChallengeStatus status){
+    public List<ChallengeResponse> findByStatus(Long tossId, ChallengeStatus status){
         // 사용자가 참여 중인 챌린지 중 특정 상태의 챌린지 불러오기
-        List<Challenge> challenges = challengeRepository.findByUserIdAndStatus(userId, status);
+        List<Challenge> challenges = challengeRepository.findByUserTossIdAndStatus(tossId, status);
 
         return challenges.stream()
                 .map(challenge -> {
@@ -123,7 +121,7 @@ public class ChallengeService {
                         );
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
                         // 완료된 챌린지 - 전체 인증 횟수 표시
-                        Integer totalVerificationCount = calculateTotalVerificationCount(challenge.getId(), userId);
+                        Integer totalVerificationCount = calculateTotalVerificationCount(challenge.getId(), tossId);
                         return ChallengeResponse.from(
                             challenge,
                             VerificationStatus.NOT_VERIFIED,  // 완료되어 더 이상 인증 안함
@@ -132,8 +130,8 @@ public class ChallengeService {
                         );
                     } else {
                         // 진행 중(ACTIVE) 챌린지
-                        VerificationStatus verificationStatus = determineVerificationStatus(challenge.getId(), userId);
-                        Integer weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), userId);
+                        VerificationStatus verificationStatus = determineVerificationStatus(challenge.getId(), tossId);
+                        Integer weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), tossId);
                         
                         return ChallengeResponse.from(challenge, verificationStatus, totalParticipants, weeklyProgressCount);
                     }
@@ -141,16 +139,9 @@ public class ChallengeService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 사용자가 참여 중인 챌린지 중 특정 상태의 챌린지 목록을 상세 정보로 조회합니다.
-     * 
-     * @param userId 사용자 ID
-     * @param status 챌린지 상태 (PENDING, ACTIVE, COMPLETE)
-     * @return 챌린지 상세 정보 목록
-     */
-    public List<ChallengeDetailResponse> findDetailByStatus(Long userId, ChallengeStatus status) {
+    public List<ChallengeDetailResponse> findDetailByStatus(Long tossId, ChallengeStatus status) {
         // 사용자가 참여 중인 챌린지 중 특정 상태의 챌린지 불러오기
-        List<Challenge> challenges = challengeRepository.findByUserIdAndStatus(userId, status);
+        List<Challenge> challenges = challengeRepository.findByUserTossIdAndStatus(tossId, status);
 
         return challenges.stream()
                 .map(challenge -> {
@@ -177,7 +168,7 @@ public class ChallengeService {
                                 .build();
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
                         // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
-                        Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challenge.getId(), userId, challenge.getEndDate());
+                        Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challenge.getId(), tossId, challenge.getEndDate());
                         
                         return ChallengeDetailResponse.builder()
                                 .id(challenge.getId())
@@ -196,8 +187,8 @@ public class ChallengeService {
                                 .build();
                     } else {
                         // 진행 중(ACTIVE) 챌린지
-                        VerificationStatus verificationStatus = determineVerificationStatus(challenge.getId(), userId);
-                        Integer weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), userId);
+                        VerificationStatus verificationStatus = determineVerificationStatus(challenge.getId(), tossId);
+                        Integer weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), tossId);
                         
                         return ChallengeDetailResponse.builder()
                                 .id(challenge.getId())
@@ -227,7 +218,7 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return ChallengeResponse (챌린지 상세 정보)
      */
-    public ChallengeResponse getChallengeDetail(Long challengeId, Long userId) {
+    public ChallengeResponse getChallengeDetail(Long challengeId, Long tossId) {
         // 1단계: challengeId로 챌린지 조회
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
@@ -247,7 +238,7 @@ public class ChallengeService {
             );
         } else if (challengeStatus == ChallengeStatus.COMPLETE) {
             // 완료된 챌린지 - 전체 인증 횟수 표시
-            Integer totalVerificationCount = calculateTotalVerificationCount(challengeId, userId);
+            Integer totalVerificationCount = calculateTotalVerificationCount(challengeId, tossId);
             return ChallengeResponse.from(
                 challenge,
                 VerificationStatus.NOT_VERIFIED,
@@ -256,8 +247,8 @@ public class ChallengeService {
             );
         } else {
             // 진행 중(ACTIVE) 챌린지
-            VerificationStatus verificationStatus = determineVerificationStatus(challengeId, userId);
-            Integer weeklyProgressCount = calculateWeeklyProgressCount(challengeId, userId);
+            VerificationStatus verificationStatus = determineVerificationStatus(challengeId, tossId);
+            Integer weeklyProgressCount = calculateWeeklyProgressCount(challengeId, tossId);
 
             return ChallengeResponse.from(challenge, verificationStatus, totalParticipants, weeklyProgressCount);
         }
@@ -274,7 +265,7 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return ChallengeDetailResponse
      */
-    public ChallengeDetailResponse getMyChallengeDetail(Long challengeId, Long userId) {
+    public ChallengeDetailResponse getMyChallengeDetail(Long challengeId, Long tossId) {
         // 1단계: Challenge 조회
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
@@ -301,22 +292,22 @@ public class ChallengeService {
                     .build();
         } else if (challengeStatus == ChallengeStatus.COMPLETE) {
             // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
-            Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challengeId, userId, challenge.getEndDate());
+            Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challengeId, tossId, challenge.getEndDate());
             
             return ChallengeDetailResponse.builder()
-                    .id(challenge.getId())
-                    .title(challenge.getTitle())
-                    .weeklyProgressCount(lastWeekProgressCount)  // 마지막 주의 주간 인증 횟수
-                    .weeklyRequiredCount(challenge.getFrequency())
-                    .penaltyAmount(challenge.getPenaltyAmount())
-                    .verifyStart(challenge.getVerifyStartAt())
-                    .verifyEnd(challenge.getVerifyEndAt())
-                    .startAt(challenge.getStartDate())
-                    .endAt(challenge.getEndDate())
-                    .daysOfWeek(challenge.getDaysOfWeek())
-                    .verificationType(challenge.getVerificationType())
-                    .verificationStatus(VerificationStatus.NOT_VERIFIED)
-                    .build();
+                                .id(challenge.getId())
+                                .title(challenge.getTitle())
+                                .weeklyProgressCount(lastWeekProgressCount)  // 마지막 주의 주간 인증 횟수
+                                .weeklyRequiredCount(challenge.getFrequency())
+                                .penaltyAmount(challenge.getPenaltyAmount())
+                                .verifyStart(challenge.getVerifyStartAt())
+                                .verifyEnd(challenge.getVerifyEndAt())
+                                .startAt(challenge.getStartDate())
+                                .endAt(challenge.getEndDate())
+                                .daysOfWeek(challenge.getDaysOfWeek())
+                                .verificationType(challenge.getVerificationType())
+                                .verificationStatus(VerificationStatus.NOT_VERIFIED)
+                                .build();
         }
         
         // 4단계: 진행 중(ACTIVE) 챌린지 - 이번주 인증 횟수 조회
@@ -326,14 +317,14 @@ public class ChallengeService {
         
         Long currentWeeklyCount = challengeVerificationRepository.countWeeklyVerifications(
                 challengeId,
-                userId,
+                tossId,
                 weekStart,
                 weekEnd
         );
 
 
         // 6단계: 오늘의 인증 상태 확인
-        VerificationStatus verificationStatus = determineVerificationStatus(challenge, userId);
+        VerificationStatus verificationStatus = determineVerificationStatus(challenge, tossId);
 
         // 7단계: ChallengeDetailResponse 생성 및 반환
         return ChallengeDetailResponse.builder()
@@ -368,14 +359,14 @@ public class ChallengeService {
 
         //update
         @Transactional
-        public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long userId){
+        public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long tossId){
             // 1단계: 챌린지 존재 여부 확인
             Challenge challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인 및 권한 확인
             ChallengeMember member = challengeMemberRepository
-                    .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                    .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
                     .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
 
             // 3단계: 생성자(CREATOR) 권한 확인 (수정 권한)
@@ -405,13 +396,11 @@ public class ChallengeService {
 
             Long currentWeeklyCount = challengeVerificationRepository.countWeeklyVerifications(
                     challengeId,
-                    userId,
+                    tossId,
                     weekStart,
                     weekEnd
             );
             // 챌린지 시작일, 마감일 , 인증시간 에대 한 검증
-            // 시작일
-            validateStartDate(request.getStartDate());
             // 마감일
             validateEndDate(request.getEndDate());
             // 인증시간
@@ -421,7 +410,7 @@ public class ChallengeService {
             // 계산된 frequency 반영 (요일 변경 시 자동으로 frequency도 업데이트)
             challenge.updateFrequency(calculatedFrequency);
 
-            VerificationStatus verificationStatus = determineVerificationStatus(challenge, userId);
+            VerificationStatus verificationStatus = determineVerificationStatus(challenge, tossId);
 
             // request 의 userIds 데이터 토대로 다시 챌린지 맴버 전환
             List<Long> userIds = request.getUserIds();
@@ -446,14 +435,14 @@ public class ChallengeService {
 
         // 사용자가 해당 챌린지 creator인지 확인후 삭제
         @Transactional
-        public void delete(Long challengeId, Long userId) {
+        public void delete(Long challengeId, Long tossId) {
             // 1단계: 챌린지 존재 여부 확인
             Challenge challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인
             ChallengeMember member = challengeMemberRepository
-                    .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                    .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
                     .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
 
             // 3단계: 생성자(CREATOR) 권한 확인 (삭제 권한)
@@ -549,14 +538,14 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return 이번 주 인증 횟수
      */
-    private Integer calculateWeeklyProgressCount(Long challengeId, Long userId) {
+    private Integer calculateWeeklyProgressCount(Long challengeId, Long tossId) {
         LocalDate today = LocalDate.now();
         LocalDate weekStart = today.with(DayOfWeek.MONDAY); // 이번주 월요일
         LocalDate weekEnd = weekStart.plusDays(6); // 이번주 일요일
         
         Long count = challengeVerificationRepository.countWeeklyVerifications(
                 challengeId,
-                userId,
+                tossId,
                 weekStart,
                 weekEnd
         );
@@ -573,13 +562,13 @@ public class ChallengeService {
      * @param referenceDate 기준 날짜 (이 날짜가 포함된 주의 인증 횟수 계산)
      * @return 해당 주의 인증 횟수
      */
-    private Integer calculateWeeklyProgressCountForDate(Long challengeId, Long userId, LocalDate referenceDate) {
+    private Integer calculateWeeklyProgressCountForDate(Long challengeId, Long tossId, LocalDate referenceDate) {
         LocalDate weekStart = referenceDate.with(DayOfWeek.MONDAY); // 기준 날짜가 포함된 주의 월요일
         LocalDate weekEnd = weekStart.plusDays(6); // 해당 주의 일요일
         
         Long count = challengeVerificationRepository.countWeeklyVerifications(
                 challengeId,
-                userId,
+                tossId,
                 weekStart,
                 weekEnd
         );
@@ -595,8 +584,8 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return 전체 인증 횟수
      */
-    private Integer calculateTotalVerificationCount(Long challengeId, Long userId) {
-        Long count = challengeVerificationRepository.countTotalVerifications(challengeId, userId);
+    private Integer calculateTotalVerificationCount(Long challengeId, Long tossId) {
+        Long count = challengeVerificationRepository.countTotalVerifications(challengeId, tossId);
         return count.intValue();
     }
 
@@ -616,11 +605,11 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return VerificationStatus (VERIFIED 또는 NOT_VERIFIED)
      */
-    private VerificationStatus determineVerificationStatus(Challenge challenge, Long userId) {
+    private VerificationStatus determineVerificationStatus(Challenge challenge, Long tossId) {
         // Case 1: 주간 횟수 모드 (daysOfWeek가 null이거나 비어있으면)
         if (challenge.getDaysOfWeek() == null || challenge.getDaysOfWeek().isEmpty()) {
             // 모든 요일에 인증 가능 - 오늘 인증 여부만 확인
-            boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), userId);
+            boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), tossId);
             return VerificationStatus.from(hasVerifiedToday);
         }
 
@@ -632,7 +621,7 @@ public class ChallengeService {
         // 오늘이 챌린지 인증 요일에 포함되어 있는지 확인
         if (challenge.getDaysOfWeek().contains(todayDayOfWeekType)) {
             // 오늘이 인증 요일이면 해당 사용자의 오늘 인증 내역 확인
-            boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), userId);
+            boolean hasVerifiedToday = challengeVerificationService.checkVerification(challenge.getId(), tossId);
             return VerificationStatus.from(hasVerifiedToday);
         }
 
@@ -647,10 +636,10 @@ public class ChallengeService {
      * @param userId 사용자 ID
      * @return VerificationStatus (VERIFIED 또는 NOT_VERIFIED)
      */
-    private VerificationStatus determineVerificationStatus(Long challengeId, Long userId) {
+    private VerificationStatus determineVerificationStatus(Long challengeId, Long tossId) {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
-        return determineVerificationStatus(challenge, userId);
+        return determineVerificationStatus(challenge, tossId);
     }
 
 }
