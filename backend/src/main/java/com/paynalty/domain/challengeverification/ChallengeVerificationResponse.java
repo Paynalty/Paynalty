@@ -43,7 +43,7 @@ public class ChallengeVerificationResponse {
                 .id(cv.getId())
                 .userName(cv.getUser().getName())
                 .challengeId(cv.getChallenge().getId())
-                .dateTime(cv.getCreatedAt())
+                .dateTime(cv.getVerifiedAt())
                 .imageUrl(imageUrl)
                 .build();
     }
