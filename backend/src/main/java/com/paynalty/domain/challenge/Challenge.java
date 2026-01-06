@@ -79,7 +79,8 @@ public class Challenge extends BaseTimeEntity {
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<DayOfWeekType> daysOfWeek){
+            , List<DayOfWeekType> daysOfWeek
+            ){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
