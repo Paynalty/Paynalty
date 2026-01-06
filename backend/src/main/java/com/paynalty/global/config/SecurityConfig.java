@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.paynalty.global.security.CustomUserDetailsService;
 import com.paynalty.global.security.jwt.JwtAccessDeniedHandler;
 import com.paynalty.global.security.jwt.JwtAuthenticationEntryPoint;
 import com.paynalty.global.security.jwt.JwtAuthenticationFilter;
@@ -24,6 +25,7 @@ public class SecurityConfig {
         private final JwtProvider jwtProvider;
         private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
         private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+        private final CustomUserDetailsService customUserDetailsService;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,7 +65,7 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
 
                                 // JwtAuthenticationFilter 추가
-                                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
+                                .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, customUserDetailsService),
                                                 UsernamePasswordAuthenticationFilter.class);
 
                 // H2 Console을 위한 설정 (개발 환경)

@@ -28,7 +28,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return String.valueOf(user.getId()); // Use ID as username
+        return String.valueOf(user.getTossId()); // Use TossID as username
     }
 
     @Override
