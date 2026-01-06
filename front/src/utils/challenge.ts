@@ -118,24 +118,24 @@ export const sortChallengesByPriority = <
 
 // 요일 매핑 (Backend String -> JS Date.getDay())
 const DAYS_MAP: { [key: string]: number } = {
-  SUN: 0,
   MON: 1,
   TUE: 2,
   WED: 3,
   THU: 4,
   FRI: 5,
   SAT: 6,
+  SUN: 7,
 };
 
 // JS Date.getDay() -> 한글 요일
 const DAYS_LABEL: { [key: number]: string } = {
-  0: '일',
   1: '월',
   2: '화',
   3: '수',
   4: '목',
   5: '금',
   6: '토',
+  7: '일',
 };
 
 /**
@@ -152,7 +152,8 @@ export const isTodayChallenge = (
   // 인증 요일이 정해져 있는 경우
   if (daysOfWeek && daysOfWeek.length > 0) {
     const today = new Date().getDay();
-    return daysOfWeek.some((day) => DAYS_MAP[day] === today);
+    const todayAdjusted = today === 0 ? 7 : today; // 일요일을 0에서 7로 보정
+    return daysOfWeek.some((day) => DAYS_MAP[day] === todayAdjusted);
   }
 
   // 인증 요일이 없는 경우 (자율) -> 횟수가 남았으면 오늘 할 수 있음
@@ -166,6 +167,8 @@ export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string
   if (!daysOfWeek || daysOfWeek.length === 0) return '자율 인증 가능';
 
   const today = new Date().getDay();
+  const todayAdjusted = today === 0 ? 7 : today; // 일요일 보정
+
   // 오늘의 요일 숫자 리스트로 변환 및 정렬
   const scheduleDays = daysOfWeek
     .map((day) => DAYS_MAP[day])
@@ -173,7 +176,7 @@ export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string
     .sort((a, b) => a - b);
 
   // 오늘 이후의 가장 가까운 요일 찾기
-  let nextDay = scheduleDays.find((day) => day > today);
+  let nextDay = scheduleDays.find((day) => day > todayAdjusted);
 
   // 오늘 이후에 없으면, 다음 주의 첫 번째 요일이 다음 인증일
   if (nextDay === undefined) {
@@ -248,7 +251,21 @@ export const formatTime = (timeString: string) => {
 
 export const formatDaysOfWeek = (days: string[] | undefined) => {
   if (!days || days.length === 0) return '';
-  return days
+
+  // 7일 모두 선택된 경우
+  if (days.length === 7) return '매일';
+
+  // 평일(월~금)만 선택된 경우
+  const isWeekdays = days.length === 5 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI'].includes(d));
+  if (isWeekdays) return '평일';
+
+  // 주말(토, 일)만 선택된 경우
+  const isWeekend = days.length === 2 && days.every((d) => ['SAT', 'SUN'].includes(d));
+  if (isWeekend) return '주말';
+
+  // 그 외에는 요일 순서대로 정렬하여 반환
+  return [...days]
+    .sort((a, b) => (DAYS_MAP[a] ?? 0) - (DAYS_MAP[b] ?? 0))
     .map((day) => {
       const dayNum = DAYS_MAP[day];
       return dayNum !== undefined ? DAYS_LABEL[dayNum] : day;

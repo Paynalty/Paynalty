@@ -2,12 +2,20 @@ import { z } from 'zod';
 import { apiFetch } from './client';
 
 export const SliceResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
-  z.object({
-    content: z.array(itemSchema),
-    hasNext: z.boolean(),
-    number: z.number(),
-    size: z.number(),
-  });
+  z.preprocess(
+    (val: any) => {
+      if (val && typeof val.last === 'boolean' && val.hasNext === undefined) {
+        return { ...val, hasNext: !val.last };
+      }
+      return val;
+    },
+    z.object({
+      content: z.array(itemSchema),
+      hasNext: z.boolean(),
+      number: z.number(),
+      size: z.number(),
+    })
+  );
 
 export const ChallengeVerificationResponseSchema = z.object({
   id: z.number(),

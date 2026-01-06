@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { getLatestVerification, getVerifications, getMemberVerificationCounts } from '../api/verifications';
 
 export const useLatestVerification = (challengeId: string) => {
@@ -20,13 +20,19 @@ export const useLatestVerification = (challengeId: string) => {
 };
 
 export const useVerifications = (challengeId: string) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['verifications', challengeId],
-    queryFn: async () => {
-      if (!challengeId) return [];
-      const data = await getVerifications(challengeId);
-      return data.content;
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!challengeId) return { content: [], hasNext: false, number: 0, size: 5 };
+      return await getVerifications(challengeId, pageParam as number, 5);
     },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.hasNext) {
+        return lastPage.number + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
     enabled: !!challengeId,
   });
 };
