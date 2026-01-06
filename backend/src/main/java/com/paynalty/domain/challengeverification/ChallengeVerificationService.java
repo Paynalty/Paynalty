@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -30,10 +31,11 @@ public class ChallengeVerificationService {
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeRepository challengeRepository;
+    private final FileStorage fileStorage;
 
 
     @Transactional
-    public ChallengeVerificationResponse create(Long challengeId, Long userId, ChallengeVerificationRequest request) {
+    public ChallengeVerificationResponse create(Long challengeId, Long userId, MultipartFile image) {
         // 1단계: 챌린지 멤버 확인 (Challenge + User 함께 조회하여 성능 최적화)
         ChallengeMember member = challengeMemberRepository
                 .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
@@ -92,13 +94,15 @@ public class ChallengeVerificationService {
             throw new CustomException(ChallengeVerificationErrorCode.WEEKLY_FREQUENCY_EXCEEDED);
         }
 
-        // 7단계: ChallengeVerification 생성
+        // 7단계: 이미지 파일 업로드
+        String savedFileName = fileStorage.upload(image);
+
+        // 8단계: ChallengeVerification 생성
         ChallengeVerification challengeVerification = ChallengeVerification.builder()
                 .user(user)
                 .challenge(challenge)
                 .date(today)
-                .imageUrl(request.getImageUrl())
-                .status(VerificationStatus.UNVERIFIED)
+                .imageUrl(savedFileName)
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);
@@ -169,9 +173,9 @@ public class ChallengeVerificationService {
         return verificationSlice.map(ChallengeVerificationResponse::from);
     }
 
-    // 인증 데이터 수정 (이미지 URL 변경)
+    // 인증 데이터 수정 (이미지 파일 변경)
     @Transactional
-    public ChallengeVerificationResponse update(Long verificationId, Long userId, ChallengeVerificationUpdateRequest request) {
+    public ChallengeVerificationResponse update(Long verificationId, Long userId, MultipartFile image) {
         // 1단계: 인증 데이터 조회
         ChallengeVerification verification = challengeVerificationRepository
                 .findById(verificationId)
@@ -213,10 +217,24 @@ public class ChallengeVerificationService {
             }
         }
 
-        // 7단계: 이미지 URL 수정
-        verification.updateImageUrl(request.getImageUrl());
+        // 7단계: 기존 파일 삭제
+        String oldFileName = verification.getImageUrl();
+        if (oldFileName != null && !oldFileName.isEmpty()) {
+            try {
+                fileStorage.delete(oldFileName);
+            } catch (Exception e) {
+                // 파일 삭제 실패해도 계속 진행 (로깅만)
+                // 실제 운영 환경에서는 로깅 추가 권장
+            }
+        }
 
-        // 8단계: 변경 사항 저장 및 응답
+        // 8단계: 새 이미지 파일 업로드
+        String savedFileName = fileStorage.upload(image);
+
+        // 9단계: 이미지 URL 수정
+        verification.updateImageUrl(savedFileName);
+
+        // 10단계: 변경 사항 저장 및 응답
         return ChallengeVerificationResponse.from(verification);
     }
 
@@ -233,7 +251,18 @@ public class ChallengeVerificationService {
             throw new CustomException(ChallengeVerificationErrorCode.NOT_VERIFICATION_OWNER_FOR_DELETE);
         }
 
-        // 3단계: 인증 데이터 삭제
+        // 3단계: 파일 삭제
+        String fileName = verification.getImageUrl();
+        if (fileName != null && !fileName.isEmpty()) {
+            try {
+                fileStorage.delete(fileName);
+            } catch (Exception e) {
+                // 파일 삭제 실패해도 계속 진행 (로깅만)
+                // 실제 운영 환경에서는 로깅 추가 권장
+            }
+        }
+
+        // 4단계: 인증 데이터 삭제
         challengeVerificationRepository.delete(verification);
     }
 

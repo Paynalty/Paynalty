@@ -83,4 +83,4 @@ toss:
 # 사진 업로드 설정
 file:
   upload:
-    path:C:\Users\김재현\Desktop\seac\Paynalty_Main\uploads\verifications
+    path: ${FILE_UPLOAD_PATH:uploads/verifications}

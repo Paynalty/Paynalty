@@ -32,18 +32,12 @@ public class ChallengeVerification extends BaseTimeEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    // 대기중
-    @Column(name = "status", length = 20)
-    private VerificationStatus status;
-
-
     @Builder
-    public ChallengeVerification(User user, Challenge challenge, java.time.LocalDate date, String imageUrl, VerificationStatus status) {
+    public ChallengeVerification(User user, Challenge challenge, java.time.LocalDate date, String imageUrl) {
         this.user = user;
         this.challenge = challenge;
         this.date = date;
         this.imageUrl = imageUrl;
-        this.status = status;
     }
 
     // 인증 이미지 URL 수정
