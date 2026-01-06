@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paynalty.domain.toss.dto.TossLoginRequest;
 import com.paynalty.domain.toss.dto.TossLoginResponse;
+import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserService;
 import com.paynalty.global.security.jwt.JwtProvider;
 import com.paynalty.global.security.jwt.dto.JwtToken;
@@ -12,6 +13,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,7 @@ public class TossLoginController {
     private final TossDataDecryptor tossDataDecryptor;
     private final JwtProvider jwtProvider;
 
-    @Operation(
-            summary = "토스 로그인",
-            description = "토스 OAuth 인가 코드로 accessToken 발급 후 로그인"
-    )
+    @Operation(summary = "토스 로그인", description = "토스 OAuth 인가 코드로 accessToken 발급 후 로그인")
     @PostMapping("/login")
     public ResponseEntity<JwtToken> handleTossLogin(@RequestBody TossLoginRequest loginRequest) {
         try {
@@ -76,10 +77,12 @@ public class TossLoginController {
                     .body(null);
         }
 
-        TossLoginResponse loginResponse = objectMapper.treeToValue(successNode, TossLoginResponse.class);
-        log.info("토스 로그인 성공: accessToken 발급 완료");
-        // 3. AccessToken으로 사용자 정보 조회하여 userKey 얻기
-        String userInfoResponse = tossApiClient.fetchUserInfo(loginResponse.getAccessToken());
+        TossLoginResponse tossTokenResponse = objectMapper.treeToValue(successNode, TossLoginResponse.class);
+        String tossAccessToken = tossTokenResponse.getAccessToken(); // Toss API 접근 토큰
+        log.info("토스 로그인 성공: Toss AccessToken 발급 완료");
+
+        // 3. Toss AccessToken으로 사용자 정보 조회하여 userKey 얻기
+        String userInfoResponse = tossApiClient.fetchUserInfo(tossAccessToken);
         log.debug("사용자 정보 API 응답: {}", userInfoResponse);
 
         JsonNode userInfoNode = objectMapper.readTree(userInfoResponse);
@@ -126,22 +129,43 @@ public class TossLoginController {
             log.error("사용자 정보 복호화 실패: userKey={}, error={}", userKey, e.getMessage(), e);
         }
 
-        // 5. 토큰을 User 엔티티에 저장 (User가 없으면 생성)
+        // 5. 토큰을 User 엔티티에 저장 (User가 없으면 생성, Toss Refresh Token 저장)
         userService.saveTokens(
                 userKey,
-                loginResponse.getRefreshToken());
+                tossTokenResponse.getRefreshToken());
         log.info("토큰 저장 완료: userKey={}", userKey);
 
         // 6. 복호화된 사용자 정보 저장/업데이트
         if (decryptedName != null || decryptedPhone != null || decryptedEmail != null) {
-            userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
-            log.info("사용자 정보 저장 완료: userKey={}", userKey);
+            user = userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
+            log.info("사용자 정보 저장 완료: userKey={}, userId={}", userKey, user.getId());
         }
 
-        // 7. JWT 토큰 발급 (자체 토큰)
-        JwtToken jwtToken = jwtProvider.generateToken(String.valueOf(userKey), "ROLE_USER");
-        log.info("JWT 토큰 발급 완료: accessToken={}", jwtToken.getAccessToken());
+        // 7. JWT 토큰 발급 (앱 자체 인증 토큰 - App Access Token)
+        // Toss Access Token과 혼동하지 마세요. 클라이언트는 이 토큰을 Authorization 헤더에 사용합니다.
+        String appAccessToken = jwtProvider.createToken(userKey);
+        JwtToken jwtToken = JwtToken.builder()
+                .grantType("Bearer")
+                .accessToken(appAccessToken)
+                .build();
+        log.info("App JWT 토큰 발급 완료: appAccessToken={}", appAccessToken);
 
         return ResponseEntity.ok(jwtToken);
+    }
+
+    @Operation(summary = "회원 탈퇴 (로그인 연결 끊기)", description = "Toss 로그인 연결을 끊고 회원 정보를 삭제")
+    @PostMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // JWT의 subject (TossId)
+        Long tossId = Long.valueOf(principal.getName());
+        User user = userService.getByTossId(tossId);
+
+        userService.withdraw(user.getId());
+
+        return ResponseEntity.ok().build();
     }
 }

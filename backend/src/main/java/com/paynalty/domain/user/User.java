@@ -17,7 +17,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "toss_id")
+    @Column(name = "toss_id", nullable = false, unique = true)
     private Long tossId;
 
     @Column
@@ -33,7 +33,7 @@ public class User {
     private String refreshToken;
 
     @Builder
-    public User(String email, Long tossId, String name, String phoneNum ){
+    public User(String email, Long tossId, String name, String phoneNum) {
         this.email = email;
         this.tossId = tossId;
         this.name = name;
@@ -64,4 +64,3 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ChallengeVerification> challengeVerifications = new ArrayList<>();
 }
-

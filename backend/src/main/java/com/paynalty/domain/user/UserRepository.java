@@ -16,15 +16,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * - 이름: 부분 일치 검색
      */
     @Query("""
-        SELECT u FROM User u 
-        WHERE SUBSTRING(u.email, 1, LOCATE('@', u.email) - 1) LIKE %:identifier%
-           OR u.name LIKE %:identifier%
-        """)
+            SELECT u FROM User u
+            WHERE SUBSTRING(u.email, 1, LOCATE('@', u.email) - 1) LIKE %:identifier%
+               OR u.name LIKE %:identifier%
+            """)
     List<User> findByEmailOrName(@Param("identifier") String identifier);
-
 
     Optional<User> findByNameAndPhoneNum(String Name, String phoneNUm);
 
     Optional<User> findByTossId(Long tossId);
 }
-

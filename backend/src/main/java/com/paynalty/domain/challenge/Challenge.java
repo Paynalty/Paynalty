@@ -79,7 +79,8 @@ public class Challenge extends BaseTimeEntity {
             , VerificationType verificationType
             , User user
             , LocalTime verifyStartAt, LocalTime verifyEndAt
-            , List<DayOfWeekType> daysOfWeek){
+            , List<DayOfWeekType> daysOfWeek
+            ){
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -150,7 +151,7 @@ public class Challenge extends BaseTimeEntity {
         this.penaltyAmount = request.getPenaltyAmount();
         this.daysOfWeek = request.getDaysOfWeek();
         this.frequency = request.getFrequency();
-        this.verificationType = request.getVerifyType();
+        this.verificationType = request.getVerificationType();
     }
 
     // frequency만 업데이트 (요일 변경 시 자동 계산용).

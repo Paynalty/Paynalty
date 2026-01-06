@@ -2,6 +2,7 @@ package com.paynalty.domain.challenge;
 
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challengemember.ChallengeMemberResponse;
 import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
@@ -155,6 +156,7 @@ public class ChallengeService {
                 .map(challenge -> {
                     // 챌린지 상태에 따라 다른 처리
                     ChallengeStatus challengeStatus = challenge.calculateStatus();
+                    List<ChallengeMemberResponse> memberList = challengeMemberService.getMembersByChallengeId(challenge.getId());
                     
                     if (challengeStatus == ChallengeStatus.PENDING) {
                         // 시작 전 챌린지: 기본값 설정
@@ -171,6 +173,7 @@ public class ChallengeService {
                                 .daysOfWeek(challenge.getDaysOfWeek())
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
+                                .members(memberList)
                                 .build();
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
                         // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
@@ -189,6 +192,7 @@ public class ChallengeService {
                                 .daysOfWeek(challenge.getDaysOfWeek())
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
+                                .members(memberList)
                                 .build();
                     } else {
                         // 진행 중(ACTIVE) 챌린지
@@ -208,6 +212,7 @@ public class ChallengeService {
                                 .daysOfWeek(challenge.getDaysOfWeek())
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(verificationStatus)
+                                .members(memberList)
                                 .build();
                     }
                 })

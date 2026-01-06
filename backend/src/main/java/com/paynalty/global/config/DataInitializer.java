@@ -9,7 +9,6 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
-import com.paynalty.domain.challengeverification.VerificationStatus;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -289,7 +288,6 @@ public class DataInitializer {
                                             .challenge(activeChallenge1)
                                             .imageUrl(
                                                     "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                            .status(VerificationStatus.VALID)
                                             .build());
                         }
                     }
@@ -307,7 +305,6 @@ public class DataInitializer {
                                     .challenge(activeChallenge1)
                                     .imageUrl(
                                             "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .status(VerificationStatus.VALID)
                                     .build());
 
                     // 오늘: userId=1도 인증 추가
@@ -318,7 +315,6 @@ public class DataInitializer {
                                     .challenge(activeChallenge1)
                                     .imageUrl(
                                             "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .status(VerificationStatus.VALID)
                                     .build());
                 }
 
@@ -339,7 +335,6 @@ public class DataInitializer {
                                             .challenge(activeChallenge2)
                                             .imageUrl(
                                                     "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                            .status(VerificationStatus.VALID)
                                             .build());
                         }
                     }
@@ -357,7 +352,6 @@ public class DataInitializer {
                                     .challenge(activeChallenge2)
                                     .imageUrl(
                                             "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .status(VerificationStatus.VALID)
                                     .build());
                 }
 
@@ -375,7 +369,6 @@ public class DataInitializer {
                                         .challenge(activeChallengeDaily)
                                         .imageUrl(
                                                 "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                        .status(VerificationStatus.VALID)
                                         .build());
                     }
                 }
@@ -388,7 +381,6 @@ public class DataInitializer {
                                 .challenge(activeChallengeDaily)
                                 .imageUrl(
                                         "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                .status(VerificationStatus.VALID)
                                 .build());
 
                 // 오늘: userId=1도 인증 추가 (매일 물마시기)
@@ -399,7 +391,6 @@ public class DataInitializer {
                                 .challenge(activeChallengeDaily)
                                 .imageUrl(
                                         "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                .status(VerificationStatus.VALID)
                                 .build());
 
                 // ✅ 챌린지 5번 인증 데이터 (COMPLETE)
@@ -417,7 +408,6 @@ public class DataInitializer {
                                             .challenge(completeChallenge)
                                             .imageUrl(
                                                     "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                            .status(VerificationStatus.VALID)
                                             .build());
                         }
                     }
@@ -441,7 +431,6 @@ public class DataInitializer {
                                             .challenge(activeChallenge6)
                                             .imageUrl(
                                                     "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                            .status(VerificationStatus.VALID)
                                             .build());
                         }
                     }
@@ -460,7 +449,6 @@ public class DataInitializer {
                                     .challenge(activeChallenge6)
                                     .imageUrl(
                                             "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .status(VerificationStatus.VALID)
                                     .build());
                 }
 
@@ -482,7 +470,6 @@ public class DataInitializer {
                                             .challenge(activeChallenge7)
                                             .imageUrl(
                                                     "https://previews.123rf.com/images/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.avif")
-                                            .status(VerificationStatus.VALID)
                                             .build());
                         }
                     }
