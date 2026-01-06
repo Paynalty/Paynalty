@@ -405,8 +405,6 @@ public class ChallengeService {
                     weekEnd
             );
             // 챌린지 시작일, 마감일 , 인증시간 에대 한 검증
-            // 시작일
-            validateStartDate(request.getStartDate());
             // 마감일
             validateEndDate(request.getEndDate());
             // 인증시간
