@@ -3,13 +3,14 @@ package com.paynalty.domain.challengeverification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,18 +31,26 @@ public class ChallengeVerificationController {
                     "- 인증 요일 확인 (요일 지정된 경우)\n" +
                     "- 중복 인증 방지 (1일 1회)\n" +
                     "- 주간 인증 횟수 제한\n\n" +
+                    "📎 파일 업로드:\n" +
+                    "- multipart/form-data 형식으로 이미지 파일 업로드\n" +
+                    "- 지원 형식: jpg, jpeg, png, gif\n\n" +
                     "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
-    @PostMapping("/{challengeId}")
+    @PostMapping(value = "/{challengeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ChallengeVerificationResponse> create(
             @Parameter(description = "챌린지 ID", required = true, example = "1")
             @PathVariable Long challengeId,
-            @Parameter(description = "챌린지 인증 요청 정보", required = true)
-            @Valid @RequestBody ChallengeVerificationRequest request,
+            @Parameter(description = "인증 이미지 파일", required = true)
+            @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = Long.parseLong(userDetails.getUsername());
-        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, request);
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
+        ChallengeVerificationResponse response = challengeVerificationService.create(challengeId, userId, image);
         return ResponseEntity.ok(response);
     }
 
@@ -106,20 +115,28 @@ public class ChallengeVerificationController {
 
     @Operation(
             summary = "인증 데이터 수정",
-            description = "본인의 인증 데이터의 이미지 URL을 수정합니다.\n\n" +
+            description = "본인의 인증 데이터의 이미지를 수정합니다.\n\n" +
+                    "📎 파일 업로드:\n" +
+                    "- multipart/form-data 형식으로 이미지 파일 업로드\n" +
+                    "- 지원 형식: jpg, jpeg, png, gif\n\n" +
                     "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
                     "⚠️ 본인의 인증만 수정 가능"
     )
-    @PutMapping("/{verificationId}")
+    @PutMapping(value = "/{verificationId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ChallengeVerificationResponse> update(
             @Parameter(description = "인증 ID", required = true, example = "1")
             @PathVariable Long verificationId,
-            @Parameter(description = "인증 수정 요청 정보", required = true)
-            @Valid @RequestBody ChallengeVerificationUpdateRequest request,
+            @Parameter(description = "수정할 인증 이미지 파일", required = true)
+            @RequestPart("image") MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = Long.parseLong(userDetails.getUsername());
-        ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, userId, request);
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
+        ChallengeVerificationResponse response = challengeVerificationService.update(verificationId, userId, image);
         return ResponseEntity.ok(response);
     }
 
@@ -135,7 +152,12 @@ public class ChallengeVerificationController {
             @PathVariable Long verificationId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
         challengeVerificationService.delete(verificationId, userId);
         return ResponseEntity.ok().build();
     }

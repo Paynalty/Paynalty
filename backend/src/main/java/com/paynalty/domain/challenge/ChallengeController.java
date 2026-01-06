@@ -41,7 +41,12 @@ public class ChallengeController {
             @Parameter(description = "챌린지 생성 요청 정보", required = true)
             @Valid @RequestBody ChallengeRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
         Long challengeId = challengeService.create(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(challengeId);
@@ -58,7 +63,12 @@ public class ChallengeController {
             @PathVariable ChallengeStatus status,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
         List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(userId, status);
         return ResponseEntity.ok(response);
     }
@@ -90,7 +100,12 @@ public class ChallengeController {
             @AuthenticationPrincipal UserDetails userDetails
     )
     {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
         ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, userId);
         return ResponseEntity.ok(response);
     }
@@ -107,7 +122,12 @@ public class ChallengeController {
             @PathVariable Long challengeId,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long userId = Long.parseLong(userDetails.getUsername());
+        String username = userDetails.getUsername();
+        // "toss-user-1" 형식인 경우 숫자 부분만 추출
+        if (username.startsWith("toss-user-")) {
+            username = username.substring("toss-user-".length());
+        }
+        Long userId = Long.parseLong(username);
         challengeService.delete(challengeId, userId);
         return ResponseEntity.ok().build();
     }
