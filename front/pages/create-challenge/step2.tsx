@@ -22,8 +22,8 @@ const MAX_TITLE_LENGTH = 30;
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((s) => s.updateData);
-  const [goalTitle, setGoalTitle] = useState('');
+  const { data, updateData } = useCreateChallengeStore();
+  const [goalTitle, setGoalTitle] = useState(data.title || '');
 
   // 목표 제목 변경 처리
   const handleChangeTitle = (text: string) => {

@@ -13,10 +13,9 @@ export const Route = createRoute('/create-challenge/step5', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((s) => s.updateData);
-
-  const [startTime, setStartTime] = useState('00:00');
-  const [endTime, setEndTime] = useState('24:00');
+  const { data, updateData } = useCreateChallengeStore();
+  const [startTime, setStartTime] = useState(data.verifyStartAt || '00:00');
+  const [endTime, setEndTime] = useState(data.verifyEndAt === '23:59:59' ? '24:00' : data.verifyEndAt || '24:00');
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 

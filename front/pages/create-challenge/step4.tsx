@@ -12,11 +12,23 @@ export const Route = createRoute('/create-challenge/step4', {
 function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
-  const updateData = useCreateChallengeStore((state) => state.updateData);
+  const { data, updateData } = useCreateChallengeStore();
 
-  const [selectionType, setSelectionType] = useState<'day' | 'count'>('day');
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [selectedCount, setSelectedCount] = useState<string>('');
+  const dayMappingReverse: { [key: string]: string } = {
+    MON: '월',
+    TUE: '화',
+    WED: '수',
+    THU: '목',
+    FRI: '금',
+    SAT: '토',
+    SUN: '일',
+  };
+
+  const [selectionType, setSelectionType] = useState<'day' | 'count'>((data.startDate as 'day' | 'count') || 'day');
+  const [selectedDays, setSelectedDays] = useState<string[]>(
+    data.daysOfWeek?.map((d) => dayMappingReverse[d] || d) || []
+  );
+  const [selectedCount, setSelectedCount] = useState<string>(data.frequency ? `${data.frequency}회` : '');
 
   const days = ['월', '화', '수', '목', '금', '토', '일'];
   const counts = ['1회', '2회', '3회', '4회', '5회', '6회', '7회'];
@@ -152,7 +164,7 @@ function Page() {
                 updateData({
                   period: periodValue,
                   startDate: selectionType,
-                  dayOfWeeks: mappedDays,
+                  daysOfWeek: mappedDays,
                   frequency: selectionType === 'day' ? mappedDays?.length : Number(selectedCount.replace('회', '')),
                 });
                 navigation.navigate('/create-challenge/step5');

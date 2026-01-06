@@ -3,9 +3,10 @@ import { Asset, FixedBottomCTA, FixedBottomCTAProvider, Button, List, ListRow, T
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
-import { createChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
+import { createChallenge, updateChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
 import { formatDate, formatTime, getVerificationTypeLabel } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
+import { challengeQueries } from '../../src/hooks/useChallenges';
 import { z } from 'zod';
 
 export const Route = createRoute('/create-challenge/complete', {
@@ -53,7 +54,7 @@ export default function Page() {
             ? Number(challengeData.customAmount || 0)
             : Number(challengeData.penaltyAmount || 0),
         frequency: challengeData.frequency,
-        dayOfWeek: challengeData.dayOfWeeks as any,
+        daysOfWeek: challengeData.daysOfWeek as any,
         verifyStartAt: challengeData.verifyStartAt,
         verifyEndAt: challengeData.verifyEndAt,
         verificationType: challengeData.verificationType as any,
@@ -64,14 +65,18 @@ export default function Page() {
       CreateChallengeRequestSchema.parse(payload);
 
       // 3. API 요청
-      await createChallenge(payload as any);
+      if (challengeData.isEditing && challengeData.challengeId) {
+        await updateChallenge(challengeData.challengeId, payload as any);
+        alert('목표를 수정했습니다.');
+      } else {
+        await createChallenge(payload as any);
+        alert('목표를 만들었습니다.');
+      }
 
-      await queryClient.invalidateQueries({ queryKey: ['challenges'] });
-      await queryClient.invalidateQueries({ queryKey: ['missionChallenges'] });
+      await queryClient.invalidateQueries({ queryKey: challengeQueries.all });
 
       // 성공 시 데이터 초기화
       resetChallengeData();
-      alert('목표를 만들었습니다.');
       // 메인 페이지로 이동
       navigation.navigate('/');
     } catch (error) {
