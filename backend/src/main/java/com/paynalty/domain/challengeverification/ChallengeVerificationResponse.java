@@ -32,12 +32,19 @@ public class ChallengeVerificationResponse {
 //    private VerificationStatus status;
 
     public static ChallengeVerificationResponse from(ChallengeVerification cv) {
+        // 이미지 URL이 있으면 전체 경로로 변환
+        String imageUrl = cv.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            // 파일명만 저장되어 있으므로 서빙 경로 추가
+            imageUrl = "/uploads/verifications/" + imageUrl;
+        }
+        
         return ChallengeVerificationResponse.builder()
                 .id(cv.getId())
                 .userName(cv.getUser().getName())
                 .challengeId(cv.getChallenge().getId())
                 .dateTime(cv.getCreatedAt())
-                .imageUrl(cv.getImageUrl())
+                .imageUrl(imageUrl)
                 .build();
     }
 }

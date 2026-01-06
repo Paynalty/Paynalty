@@ -3,6 +3,7 @@ package com.paynalty.domain.toss;
 import com.paynalty.global.config.TossApiConfig;
 import com.paynalty.global.toss.TLSClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TossApiClient {

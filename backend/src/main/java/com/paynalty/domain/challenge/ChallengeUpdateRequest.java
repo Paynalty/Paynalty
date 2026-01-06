@@ -35,7 +35,7 @@ public class ChallengeUpdateRequest {
 
     private Integer frequency;
 
-    private VerificationType verifyType;
+    private VerificationType verificationType;
 
     @Schema(example = "[7,8,9]")
     private List<Long> userIds;
@@ -51,7 +51,7 @@ public class ChallengeUpdateRequest {
         this.penaltyAmount = challenge.getPenaltyAmount();
         this.daysOfWeek = challenge.getDaysOfWeek();
         this.frequency = challenge.getFrequency();
-        this.verifyType = challenge .getVerificationType();
+        this.verificationType = challenge .getVerificationType();
         this.userIds = userIds;
     }
 
