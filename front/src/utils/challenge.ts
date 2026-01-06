@@ -259,6 +259,16 @@ export const formatDaysOfWeek = (days: string[] | undefined) => {
   const isWeekdays = days.length === 5 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI'].includes(d));
   if (isWeekdays) return '평일';
 
+  // 평일(월~금)+ 토요일만 선택된 경우
+  const isWeekdaysAndSaturday =
+    days.length === 6 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].includes(d));
+  if (isWeekdaysAndSaturday) return '평일+토요일';
+
+  // 평일(월~금)+ 일요일만 선택된 경우
+  const isWeekdaysAndSunday =
+    days.length === 6 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SUN'].includes(d));
+  if (isWeekdaysAndSunday) return '평일+일요일';
+
   // 주말(토, 일)만 선택된 경우
   const isWeekend = days.length === 2 && days.every((d) => ['SAT', 'SUN'].includes(d));
   if (isWeekend) return '주말';
