@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paynalty.domain.toss.dto.TossLoginRequest;
 import com.paynalty.domain.toss.dto.TossLoginResponse;
+import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserService;
 import com.paynalty.global.security.jwt.JwtProvider;
 import com.paynalty.global.security.jwt.dto.JwtToken;
@@ -12,6 +13,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.security.Principal;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,7 @@ public class TossLoginController {
     private final TossDataDecryptor tossDataDecryptor;
     private final JwtProvider jwtProvider;
 
-    @Operation(
-            summary = "토스 로그인",
-            description = "토스 OAuth 인가 코드로 accessToken 발급 후 로그인"
-    )
+    @Operation(summary = "토스 로그인", description = "토스 OAuth 인가 코드로 accessToken 발급 후 로그인")
     @PostMapping("/login")
     public ResponseEntity<JwtToken> handleTossLogin(@RequestBody TossLoginRequest loginRequest) {
         try {
@@ -143,5 +144,21 @@ public class TossLoginController {
         log.info("JWT 토큰 발급 완료: accessToken={}", jwtToken.getAccessToken());
 
         return ResponseEntity.ok(jwtToken);
+    }
+
+    @Operation(summary = "회원 탈퇴 (로그인 연결 끊기)", description = "Toss 로그인 연결을 끊고 회원 정보를 삭제")
+    @PostMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // JWT의 subject (TossId)
+        Long tossId = Long.valueOf(principal.getName());
+        User user = userService.getByTossId(tossId);
+
+        userService.withdraw(user.getId());
+
+        return ResponseEntity.ok().build();
     }
 }
