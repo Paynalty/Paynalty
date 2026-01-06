@@ -1,12 +1,10 @@
 package com.paynalty.domain.user;
 
 import lombok.RequiredArgsConstructor;
-import com.paynalty.global.security.CustomUserDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +24,4 @@ public class UserController {
         List<UserResponse> response = userService.findByNameAndEmail(keyword);
         return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/unlink")
-    @Operation(summary = "유저 연결 해제", description = "토스 연결 해제 후 유저 정보 삭제")
-    public ResponseEntity<Void> unlinkUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.unlinkUser(userDetails.getUser().getId());
-        return ResponseEntity.ok().build();
-    }
-
 }
