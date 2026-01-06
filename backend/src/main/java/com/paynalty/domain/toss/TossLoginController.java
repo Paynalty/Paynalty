@@ -137,8 +137,8 @@ public class TossLoginController {
 
         // 6. 복호화된 사용자 정보 저장/업데이트
         if (decryptedName != null || decryptedPhone != null || decryptedEmail != null) {
-            user = userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
-            log.info("사용자 정보 저장 완료: userKey={}, userId={}", userKey, user.getId());
+            userService.saveUserInfo(userKey, decryptedName, decryptedPhone, decryptedEmail);
+            log.info("사용자 정보 저장 완료: userKey={}, userId={}", userKey);
         }
 
         // 7. JWT 토큰 발급 (앱 자체 인증 토큰 - App Access Token)
