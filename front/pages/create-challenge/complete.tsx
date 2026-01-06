@@ -4,7 +4,7 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { useState } from 'react';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { createChallenge, updateChallenge, CreateChallengeRequestSchema } from '../../src/api/challenges';
-import { formatDate, formatTime, getVerificationTypeLabel } from '../../src/utils/challenge';
+import { formatDate, formatTime, getVerificationTypeLabel, formatDaysOfWeek } from '../../src/utils/challenge';
 import { useQueryClient } from '@tanstack/react-query';
 import { challengeQueries } from '../../src/hooks/useChallenges';
 import { z } from 'zod';
@@ -62,14 +62,14 @@ export default function Page() {
       };
 
       // 2. [Zod] 최종 제출 전 데이터 검증
-      CreateChallengeRequestSchema.parse(payload);
+      const validatedPayload = CreateChallengeRequestSchema.parse(payload);
 
       // 3. API 요청
       if (challengeData.isEditing && challengeData.challengeId) {
-        await updateChallenge(challengeData.challengeId, payload as any);
+        await updateChallenge(challengeData.challengeId, validatedPayload as any);
         alert('목표를 수정했습니다.');
       } else {
-        await createChallenge(payload as any);
+        await createChallenge(validatedPayload as any);
         alert('목표를 만들었습니다.');
       }
 
@@ -166,7 +166,11 @@ export default function Page() {
               type="2RowTypeD"
               top="인증 주기"
               topProps={{ color: adaptive.grey600 }}
-              bottom={`${challengeData.period} / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`}
+              bottom={
+                challengeData.daysOfWeek && challengeData.daysOfWeek.length > 0
+                  ? `${formatDaysOfWeek(challengeData.daysOfWeek)} / 주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+                  : `주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+              }
               bottomProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
             />
           }

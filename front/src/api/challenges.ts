@@ -16,7 +16,7 @@ export const CreateChallengeRequestSchema = z.object({
   penaltyAmount: z.number(),
   verifyStartAt: z.string().optional().nullable(),
   verifyEndAt: z.string().optional().nullable(),
-  verifyType: VerificationTypeSchema,
+  verificationType: VerificationTypeSchema,
   userIds: z.array(z.number()).optional().nullable(),
 });
 export type CreateChallengeRequest = z.infer<typeof CreateChallengeRequestSchema>;

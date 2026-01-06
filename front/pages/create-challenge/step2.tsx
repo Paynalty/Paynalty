@@ -68,37 +68,50 @@ function Page() {
 
       {/* TODO : 템플릿 제공*/}
       <FixedBottomCTAProvider>
-        <FixedBottomCTA.Double
-          leftButton={
-            <Button
-              type="dark"
-              style="weak"
-              display="block"
-              disabled={false}
-              loading={false}
-              onPress={() => navigation.navigate('/create-challenge')}
-            >
-              이전
-            </Button>
-          }
-          rightButton={
-            <Button
-              type="primary"
-              style="fill"
-              display="block"
-              disabled={!isNextButtonEnabled}
-              loading={false}
-              onPress={() => {
-                // 데이터 저장
-                updateData({ title: goalTitle.trim() });
-                // 다음 단계로 이동
-                navigation.navigate('/create-challenge/step3');
-              }}
-            >
-              다음
-            </Button>
-          }
-        />
+        {data.isEditing ? (
+          <FixedBottomCTA
+            type="primary"
+            style="fill"
+            disabled={!isNextButtonEnabled}
+            loading={false}
+            onPress={() => {
+              updateData({ title: goalTitle.trim() });
+              navigation.navigate('/create-challenge/step3');
+            }}
+          >
+            다음
+          </FixedBottomCTA>
+        ) : (
+          <FixedBottomCTA.Double
+            leftButton={
+              <Button
+                type="dark"
+                style="weak"
+                display="block"
+                disabled={false}
+                loading={false}
+                onPress={() => navigation.navigate('/create-challenge')}
+              >
+                이전
+              </Button>
+            }
+            rightButton={
+              <Button
+                type="primary"
+                style="fill"
+                display="block"
+                disabled={!isNextButtonEnabled}
+                loading={false}
+                onPress={() => {
+                  updateData({ title: goalTitle.trim() });
+                  navigation.navigate('/create-challenge/step3');
+                }}
+              >
+                다음
+              </Button>
+            }
+          />
+        )}
       </FixedBottomCTAProvider>
     </>
   );

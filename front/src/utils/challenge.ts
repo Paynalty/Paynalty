@@ -306,7 +306,8 @@ export const getDDay = (dateString: string | undefined): string => {
   return `D-${diffDays}`;
 };
 
-export const getVerificationTypeLabel = (type: string) => {
+export const getVerificationTypeLabel = (type: string | undefined) => {
+  if (!type) return '사진';
   const typeMap: { [key: string]: string } = {
     PHOTO: '사진',
     TEXT: '텍스트',

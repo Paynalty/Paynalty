@@ -199,7 +199,7 @@ function Page() {
                   isEditing: true,
                   challengeId: selectedChallenge.id.toString(),
                   title: editForm.title,
-                  verificationType: editForm.verifyType,
+                  verificationType: editForm.verificationType,
                   penaltyAmount: editForm.penaltyAmount,
                   endDate: editForm.endDate,
                   verifyStartAt: editForm.verifyStartAt ?? undefined,
