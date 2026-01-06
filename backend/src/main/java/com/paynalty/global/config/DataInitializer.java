@@ -61,7 +61,7 @@ public class DataInitializer {
                             .tossId(1000L + i)
                             .build());
                 }
-                
+
                 System.out.println("테스트용 User 데이터 10개가 생성되었습니다.");
             }
             if (challengeRepository.count() == 0) {
@@ -72,75 +72,68 @@ public class DataInitializer {
                 // ✅ 챌린지 1: PENDING (시작 전)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("시작 전 챌린지")
+                                .title("건강한 아침 식사하기")
                                 .startDate(today.plusDays(3))
                                 .endDate(today.plusDays(24)) // 3주
                                 .frequency(3)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.plusDays(3),
-                                        today.plusDays(24)
-                                ))
+                                        today.plusDays(24)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(9, 0))
                                 .verifyEndAt(LocalTime.of(18, 0))
                                 .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 2: ACTIVE (진행 중 - 요일 지정)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("진행 중 챌린지 (월/수/금)")
+                                .title("주 3회 조깅하고 인증하기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
                                 .frequency(3)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
-                                        today.plusDays(14)
-                                ))
+                                        today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(9, 0))
                                 .verifyEndAt(LocalTime.of(18, 0))
                                 .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 3: ACTIVE (진행 중 - 저녁 시간대)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("진행 중 챌린지 (저녁 시간대)")
+                                .title("하루 한 페이지 일기 쓰기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
                                 .frequency(3)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
-                                        today.plusDays(14)
-                                ))
+                                        today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(18, 0))
                                 .verifyEndAt(LocalTime.of(23, 59))
                                 .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 4: ACTIVE (진행 중 - 매일, 24시간)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("진행 중 챌린지 (매일)")
+                                .title("매일 물 2L 마시기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
                                 .frequency(7) // 주 7회 (매일)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
-                                        today.plusDays(14)
-                                ))
+                                        today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(0, 0, 0))
                                 .verifyEndAt(LocalTime.of(23, 59, 59))
@@ -151,24 +144,21 @@ public class DataInitializer {
                                         DayOfWeekType.THU,
                                         DayOfWeekType.FRI,
                                         DayOfWeekType.SAT,
-                                        DayOfWeekType.SUN
-                                ))
+                                        DayOfWeekType.SUN))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 5: COMPLETE (완료됨)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("완료된 챌린지")
+                                .title("영어 단어 10개 외우기")
                                 .startDate(today.minusDays(28))
                                 .endDate(today.minusDays(7))
                                 .frequency(5)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(28),
-                                        today.minusDays(7)
-                                ))
+                                        today.minusDays(7)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(9, 0))
                                 .verifyEndAt(LocalTime.of(18, 0))
@@ -177,24 +167,21 @@ public class DataInitializer {
                                         DayOfWeekType.TUE,
                                         DayOfWeekType.WED,
                                         DayOfWeekType.THU,
-                                        DayOfWeekType.FRI
-                                ))
+                                        DayOfWeekType.FRI))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 6: ACTIVE (진행 중 - 화/목/토/일, 오전)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("진행 중 챌린지 (화목토일-오전)")
+                                .title("스쿼트 50개 하고 인증하기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
                                 .frequency(4)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
-                                        today.plusDays(14)
-                                ))
+                                        today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(9, 0))
                                 .verifyEndAt(LocalTime.of(18, 0))
@@ -202,24 +189,21 @@ public class DataInitializer {
                                         DayOfWeekType.TUE,
                                         DayOfWeekType.THU,
                                         DayOfWeekType.SAT,
-                                        DayOfWeekType.SUN
-                                ))
+                                        DayOfWeekType.SUN))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 // ✅ 챌린지 7: ACTIVE (진행 중 - 화/목/토/일, 저녁)
                 challengeRepository.save(
                         Challenge.builder()
-                                .title("진행 중 챌린지 (화목토일-저녁)")
+                                .title("책 10페이지 읽고 인증하기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
                                 .frequency(4)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
-                                        today.plusDays(14)
-                                ))
+                                        today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(18, 0))
                                 .verifyEndAt(LocalTime.of(23, 59))
@@ -227,11 +211,9 @@ public class DataInitializer {
                                         DayOfWeekType.TUE,
                                         DayOfWeekType.THU,
                                         DayOfWeekType.SAT,
-                                        DayOfWeekType.SUN
-                                ))
+                                        DayOfWeekType.SUN))
                                 .user(users.get(0))
-                                .build()
-                );
+                                .build());
 
                 System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (7개)");
             }
@@ -247,10 +229,10 @@ public class DataInitializer {
 
                     // 1️⃣ 테스트용 고정 멤버 (userId=1, 2, 3 항상 포함)
                     for (int i = 0; i < 3 && i < users.size(); i++) {
-                        if( i == 0){
-                         role = MemberRole.CREATOR;
-                        }else{
-                        role = MemberRole.CHALLENGER;
+                        if (i == 0) {
+                            role = MemberRole.CREATOR;
+                        } else {
+                            role = MemberRole.CHALLENGER;
                         }
 
                         challengeMemberRepository.save(
@@ -260,8 +242,7 @@ public class DataInitializer {
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
                                         .role(role)
-                                        .build()
-                        );
+                                        .build());
                     }
 
                     // 2️⃣ 추가 참가자 (0~2명 랜덤, userId=4부터)
@@ -275,8 +256,7 @@ public class DataInitializer {
                                         .isSuccess(challenge.getStatus())
                                         .endAt(challenge.getEndDate())
                                         .role(role)
-                                        .build()
-                        );
+                                        .build());
                     }
                 }
 
@@ -296,36 +276,49 @@ public class DataInitializer {
 
                 // 과거 인증 데이터 (시작일부터 어제까지)
                 for (LocalDate date = activeChallenge1.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
-                    if (date.getDayOfWeek().getValue() == 1 || 
-                        date.getDayOfWeek().getValue() == 3 || 
-                        date.getDayOfWeek().getValue() == 5) {
-                        
+                    if (date.getDayOfWeek().getValue() == 1 ||
+                            date.getDayOfWeek().getValue() == 3 ||
+                            date.getDayOfWeek().getValue() == 5) {
+
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
-                                ChallengeVerification.builder()
-                                    .date(date)
-                                    .user(users.get(i))
-                                    .challenge(activeChallenge1)
-                                    .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .build()
-                            );
+                                    ChallengeVerification.builder()
+                                            .date(date)
+                                            .user(users.get(i))
+                                            .challenge(activeChallenge1)
+                                            .imageUrl(
+                                                    "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                            .status(VerificationStatus.VALID)
+                                            .build());
                         }
                     }
                 }
 
                 // 오늘: userId=2만 인증
-                if (today.getDayOfWeek().getValue() == 1 || 
-                    today.getDayOfWeek().getValue() == 3 || 
-                    today.getDayOfWeek().getValue() == 5) {
-                    
+                if (today.getDayOfWeek().getValue() == 1 ||
+                        today.getDayOfWeek().getValue() == 3 ||
+                        today.getDayOfWeek().getValue() == 5) {
+
                     challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                            .date(today)
-                            .user(users.get(1))
-                            .challenge(activeChallenge1)
-                            .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                            .build()
-                    );
+                            ChallengeVerification.builder()
+                                    .date(today)
+                                    .user(users.get(1))
+                                    .challenge(activeChallenge1)
+                                    .imageUrl(
+                                            "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build());
+
+                    // 오늘: userId=1도 인증 추가
+                    challengeVerificationRepository.save(
+                            ChallengeVerification.builder()
+                                    .date(today)
+                                    .user(users.get(0))
+                                    .challenge(activeChallenge1)
+                                    .imageUrl(
+                                            "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build());
                 }
 
                 // ✅ 챌린지 3번 인증 데이터 (ACTIVE - 저녁)
@@ -333,82 +326,98 @@ public class DataInitializer {
 
                 // 과거 인증 데이터 (시작일부터 어제까지)
                 for (LocalDate date = activeChallenge2.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
-                    if (date.getDayOfWeek().getValue() == 1 || 
-                        date.getDayOfWeek().getValue() == 3 || 
-                        date.getDayOfWeek().getValue() == 5) {
-                        
+                    if (date.getDayOfWeek().getValue() == 1 ||
+                            date.getDayOfWeek().getValue() == 3 ||
+                            date.getDayOfWeek().getValue() == 5) {
+
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
-                                ChallengeVerification.builder()
-                                    .date(date)
-                                    .user(users.get(i))
-                                    .challenge(activeChallenge2)
-                                    .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .build()
-                            );
+                                    ChallengeVerification.builder()
+                                            .date(date)
+                                            .user(users.get(i))
+                                            .challenge(activeChallenge2)
+                                            .imageUrl(
+                                                    "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                            .status(VerificationStatus.VALID)
+                                            .build());
                         }
                     }
                 }
 
                 // 오늘: userId=3만 인증 (저녁 시간대는 userId=1,2가 인증 안 함)
-                if (today.getDayOfWeek().getValue() == 1 || 
-                    today.getDayOfWeek().getValue() == 3 || 
-                    today.getDayOfWeek().getValue() == 5) {
-                    
+                if (today.getDayOfWeek().getValue() == 1 ||
+                        today.getDayOfWeek().getValue() == 3 ||
+                        today.getDayOfWeek().getValue() == 5) {
+
                     challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                            .date(today)
-                            .user(users.get(2))
-                            .challenge(activeChallenge2)
-                            .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                            .build()
-                    );
+                            ChallengeVerification.builder()
+                                    .date(today)
+                                    .user(users.get(2))
+                                    .challenge(activeChallenge2)
+                                    .imageUrl(
+                                            "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build());
                 }
 
                 // ✅ 챌린지 4번 인증 데이터 (ACTIVE - 매일)
                 Challenge activeChallengeDaily = challenges.get(3);
 
                 // 과거 인증 데이터 (시작일부터 어제까지 매일)
-                for (LocalDate date = activeChallengeDaily.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
+                for (LocalDate date = activeChallengeDaily.getStartDate(); date
+                        .isBefore(today); date = date.plusDays(1)) {
                     for (int i = 0; i < 3 && i < users.size(); i++) {
                         challengeVerificationRepository.save(
-                            ChallengeVerification.builder()
-                                .date(date)
-                                .user(users.get(i))
-                                .challenge(activeChallengeDaily)
-                                .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                .build()
-                        );
+                                ChallengeVerification.builder()
+                                        .date(date)
+                                        .user(users.get(i))
+                                        .challenge(activeChallengeDaily)
+                                        .imageUrl(
+                                                "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                        .status(VerificationStatus.VALID)
+                                        .build());
                     }
                 }
 
                 // 오늘: userId=2만 인증 (userId=1은 테스트용으로 인증 안 함)
                 challengeVerificationRepository.save(
-                    ChallengeVerification.builder()
-                        .date(today)
-                        .user(users.get(1))
-                        .challenge(activeChallengeDaily)
-                        .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                        .build()
-                );
+                        ChallengeVerification.builder()
+                                .date(today)
+                                .user(users.get(1))
+                                .challenge(activeChallengeDaily)
+                                .imageUrl(
+                                        "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                .status(VerificationStatus.VALID)
+                                .build());
+
+                // 오늘: userId=1도 인증 추가 (매일 물마시기)
+                challengeVerificationRepository.save(
+                        ChallengeVerification.builder()
+                                .date(today)
+                                .user(users.get(0))
+                                .challenge(activeChallengeDaily)
+                                .imageUrl(
+                                        "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                .status(VerificationStatus.VALID)
+                                .build());
 
                 // ✅ 챌린지 5번 인증 데이터 (COMPLETE)
                 Challenge completeChallenge = challenges.get(4);
-                
-                for (LocalDate date = completeChallenge.getStartDate(); 
-                     !date.isAfter(completeChallenge.getEndDate()); 
-                     date = date.plusDays(1)) {
-                    
+
+                for (LocalDate date = completeChallenge.getStartDate(); !date
+                        .isAfter(completeChallenge.getEndDate()); date = date.plusDays(1)) {
+
                     if (date.getDayOfWeek().getValue() >= 1 && date.getDayOfWeek().getValue() <= 5) {
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
-                                ChallengeVerification.builder()
-                                    .date(date)
-                                    .user(users.get(i))
-                                    .challenge(completeChallenge)
-                                    .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .build()
-                            );
+                                    ChallengeVerification.builder()
+                                            .date(date)
+                                            .user(users.get(i))
+                                            .challenge(completeChallenge)
+                                            .imageUrl(
+                                                    "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                            .status(VerificationStatus.VALID)
+                                            .build());
                         }
                     }
                 }
@@ -418,38 +427,40 @@ public class DataInitializer {
 
                 // 과거 인증 데이터 (시작일부터 어제까지)
                 for (LocalDate date = activeChallenge6.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
-                    if (date.getDayOfWeek().getValue() == 2 || 
-                        date.getDayOfWeek().getValue() == 4 || 
-                        date.getDayOfWeek().getValue() == 6 || 
-                        date.getDayOfWeek().getValue() == 7) {
-                        
+                    if (date.getDayOfWeek().getValue() == 2 ||
+                            date.getDayOfWeek().getValue() == 4 ||
+                            date.getDayOfWeek().getValue() == 6 ||
+                            date.getDayOfWeek().getValue() == 7) {
+
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
-                                ChallengeVerification.builder()
-                                    .date(date)
-                                    .user(users.get(i))
-                                    .challenge(activeChallenge6)
-                                    .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                    .build()
-                            );
+                                    ChallengeVerification.builder()
+                                            .date(date)
+                                            .user(users.get(i))
+                                            .challenge(activeChallenge6)
+                                            .imageUrl(
+                                                    "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                            .status(VerificationStatus.VALID)
+                                            .build());
                         }
                     }
                 }
 
                 // 오늘: userId=1만 인증
-                if (today.getDayOfWeek().getValue() == 2 || 
-                    today.getDayOfWeek().getValue() == 4 || 
-                    today.getDayOfWeek().getValue() == 6 || 
-                    today.getDayOfWeek().getValue() == 7) {
-                    
+                if (today.getDayOfWeek().getValue() == 2 ||
+                        today.getDayOfWeek().getValue() == 4 ||
+                        today.getDayOfWeek().getValue() == 6 ||
+                        today.getDayOfWeek().getValue() == 7) {
+
                     challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                            .date(today)
-                            .user(users.get(0))
-                            .challenge(activeChallenge6)
-                            .imageUrl("https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                            .build()
-                    );
+                            ChallengeVerification.builder()
+                                    .date(today)
+                                    .user(users.get(0))
+                                    .challenge(activeChallenge6)
+                                    .imageUrl(
+                                            "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
+                                    .status(VerificationStatus.VALID)
+                                    .build());
                 }
 
                 // ✅ 챌린지 7번 인증 데이터 (ACTIVE - 화/목/토/일, 저녁)
@@ -457,20 +468,21 @@ public class DataInitializer {
 
                 // 과거 인증 데이터 (시작일부터 어제까지)
                 for (LocalDate date = activeChallenge7.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
-                    if (date.getDayOfWeek().getValue() == 2 || 
-                        date.getDayOfWeek().getValue() == 4 || 
-                        date.getDayOfWeek().getValue() == 6 || 
-                        date.getDayOfWeek().getValue() == 7) {
-                        
+                    if (date.getDayOfWeek().getValue() == 2 ||
+                            date.getDayOfWeek().getValue() == 4 ||
+                            date.getDayOfWeek().getValue() == 6 ||
+                            date.getDayOfWeek().getValue() == 7) {
+
                         for (int i = 0; i < 3 && i < users.size(); i++) {
                             challengeVerificationRepository.save(
-                                ChallengeVerification.builder()
-                                    .date(date)
-                                    .user(users.get(i))
-                                    .challenge(activeChallenge7)
-                                    .imageUrl("https://previews.123rf.com/images/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.avif")
-                                    .build()
-                            );
+                                    ChallengeVerification.builder()
+                                            .date(date)
+                                            .user(users.get(i))
+                                            .challenge(activeChallenge7)
+                                            .imageUrl(
+                                                    "https://previews.123rf.com/images/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.avif")
+                                            .status(VerificationStatus.VALID)
+                                            .build());
                         }
                     }
                 }
@@ -485,8 +497,6 @@ public class DataInitializer {
                 System.out.println("   📌 챌린지 6 (09:00~18:00, 화/목/토/일): userId=1 인증완료");
                 System.out.println("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
             }
-
-
 
         };
     }
