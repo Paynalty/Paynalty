@@ -6,6 +6,12 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  # 파일 업로드 용량 설정
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   # JPA 공통 설정
   jpa:
     open-in-view: false
