@@ -19,20 +19,6 @@ public class PenaltyService {
     private final PenaltyRepository penaltyRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
 
-    /**
-     * 본인 벌금 내역 조회
-     *
-     * @param challengeId 챌린지 ID
-     * @param tossId 사용자 토스 ID
-     * @return 벌금 내역 리스트
-     */
-    @Transactional(readOnly = true)
-    public List<PenaltyResponse> getMyPenalty(Long challengeId, Long tossId) {
-        List<Penalty> penalties = penaltyRepository.findByChallengeIdAndTossId(challengeId, tossId);
-        return penalties.stream()
-                .map(PenaltyResponse::from)
-                .toList();
-    }
 
     /**
      * ChallengeMember와 금액을 직접 받아 벌금을 생성합니다.
@@ -52,10 +38,25 @@ public class PenaltyService {
         // 벌금 생성
         Penalty penalty = Penalty.builder()
                 .challengeMember(challengeMember)
-                .fixedAmount(amount)
+                .penaltyAmount(amount)
                 .build();
 
         return penaltyRepository.save(penalty);
+    }
+
+    /**
+     * 본인 벌금 내역 조회
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 토스 ID
+     * @return 벌금 내역 리스트
+     */
+    @Transactional(readOnly = true)
+    public List<PenaltyResponse> getMyPenalty(Long challengeId, Long tossId) {
+        List<Penalty> penalties = penaltyRepository.findByChallengeIdAndTossId(challengeId, tossId);
+        return penalties.stream()
+                .map(PenaltyResponse::from)
+                .toList();
     }
 
     /**

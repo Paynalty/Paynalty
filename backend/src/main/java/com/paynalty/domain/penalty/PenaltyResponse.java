@@ -31,9 +31,6 @@ public class PenaltyResponse {
     @Schema(description = "결제 시간", example = "LocalDateTime")
     private LocalDateTime paidAt;
 
-    @Schema(description = "결제 주문 ID", example = "String")
-    private String paymentOrderId;
-
     @Schema(description = "생성 시간", example = "LocalDateTime")
     private LocalDateTime createdAt;
 
@@ -43,10 +40,9 @@ public class PenaltyResponse {
                 .penaltyId(penalty.getId())
                 .challengeMemberId(member.getId())
                 .challengeTitle(member.getChallenge().getTitle())
-                .amount(penalty.getFixedAmount())
+                .amount(penalty.getPenaltyAmount())
                 .paid(penalty.getPaid())
                 .paidAt(penalty.getPaidAt())
-                .paymentOrderId(penalty.getPaymentOrderId())
                 .createdAt(penalty.getCreatedAt())
                 .build();
     }

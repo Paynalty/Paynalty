@@ -1,4 +1,4 @@
-
+/*
 package com.paynalty.global.config;
 
 import com.paynalty.domain.challenge.Challenge;
@@ -10,6 +10,11 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindow;
+import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindowStatus;
+import com.paynalty.domain.penalty.Penalty;
+import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -30,6 +36,8 @@ public class DataInitializer {
     private final ChallengeRepository challengeRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
+    private final PenaltyRepository penaltyRepository;
 
     @Bean
     @Profile("!test") // 테스트 환경이 아닐 때만 실행 (선택 사항)
@@ -136,7 +144,7 @@ public class DataInitializer {
                                         today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(0, 0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59, 59))
+                                .verifyEndAt(LocalTime.of(14, 39, 59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.TUE,
@@ -383,15 +391,7 @@ public class DataInitializer {
                                         "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
                                 .build());
 
-                // 오늘: userId=1도 인증 추가 (매일 물마시기)
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(today)
-                                .user(users.get(0))
-                                .challenge(activeChallengeDaily)
-                                .imageUrl(
-                                        "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                .build());
+                // userId=1의 오늘 인증은 생성하지 않음 (테스트용 - 사용자가 직접 인증 API 호출)
 
                 // ✅ 챌린지 5번 인증 데이터 (COMPLETE)
                 Challenge completeChallenge = challenges.get(4);
@@ -486,7 +486,145 @@ public class DataInitializer {
                 System.out.println("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
             }
 
+            // ✅ 챌린지 4번 테스트용 더미 데이터 (userId=1, tossId=1001)
+            if (challengeRepository.count() >= 4) {
+                Challenge challenge4 = challengeRepository.findById(4L).orElse(null);
+                User user1 = userRepository.findByTossId(1001L).orElse(null);
+                
+                if (challenge4 != null && user1 != null) {
+                    ChallengeMember member1 = challengeMemberRepository
+                            .findByChallengeIdAndUserTossIdWithFetch(4L, 1001L)
+                            .orElse(null);
+                    
+                    if (member1 != null) {
+                        LocalDate today = LocalDate.now();
+                        
+                        // 챌린지의 verifyStartAt과 verifyEndAt을 기준으로 Window 생성
+                        // (ChallengeWindowGenerator와 동일한 방식)
+                        LocalTime verifyStartAt = challenge4.getVerifyStartAt();
+                        LocalTime verifyEndAt = challenge4.getVerifyEndAt();
+                        
+                        // Window 1: 오늘 날짜, 챌린지의 verifyEndAt을 마감 시간으로 사용
+                        LocalDateTime window1Start = today.atTime(verifyStartAt);
+                        LocalDateTime window1End = today.atTime(verifyEndAt);
+                        
+                        ChallengeWindow window1 = ChallengeWindow.builder()
+                                .challengeId(4L)
+                                .tossId(1001L)
+                                .challengeWindowStart(window1Start)
+                                .challengeWindowEnd(window1End)
+                                .challengeWindowStatus(ChallengeWindowStatus.PENDING)
+                                .build();
+                        challengeWindowRepository.save(window1);
+                        
+                        // Window 2: FAIL 케이스 - 인증이 없는 경우 (어제 날짜, 마감 시간 지남)
+                        LocalDateTime window2Start = today.minusDays(1).atTime(verifyStartAt);
+                        LocalDateTime window2End = today.minusDays(1).atTime(verifyEndAt);
+                        ChallengeWindow window2 = ChallengeWindow.builder()
+                                .challengeId(4L)
+                                .tossId(1001L)
+                                .challengeWindowStart(window2Start)
+                                .challengeWindowEnd(window2End)
+                                .challengeWindowStatus(ChallengeWindowStatus.PENDING)
+                                .build();
+                        challengeWindowRepository.save(window2);
+                        
+                        // 오늘 날짜에 대한 인증 데이터는 생성하지 않음
+                        // 사용자가 직접 인증 API를 호출하여 인증을 생성할 수 있음
+                        // - 인증을 하면 → 마감 시간 후 SUCCESS
+                        // - 인증을 안 하면 → 마감 시간 후 FAIL
+                        
+                        // Penalty 데이터 생성 (챌린지 4번, userId=1)
+                        // 벌금 1: 3일 전
+                        Penalty penalty1 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty1 = penaltyRepository.save(penalty1);
+                        savedPenalty1.setCreatedAt(today.minusDays(3).atTime(12, 0));
+                        penaltyRepository.save(savedPenalty1);
+                        
+                        // 벌금 2: 5일 전
+                        Penalty penalty2 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty2 = penaltyRepository.save(penalty2);
+                        savedPenalty2.setCreatedAt(today.minusDays(5).atTime(15, 30));
+                        penaltyRepository.save(savedPenalty2);
+                        
+                        // 벌금 3: 7일 전
+                        Penalty penalty3 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty3 = penaltyRepository.save(penalty3);
+                        savedPenalty3.setCreatedAt(today.minusDays(7).atTime(9, 0));
+                        penaltyRepository.save(savedPenalty3);
+                        
+                        // 다른 사용자들의 벌금 데이터 생성 (전체 벌금 조회 테스트용)
+                        // userId=2 (tossId=1002)
+                        ChallengeMember member2 = challengeMemberRepository
+                                .findByChallengeIdAndUserTossIdWithFetch(4L, 1002L)
+                                .orElse(null);
+                        
+                        if (member2 != null) {
+                            // userId=2 벌금 1: 4일 전
+                            Penalty penalty2_1 = Penalty.builder()
+                                    .challengeMember(member2)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty2_1 = penaltyRepository.save(penalty2_1);
+                            savedPenalty2_1.setCreatedAt(today.minusDays(4).atTime(11, 0));
+                            penaltyRepository.save(savedPenalty2_1);
+                            
+                            // userId=2 벌금 2: 6일 전
+                            Penalty penalty2_2 = Penalty.builder()
+                                    .challengeMember(member2)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty2_2 = penaltyRepository.save(penalty2_2);
+                            savedPenalty2_2.setCreatedAt(today.minusDays(6).atTime(14, 0));
+                            penaltyRepository.save(savedPenalty2_2);
+                        }
+                        
+                        // userId=3 (tossId=1003)
+                        ChallengeMember member3 = challengeMemberRepository
+                                .findByChallengeIdAndUserTossIdWithFetch(4L, 1003L)
+                                .orElse(null);
+                        
+                        if (member3 != null) {
+                            // userId=3 벌금 1: 2일 전
+                            Penalty penalty3_1 = Penalty.builder()
+                                    .challengeMember(member3)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty3_1 = penaltyRepository.save(penalty3_1);
+                            savedPenalty3_1.setCreatedAt(today.minusDays(2).atTime(16, 0));
+                            penaltyRepository.save(savedPenalty3_1);
+                        }
+                        
+                        System.out.println("✅ 챌린지 4번 테스트용 더미 데이터 생성 완료");
+                        System.out.println("   📌 ChallengeWindow: 2개 (PENDING, userId=1)");
+                        System.out.println("      - Window 1: 오늘, 인증 없음, 마감 시간: " + window1End + " (챌린지 verifyEndAt 기준)");
+                        System.out.println("         → 인증을 하면 SUCCESS, 안 하면 FAIL");
+                        System.out.println("      - Window 2: 어제, 인증 없음, 마감 시간 지남 (FAIL 예상)");
+                        System.out.println("   📌 ChallengeVerification: 오늘 인증 없음 (사용자가 직접 생성)");
+                        System.out.println("   📌 Penalty: 총 6개");
+                        System.out.println("      - userId=1: 3개 (3일 전, 5일 전, 7일 전)");
+                        System.out.println("      - userId=2: 2개 (4일 전, 6일 전)");
+                        System.out.println("      - userId=3: 1개 (2일 전)");
+                        System.out.println("   ⏰ 스케줄러는 10분마다 실행되며, " + window1End + " 이후 Window 1이 처리됩니다.");
+                        System.out.println("   📝 테스트 방법:");
+                        System.out.println("      1. 챌린지 4번의 verifyEndAt을 원하는 시간으로 수정 후 빌드");
+                        System.out.println("      2. 마감 시간 전에 인증 API 호출 → 인증 생성");
+                        System.out.println("      3. 마감 시간 후 스케줄러 실행 → SUCCESS 확인");
+                        System.out.println("      4. 또는 인증 없이 마감 시간 후 → FAIL 확인");
+                    }
+                }
+            }
+
         };
     }
 }
-
+*/

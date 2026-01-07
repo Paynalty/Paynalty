@@ -44,19 +44,22 @@ public class ChallengeWindowGenerator {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeWindowRepository challengeWindowRepository;
 
-    /**
-     * ChallengeWindow 생성
-     * [1] today - (today + LOOKAHEAD_DAYS) 기간과 겹치는 Challenge 조회
-     * [2] lookahead 기간과 관련 있는 Challenge만 후보로 필터링
-     *     - 요일 기반: lookahead 기간의 요일과 겹쳐야 함
-     *     - 횟수 기반: 요일 제한이 없으므로 모두 통과
-     * [3] 후보 Challenge에 속한 ChallengeMember 조회
-     * [4] 기존 ChallengeWindow 조회
-     *     - 멱등성 유지
-     *     - 주간 횟수 계산을 위해 ISO 주 단위 전체 범위 조회
-     * [5] 누락된 ChallengeWindow만 신규 생성
-     */
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+
+//     * ChallengeWindow 생성
+//     * [1] today - (today + LOOKAHEAD_DAYS) 기간과 겹치는 Challenge 조회
+//     * [2] lookahead 기간과 관련 있는 Challenge만 후보로 필터링
+//     *     - 요일 기반: lookahead 기간의 요일과 겹쳐야 함
+//     *     - 횟수 기반: 요일 제한이 없으므로 모두 통과
+//     * [3] 후보 Challenge에 속한 ChallengeMember 조회
+//     * [4] 기존 ChallengeWindow 조회
+//     *     - 멱등성 유지
+//     *     - 주간 횟수 계산을 위해 ISO 주 단위 전체 범위 조회
+//     * [5] 누락된 ChallengeWindow만 신규 생성
+//     *
+//     * ⚠️ 테스트용: cron을 "0 */1 * * * *"로 변경하면 1분마다 실행됩니다.
+//     * 프로덕션 배포 전에는 "0 0 0 * * *"로 되돌려야 합니다.
+//    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
+     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
     @Transactional
     public void generateWindows() {
 
