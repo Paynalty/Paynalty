@@ -1,7 +1,7 @@
 import {Asset, Txt} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {StyleSheet, View} from 'react-native';
-import {formatTime} from '../../utils/challenge';
+import {formatTime, getFileUrl} from '../../utils/challenge';
 
 interface VerificationItemProps {
     userName: string;
@@ -24,7 +24,7 @@ export function VerificationItem({userName, userAvatar, imageUrl, dateTime, show
             <View style={styles.userSection}>
                 <Asset.Image
                     frameShape={{width: 32, height: 32}}
-                    source={{uri: userAvatar || 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png'}}
+                    source={{uri: getFileUrl(userAvatar) || 'https://static.toss.im/ml-product/tosst-inapp_tdvjdh3nb4l5yg4xp9a734u4.png'}}
                 />
                 <Txt color={adaptive.grey700} typography="t5" fontWeight="bold">
                     {userName}
@@ -33,7 +33,7 @@ export function VerificationItem({userName, userAvatar, imageUrl, dateTime, show
             <View style={styles.imageSection}>
                 <Asset.Image
                     frameShape={{height: 300}}
-                    source={{uri: imageUrl}}
+                    source={{uri: getFileUrl(imageUrl)}}
                     style={{width: '100%', height: 300, borderRadius: 12}}
                 />
             </View>

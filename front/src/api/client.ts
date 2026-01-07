@@ -28,13 +28,18 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
   console.log(`🚀 [API Request] ${options.method || 'GET'} ${url}`);
 
   try {
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers as Record<string, string>),
+    };
+
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(options.headers ?? {}),
-      },
       ...options,
+      headers,
     });
 
     console.log(`✅ [API Response Status] ${response.status} ${url}`);

@@ -315,3 +315,17 @@ export const getVerificationTypeLabel = (type: string | undefined) => {
   };
   return typeMap[type] || type;
 };
+
+/**
+ * 이미지 URL을 처리합니다.
+ * 상대 경로(/uploads/...)인 경우 API_BASE_URL을 붙여주고,
+ * S3 URL(http...)인 경우 그대로 반환합니다.
+ */
+export const getFileUrl = (url: string | undefined): string => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+
+  // Circular dependency 방지를 위해 여기서 직접 가져오거나 ENV 사용
+  const { ENV } = require('../config/env');
+  return `${ENV.API_BASE_URL}${url}`;
+};

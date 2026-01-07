@@ -10,7 +10,6 @@ import {
 } from '@apps-in-toss/framework';
 import { createVerification } from '../api/verifications';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { useLatestVerification } from './useVerifications';
 import { getTimeDate, isTodayChallenge } from '../utils/challenge';
 
@@ -19,7 +18,6 @@ export function useVerificationModal() {
   const adaptive = useAdaptive();
   const selectedChallenge = getSelectedChallenge();
   const queryClient = useQueryClient();
-  const [isUploading, setIsUploading] = useState(false);
 
   // 가장 최근 인증 내역 조회
   const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
@@ -85,11 +83,19 @@ export function useVerificationModal() {
 
   // 인증 생성 mutation
   const createVerificationMutation = useMutation({
-    mutationFn: async (imageUrl: string) => {
+    mutationFn: async (imageUri: string) => {
       if (!selectedChallenge?.id) {
         throw new Error('선택된 챌린지가 없습니다.');
       }
-      return await createVerification(selectedChallenge!.id, { imageUrl });
+      
+      const formData = new FormData();
+      formData.append('image', {
+        uri: imageUri,
+        name: `verification_${Date.now()}.jpg`,
+        type: 'image/jpeg',
+      } as any);
+
+      return await createVerification(selectedChallenge!.id, formData);
     },
     onSuccess: () => {
       // 관련 쿼리 무효화하여 자동 리페칭
@@ -104,17 +110,6 @@ export function useVerificationModal() {
     },
   });
 
-  // 이미지를 서버에 업로드하는 헬퍼 함수
-  const uploadImage = async (imageId: string): Promise<string> => {
-    setIsUploading(true);
-    try {
-      // TODO: 실제 S3 업로드 로직 구현 필요
-      // 현재는 임시로 imageId를 URL처럼 반환
-      return `https://example.com/images/${imageId}`;
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const open = () => {
     const { canVerify, reason } = getVerificationStatus();
@@ -141,16 +136,15 @@ export function useVerificationModal() {
           <View style={{ paddingVertical: 8, paddingBottom: 32 }}>
             <List rowSeparator="none">
               <Pressable
-                disabled={isUploading || createVerificationMutation.isPending}
+                disabled={createVerificationMutation.isPending}
                 onPress={async () => {
                   try {
                     const result = await openCamera({ base64: true, maxWidth: 1024 });
 
                       console.log('Camera Success:', result.id);
 
-                      // 이미지 업로드 후 인증 생성
-                      const imageUrl = await uploadImage(result.id);
-                      await createVerificationMutation.mutateAsync(imageUrl);
+                      // 이미지 업로드 및 인증 생성
+                      await createVerificationMutation.mutateAsync(result.id);
 
                       close();
                   } catch (error) {
@@ -175,7 +169,7 @@ export function useVerificationModal() {
                   contents={
                     <ListRow.Texts
                       type="1RowTypeA"
-                      top={isUploading ? '업로드 중...' : '사진 촬영하기'}
+                      top="사진 촬영하기"
                       topProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
                     />
                   }
@@ -183,7 +177,7 @@ export function useVerificationModal() {
                 />
               </Pressable>
               <Pressable
-                disabled={isUploading || createVerificationMutation.isPending}
+                disabled={createVerificationMutation.isPending}
                 onPress={async () => {
                   try {
                     const result = await fetchAlbumPhotos({
@@ -191,12 +185,12 @@ export function useVerificationModal() {
                       maxWidth: 1024,
                       base64: true,
                     });
-                    console.log('Album Success:', result?.[0]?.id || 'no images');
+                    const firstPhoto = result?.[0];
+                    console.log('Album Success:', firstPhoto?.id || 'no images');
 
-                    if (result && result.length > 0) {
-                      // 이미지 업로드 후 인증 생성
-                      const imageUrl = await uploadImage(result[0].id);
-                      await createVerificationMutation.mutateAsync(imageUrl);
+                    if (firstPhoto) {
+                      // 이미지 업로드 및 인증 생성
+                      await createVerificationMutation.mutateAsync(firstPhoto.id);
 
                       close();
                     }
@@ -222,7 +216,7 @@ export function useVerificationModal() {
                   contents={
                     <ListRow.Texts
                       type="1RowTypeA"
-                      top={isUploading ? '업로드 중...' : '앨범에서 선택하기'}
+                      top="앨범에서 선택하기"
                       topProps={{ color: adaptive.grey800, fontWeight: 'bold' }}
                     />
                   }

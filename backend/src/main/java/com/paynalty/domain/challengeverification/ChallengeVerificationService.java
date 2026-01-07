@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -101,12 +102,13 @@ public class ChallengeVerificationService {
                 .user(user)
                 .challenge(challenge)
                 .date(today)
+                .verifiedAt(LocalDateTime.now())
                 .imageUrl(savedFileName)
                 .build();
 
         ChallengeVerification saved = challengeVerificationRepository.save(challengeVerification);
 
-        return ChallengeVerificationResponse.from(saved);
+        return ChallengeVerificationResponse.from(saved, fileStorage.getFileUrl(saved.getImageUrl()));
     }
 
     // 인증 검증 중복 요소
@@ -128,7 +130,7 @@ public class ChallengeVerificationService {
         ChallengeVerification cv = challengeVerificationRepository
                 .findTopByChallengeIdOrderByDateDescIdDesc(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.NO_VERIFICATION_DATA));
-        return ChallengeVerificationResponse.from(cv);
+        return ChallengeVerificationResponse.from(cv, fileStorage.getFileUrl(cv.getImageUrl()));
     }
 
     // 맴버별 당일이 포함된 주간 인증 횟수 가져오기
@@ -157,7 +159,7 @@ public class ChallengeVerificationService {
                 .findByChallengeIdAndUserTossIdOrderByDateDescIdDesc(challengeId, tossId, pageable);
         
         // Slice<ChallengeVerification> → Slice<ChallengeVerificationResponse> 변환
-        return verificationSlice.map(ChallengeVerificationResponse::from);
+        return verificationSlice.map(cv -> ChallengeVerificationResponse.from(cv, fileStorage.getFileUrl(cv.getImageUrl())));
     }
 
     // 챌린지의 모든 참여자 인증 데이터를 최신순으로 페이징하여 조회합니다 (무한 스크롤)
@@ -169,7 +171,7 @@ public class ChallengeVerificationService {
         Pageable pageable = PageRequest.of(page, size);
         Slice<ChallengeVerification> verificationSlice = challengeVerificationRepository
                 .findByChallengeIdOrderByDateDescIdDesc(challengeId, pageable);
-        return verificationSlice.map(ChallengeVerificationResponse::from);
+        return verificationSlice.map(cv -> ChallengeVerificationResponse.from(cv, fileStorage.getFileUrl(cv.getImageUrl())));
     }
 
     // 인증 데이터 수정 (이미지 파일 변경)
@@ -234,7 +236,7 @@ public class ChallengeVerificationService {
         verification.updateImageUrl(savedFileName);
 
         // 10단계: 변경 사항 저장 및 응답
-        return ChallengeVerificationResponse.from(verification);
+        return ChallengeVerificationResponse.from(verification, fileStorage.getFileUrl(verification.getImageUrl()));
     }
 
     // 인증 데이터 삭제

@@ -9,7 +9,7 @@ export type DayOfWeekType = z.infer<typeof DayOfWeekSchema>;
 
 export const CreateChallengeRequestSchema = z.object({
   title: z.string(),
-  startDate: z.string(),
+  startDate: z.string().optional().nullable(),
   endDate: z.string(),
   frequency: z.number().optional().nullable(),
   daysOfWeek: z.array(z.string()).optional().nullable(),
