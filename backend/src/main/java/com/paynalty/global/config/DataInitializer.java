@@ -10,6 +10,11 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindow;
+import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindowStatus;
+import com.paynalty.domain.penalty.Penalty;
+import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -30,6 +36,8 @@ public class DataInitializer {
     private final ChallengeRepository challengeRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
+    private final PenaltyRepository penaltyRepository;
 
     @Bean
     @Profile("!test") // 테스트 환경이 아닐 때만 실행 (선택 사항)
@@ -111,14 +119,14 @@ public class DataInitializer {
                                 .title("하루 한 페이지 일기 쓰기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
-                                .frequency(3)
+                                .frequency(6)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
                                         today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(18, 0))
-                                .verifyEndAt(LocalTime.of(23, 59))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
                                 .user(users.get(0))
                                 .build());
@@ -136,7 +144,7 @@ public class DataInitializer {
                                         today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(0, 0, 0))
-                                .verifyEndAt(LocalTime.of(23, 59, 59))
+                                .verifyEndAt(LocalTime.of(16, 39, 59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.TUE,
@@ -215,7 +223,25 @@ public class DataInitializer {
                                 .user(users.get(0))
                                 .build());
 
-                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (7개)");
+                // ✅ 챌린지 8: ACTIVE (진행 중 - 주간 횟수 기반, 6회)
+                challengeRepository.save(
+                        Challenge.builder()
+                                .title("주간 횟수 기반 챌린지 테스트 (6회)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(6) // 주간 6회 인증
+                                .penaltyAmount(10000L)
+                                .status(Challenge.calculateStatus(
+                                        today.minusDays(21),
+                                        today.plusDays(14)))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(6, 0)) // 06:00
+                                .verifyEndAt(LocalTime.of(18, 9,50)) // 17:00
+                                .daysOfWeek(null) // 주간 횟수 기반 (daysOfWeek null)
+                                .user(users.get(0))
+                                .build());
+
+                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (8개)");
             }
 
             if (challengeMemberRepository.count() == 0) {
@@ -383,15 +409,7 @@ public class DataInitializer {
                                         "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
                                 .build());
 
-                // 오늘: userId=1도 인증 추가 (매일 물마시기)
-                challengeVerificationRepository.save(
-                        ChallengeVerification.builder()
-                                .date(today)
-                                .user(users.get(0))
-                                .challenge(activeChallengeDaily)
-                                .imageUrl(
-                                        "https://us.123rf.com/450wm/martialred/martialred1507/martialred150700661/42613290-landscape-photo-image-flat-icon-for-apps-and-websites.jpg")
-                                .build());
+                // userId=1의 오늘 인증은 생성하지 않음 (테스트용 - 사용자가 직접 인증 API 호출)
 
                 // ✅ 챌린지 5번 인증 데이터 (COMPLETE)
                 Challenge completeChallenge = challenges.get(4);
@@ -484,6 +502,232 @@ public class DataInitializer {
                 System.out.println("   📌 챌린지 4 (00:00~23:59, 매일): userId=2 인증완료");
                 System.out.println("   📌 챌린지 6 (09:00~18:00, 화/목/토/일): userId=1 인증완료");
                 System.out.println("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
+            }
+
+            // ✅ 챌린지 4번 테스트용 더미 데이터 (userId=1, tossId=1001)
+            if (challengeRepository.count() >= 4) {
+                Challenge challenge4 = challengeRepository.findById(4L).orElse(null);
+                User user1 = userRepository.findByTossId(1001L).orElse(null);
+                
+                if (challenge4 != null && user1 != null) {
+                    ChallengeMember member1 = challengeMemberRepository
+                            .findByChallengeIdAndUserTossIdWithFetch(4L, 1001L)
+                            .orElse(null);
+                    
+                    if (member1 != null) {
+                        LocalDate today = LocalDate.now();
+                        
+                        // 챌린지의 verifyStartAt과 verifyEndAt을 기준으로 Window 생성
+                        // (ChallengeWindowGenerator와 동일한 방식)
+                        LocalTime verifyStartAt = challenge4.getVerifyStartAt();
+                        LocalTime verifyEndAt = challenge4.getVerifyEndAt();
+                        
+                        // Window 1: 오늘 날짜, 챌린지의 verifyEndAt을 마감 시간으로 사용
+                        LocalDateTime window1Start = today.atTime(verifyStartAt);
+                        LocalDateTime window1End = today.atTime(verifyEndAt);
+                        
+                        ChallengeWindow window1 = ChallengeWindow.builder()
+                                .challengeId(4L)
+                                .tossId(1001L)
+                                .challengeWindowStart(window1Start)
+                                .challengeWindowEnd(window1End)
+                                .challengeWindowStatus(ChallengeWindowStatus.PENDING)
+                                .build();
+                        challengeWindowRepository.save(window1);
+                        
+                        // Window 2: FAIL 케이스 - 인증이 없는 경우 (어제 날짜, 마감 시간 지남)
+                        LocalDateTime window2Start = today.minusDays(1).atTime(verifyStartAt);
+                        LocalDateTime window2End = today.minusDays(1).atTime(verifyEndAt);
+                        ChallengeWindow window2 = ChallengeWindow.builder()
+                                .challengeId(4L)
+                                .tossId(1001L)
+                                .challengeWindowStart(window2Start)
+                                .challengeWindowEnd(window2End)
+                                .challengeWindowStatus(ChallengeWindowStatus.PENDING)
+                                .build();
+                        challengeWindowRepository.save(window2);
+                        
+                        // 오늘 날짜에 대한 인증 데이터는 생성하지 않음
+                        // 사용자가 직접 인증 API를 호출하여 인증을 생성할 수 있음
+                        // - 인증을 하면 → 마감 시간 후 SUCCESS
+                        // - 인증을 안 하면 → 마감 시간 후 FAIL
+                        
+                        // Penalty 데이터 생성 (챌린지 4번, userId=1)
+                        // 벌금 1: 3일 전
+                        Penalty penalty1 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty1 = penaltyRepository.save(penalty1);
+                        savedPenalty1.setCreatedAt(today.minusDays(3).atTime(12, 0));
+                        penaltyRepository.save(savedPenalty1);
+                        
+                        // 벌금 2: 5일 전
+                        Penalty penalty2 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty2 = penaltyRepository.save(penalty2);
+                        savedPenalty2.setCreatedAt(today.minusDays(5).atTime(15, 30));
+                        penaltyRepository.save(savedPenalty2);
+                        
+                        // 벌금 3: 7일 전
+                        Penalty penalty3 = Penalty.builder()
+                                .challengeMember(member1)
+                                .penaltyAmount(challenge4.getPenaltyAmount())
+                                .build();
+                        Penalty savedPenalty3 = penaltyRepository.save(penalty3);
+                        savedPenalty3.setCreatedAt(today.minusDays(7).atTime(9, 0));
+                        penaltyRepository.save(savedPenalty3);
+                        
+                        // 다른 사용자들의 벌금 데이터 생성 (전체 벌금 조회 테스트용)
+                        // userId=2 (tossId=1002)
+                        ChallengeMember member2 = challengeMemberRepository
+                                .findByChallengeIdAndUserTossIdWithFetch(4L, 1002L)
+                                .orElse(null);
+                        
+                        if (member2 != null) {
+                            // userId=2 벌금 1: 4일 전
+                            Penalty penalty2_1 = Penalty.builder()
+                                    .challengeMember(member2)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty2_1 = penaltyRepository.save(penalty2_1);
+                            savedPenalty2_1.setCreatedAt(today.minusDays(4).atTime(11, 0));
+                            penaltyRepository.save(savedPenalty2_1);
+                            
+                            // userId=2 벌금 2: 6일 전
+                            Penalty penalty2_2 = Penalty.builder()
+                                    .challengeMember(member2)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty2_2 = penaltyRepository.save(penalty2_2);
+                            savedPenalty2_2.setCreatedAt(today.minusDays(6).atTime(14, 0));
+                            penaltyRepository.save(savedPenalty2_2);
+                        }
+                        
+                        // userId=3 (tossId=1003)
+                        ChallengeMember member3 = challengeMemberRepository
+                                .findByChallengeIdAndUserTossIdWithFetch(4L, 1003L)
+                                .orElse(null);
+                        
+                        if (member3 != null) {
+                            // userId=3 벌금 1: 2일 전
+                            Penalty penalty3_1 = Penalty.builder()
+                                    .challengeMember(member3)
+                                    .penaltyAmount(challenge4.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty3_1 = penaltyRepository.save(penalty3_1);
+                            savedPenalty3_1.setCreatedAt(today.minusDays(2).atTime(16, 0));
+                            penaltyRepository.save(savedPenalty3_1);
+                        }
+                        
+                        System.out.println("✅ 챌린지 4번 테스트용 더미 데이터 생성 완료");
+                        System.out.println("   📌 ChallengeWindow: 2개 (PENDING, userId=1)");
+                        System.out.println("      - Window 1: 오늘, 인증 없음, 마감 시간: " + window1End + " (챌린지 verifyEndAt 기준)");
+                        System.out.println("         → 인증을 하면 SUCCESS, 안 하면 FAIL");
+                        System.out.println("      - Window 2: 어제, 인증 없음, 마감 시간 지남 (FAIL 예상)");
+                        System.out.println("   📌 ChallengeVerification: 오늘 인증 없음 (사용자가 직접 생성)");
+                        System.out.println("   📌 Penalty: 총 6개");
+                        System.out.println("      - userId=1: 3개 (3일 전, 5일 전, 7일 전)");
+                        System.out.println("      - userId=2: 2개 (4일 전, 6일 전)");
+                        System.out.println("      - userId=3: 1개 (2일 전)");
+                        System.out.println("   ⏰ 스케줄러는 10분마다 실행되며, " + window1End + " 이후 Window 1이 처리됩니다.");
+                        System.out.println("   📝 테스트 방법:");
+                        System.out.println("      1. 챌린지 4번의 verifyEndAt을 원하는 시간으로 수정 후 빌드");
+                        System.out.println("      2. 마감 시간 전에 인증 API 호출 → 인증 생성");
+                        System.out.println("      3. 마감 시간 후 스케줄러 실행 → SUCCESS 확인");
+                        System.out.println("      4. 또는 인증 없이 마감 시간 후 → FAIL 확인");
+                    }
+                }
+            }
+
+            // ✅ 챌린지 8번 테스트용 더미 데이터 (주간 횟수 기반, 6회)
+            if (challengeRepository.count() >= 8) {
+                Challenge challenge8 = challengeRepository.findById(8L).orElse(null);
+                User user1 = userRepository.findByTossId(1001L).orElse(null);
+                
+                if (challenge8 != null && user1 != null && challenge8.getDaysOfWeek() == null) {
+                    ChallengeMember member1 = challengeMemberRepository
+                            .findByChallengeIdAndUserTossIdWithFetch(8L, 1001L)
+                            .orElse(null);
+                    
+                    if (member1 != null) {
+                        LocalDate today = LocalDate.now();
+                        LocalDate weekStart = today.with(java.time.DayOfWeek.MONDAY);
+                        LocalDate weekEnd = weekStart.plusDays(6); // 일요일
+                        
+                        LocalTime verifyStartAt = challenge8.getVerifyStartAt() != null 
+                                ? challenge8.getVerifyStartAt() 
+                                : LocalTime.of(6, 0);
+                        LocalTime verifyEndAt = challenge8.getVerifyEndAt() != null 
+                                ? challenge8.getVerifyEndAt() 
+                                : LocalTime.of(17, 0);
+                        
+                        // 이번 주 ChallengeWindow 7개 생성
+                        // 벌금이 1회 생성되었다는 것은 화요일 Window가 이미 FAIL 상태여야 함
+                        for (int i = 0; i < 7; i++) {
+                            LocalDate windowDate = weekStart.plusDays(i);
+                            
+                            // 이미 존재하는지 확인
+                            boolean exists = challengeWindowRepository
+                                    .findByChallengeIdInAndTossIdInAndChallengeWindowStartBetween(
+                                            java.util.Set.of(8L),
+                                            java.util.Set.of(1001L),
+                                            windowDate.atTime(verifyStartAt),
+                                            windowDate.atTime(verifyStartAt).plusDays(1)
+                                    ).stream()
+                                    .anyMatch(w -> w.getChallengeWindowStart().toLocalDate().equals(windowDate));
+                            
+                            if (!exists) {
+                                // 화요일(i=1)은 벌금이 이미 생성되었으므로 FAIL 상태
+                                // 월요일(i=0)은 아직 마감 시간이 지나지 않았거나 벌금이 발생하지 않았으므로 PENDING
+                                // 수요일 이후(i>=2)는 아직 마감 시간이 지나지 않았으므로 PENDING
+                                ChallengeWindowStatus status = (i == 1) 
+                                        ? ChallengeWindowStatus.FAIL 
+                                        : ChallengeWindowStatus.PENDING;
+                                
+                                ChallengeWindow window = ChallengeWindow.builder()
+                                        .challengeId(8L)
+                                        .tossId(1001L)
+                                        .challengeWindowStart(windowDate.atTime(verifyStartAt))
+                                        .challengeWindowEnd(windowDate.atTime(verifyEndAt))
+                                        .challengeWindowStatus(status)
+                                        .build();
+                                challengeWindowRepository.save(window);
+                            }
+                        }
+                        
+                        // 이미 생성된 벌금 1회 (현재 인증 0회, 남은 인증 6회 > 남은 일수 5일)
+                        // 이번 주에 이미 생성된 벌금이 있는지 확인
+                        Long existingPenaltyCount = penaltyRepository.countWeeklyPenalties(
+                                8L, 1001L, weekStart, weekEnd);
+                        
+                        if (existingPenaltyCount == 0) {
+                            Penalty penalty = Penalty.builder()
+                                    .challengeMember(member1)
+                                    .penaltyAmount(challenge8.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty = penaltyRepository.save(penalty);
+                            // 이번 주 범위 내로 createdAt 설정 (예: 월요일 오전)
+                            savedPenalty.setCreatedAt(weekStart.atTime(10, 0));
+                            penaltyRepository.save(savedPenalty);
+                        }
+                        
+                        System.out.println("✅ 챌린지 8번 테스트용 더미 데이터 생성 완료 (주간 횟수 기반)");
+                        System.out.println("   📌 주간 인증 횟수: 6회");
+                        System.out.println("   📌 현재 주간 인증: 0회");
+                        System.out.println("   📌 오늘(수요일) 인증: 없음 (테스트용)");
+                        System.out.println("   📌 ChallengeWindow: 이번 주 7개");
+                        System.out.println("      - 월요일: PENDING (아직 마감 시간 전 또는 벌금 없음)");
+                        System.out.println("      - 화요일: FAIL (벌금 1회 생성됨)");
+                        System.out.println("      - 수요일~일요일: PENDING (아직 마감 시간 전)");
+                        System.out.println("   📌 이미 생성된 벌금: 1회 (화요일 Window 처리 시 생성)");
+                        System.out.println("   ⏰ 테스트 시나리오:");
+                        System.out.println("      - 오늘(수요일) 마감 시간(17:00)까지 인증 안 하면 → 벌금 추가 발생, 수요일 Window FAIL");
+                        System.out.println("      - 오늘(수요일) 인증하면 → 남은 인증 5회, 남은 일수 4일 → 벌금 발생 안 함");
+                    }
+                }
             }
 
         };

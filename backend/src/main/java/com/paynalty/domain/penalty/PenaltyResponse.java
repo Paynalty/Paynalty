@@ -24,15 +24,15 @@ public class PenaltyResponse {
     @Schema(description = "벌금액", example = "Long")
     private Long amount;
 
+    // 필드 맴버 이름 추가
+    @Schema(description = "맴버 이름")
+    private  String memberName;
     // 결제 관련 정보
     @Schema(description = "결제 여부", example = "Boolean")
     private Boolean paid;
 
     @Schema(description = "결제 시간", example = "LocalDateTime")
     private LocalDateTime paidAt;
-
-    @Schema(description = "결제 주문 ID", example = "String")
-    private String paymentOrderId;
 
     @Schema(description = "생성 시간", example = "LocalDateTime")
     private LocalDateTime createdAt;
@@ -43,8 +43,11 @@ public class PenaltyResponse {
                 .penaltyId(penalty.getId())
                 .challengeMemberId(member.getId())
                 .challengeTitle(member.getChallenge().getTitle())
-                .amount(penalty.getFixedAmount())
+                .amount(penalty.getPenaltyAmount())
+                .paid(penalty.getPaid())
+                .paidAt(penalty.getPaidAt())
                 .createdAt(penalty.getCreatedAt())
+                .memberName(penalty.getChallengeMember().getUser().getName())
                 .build();
     }
 }

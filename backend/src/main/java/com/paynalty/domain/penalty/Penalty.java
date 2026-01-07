@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "penalties")
 @Getter
@@ -24,12 +26,21 @@ public class Penalty extends BaseTimeEntity {
     private ChallengeMember challengeMember;
 
     @Column(nullable = false)
-    private Long fixedAmount;
+    private Long penaltyAmount;
+
+    // 결제 관련 정보
+    @Column(nullable = false)
+    private Boolean paid = false;
+
+    @Column
+    private LocalDateTime paidAt;
 
     @Builder
-    public Penalty(ChallengeMember challengeMember, Long fixedAmount) {
+    public Penalty(ChallengeMember challengeMember, Long penaltyAmount) {
         this.challengeMember = challengeMember;
-        this.fixedAmount = fixedAmount;
+        this.penaltyAmount = penaltyAmount;
+        this.paid = false; // 기본값 false
+        this.paidAt = null; // 기본값 null
     }
 }
 

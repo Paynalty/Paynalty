@@ -19,7 +19,7 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * 이번주는 월요일부터 일요일까지입니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 ID
      * @param weekStart 이번주 시작일 (월요일)
      * @param weekEnd 이번주 종료일 (일요일)
      * @return 이번주 인증 횟수
@@ -40,7 +40,7 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * 특정 챌린지와 사용자의 전체 인증 횟수를 조회합니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 ID
      * @return 전체 인증 횟수
      */
     @Query("SELECT COUNT(cv) FROM ChallengeVerification cv " +
@@ -56,7 +56,7 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * 1일 1회 인증 제한을 위해 사용됩니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 tossID
      * @param date 확인할 날짜
      * @return 해당 날짜에 인증 기록이 있으면 true, 없으면 false
      */
@@ -65,6 +65,25 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
            "AND cv.user.tossId = :tossId " +
            "AND cv.date = :date")
     boolean existsByChallengeIdAndUserTossIdAndDate(
+            @Param("challengeId") Long challengeId,
+            @Param("tossId") Long tossId,
+            @Param("date") LocalDate date
+    );
+
+    /**
+     * 특정 챌린지와 사용자의 특정 날짜 인증 데이터를 조회합니다.
+     * Enforcer에서 인증 시간대 확인을 위해 사용됩니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 Toss ID
+     * @param date 확인할 날짜
+     * @return 해당 날짜의 인증 데이터 (없으면 Optional.empty())
+     */
+    @Query("SELECT cv FROM ChallengeVerification cv " +
+           "WHERE cv.challenge.id = :challengeId " +
+           "AND cv.user.tossId = :tossId " +
+           "AND cv.date = :date")
+    Optional<ChallengeVerification> findByChallengeIdAndTossIdAndDate(
             @Param("challengeId") Long challengeId,
             @Param("tossId") Long tossId,
             @Param("date") LocalDate date
@@ -81,7 +100,7 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
      * 무한 스크롤을 위해 Slice를 반환합니다.
      *
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId 사용자 tossID
      * @param pageable 페이징 정보 (page, size, sort)
      * @return Slice<ChallengeVerification> (다음 페이지 존재 여부 포함)
      */
