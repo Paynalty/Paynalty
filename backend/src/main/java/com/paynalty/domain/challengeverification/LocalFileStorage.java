@@ -80,6 +80,14 @@ public class LocalFileStorage implements FileStorage{
         if (fileName == null || fileName.isEmpty()) {
             return "";
         }
+        // 이미 전체 URL이거나 http로 시작하는 경우 그대로 반환
+        if (fileName.startsWith("http")) {
+            return fileName;
+        }
+        // 이미 경로가 포함된 경우 (중복 방지)
+        if (fileName.contains("/uploads/verifications/")) {
+            return fileName.startsWith("/") ? fileName : "/" + fileName;
+        }
         return "/uploads/verifications/" + fileName;
     }
 
