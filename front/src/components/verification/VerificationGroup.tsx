@@ -3,22 +3,17 @@ import { useAdaptive } from '@toss/tds-react-native/private';
 import { StyleSheet, View } from 'react-native';
 import { formatDate } from '../../utils/challenge';
 import { VerificationItem } from './VerificationItem';
-
-interface VerificationData {
-  id: number | string;
-  userName: string;
-  userAvatar?: string;
-  imageUrl: string;
-  dateTime: string;
-}
+import { useMe } from '../../hooks/useMe';
+import { ChallengeVerificationResponse } from '../../api/verifications';
 
 interface VerificationGroupProps {
-  date: string; // ISO string or common date string
-  verifications: VerificationData[];
+  date: string;
+  verifications: ChallengeVerificationResponse[];
 }
 
-export function VerificationGroup({ date, verifications, imageHeight }: VerificationGroupProps & { imageHeight?: number }) {
+export function VerificationGroup({ date, verifications }: VerificationGroupProps) {
   const adaptive = useAdaptive();
+  const { data: me } = useMe();
 
   return (
     <View style={styles.card}>
@@ -31,12 +26,12 @@ export function VerificationGroup({ date, verifications, imageHeight }: Verifica
       {verifications.map((item, index) => (
         <VerificationItem
           key={item.id}
+          verificationId={item.id}
           userName={item.userName}
-          userAvatar={item.userAvatar}
           imageUrl={item.imageUrl}
           dateTime={item.dateTime}
-          showDivider={index > 0}
-          imageHeight={imageHeight}
+          showDivider={index !== 0}
+          isMine={me ? item.userId === me.id : false}
         />
       ))}
     </View>
