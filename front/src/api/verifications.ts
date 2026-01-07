@@ -70,12 +70,12 @@ export const getMemberVerificationCounts = (challengeId: string) => {
 /**
  * 챌린지 인증을 생성합니다.
  * @param challengeId 챌린지 ID
- * @param request 인증 요청 데이터
+ * @param formData 인증 요청 데이터 (image 파트 포함)
  */
-export const createVerification = (challengeId: string, request: CreateVerificationRequest) => {
+export const createVerification = (challengeId: string, formData: FormData) => {
   return apiFetch<ChallengeVerificationResponse>(`/api/challenge-verifications/${challengeId}`, {
     method: 'POST',
-    body: JSON.stringify(request),
+    body: formData,
     schema: ChallengeVerificationResponseSchema,
   });
 };

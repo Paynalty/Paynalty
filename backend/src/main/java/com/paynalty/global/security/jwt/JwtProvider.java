@@ -1,6 +1,5 @@
 package com.paynalty.global.security.jwt;
 
-import com.paynalty.global.security.jwt.dto.JwtToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

@@ -1,30 +1,37 @@
 package com.paynalty.domain.challengeverification;
 
+import io.awspring.cloud.s3.ObjectMetadata;
+import io.awspring.cloud.s3.S3Template;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-@Profile({"dev", "default"})
-public class LocalFileStorage implements FileStorage{
+@Profile("prod")
+@RequiredArgsConstructor
+public class S3FileStorage implements FileStorage {
 
-    @Value("${file.upload.path}")
-    private String uploadDir;
+    private final S3Template s3Template;
+
+    @Value("${spring.cloud.aws.s3.bucket}")
+    private String bucket;
+
+    @Value("${spring.cloud.aws.region.static}")
+    private String region;
 
     private static final List<String> ALLOWED_EXTENSIONS =
             Arrays.asList(".jpg", ".jpeg", ".png", ".gif");
 
     @Override
-    public String upload(MultipartFile file){
+    public String upload(MultipartFile file) {
         try {
             if (file == null || file.isEmpty()) {
                 throw new RuntimeException("파일이 비어있습니다");
@@ -37,42 +44,31 @@ public class LocalFileStorage implements FileStorage{
                 throw new RuntimeException("지원하지 않는 파일 형식입니다. (jpg, jpeg, png, gif만 가능)");
             }
 
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
             String savedFileName = UUID.randomUUID() + extension;
 
-            Path filePath = uploadPath.resolve(savedFileName);
-            Files.copy(file.getInputStream(), filePath);
+            String contentType = file.getContentType();
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
 
-            // 저장된 파일명 반환 (상대 경로)
+            try (InputStream is = file.getInputStream()) {
+                s3Template.upload(bucket, savedFileName, is, 
+                        ObjectMetadata.builder().contentType(contentType).build());
+            }
+
             return savedFileName;
 
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 중 오류가 발생했습니다: " + e.getMessage());
+            throw new RuntimeException("S3 파일 업로드 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
-    
-    /**
-     * 파일을 삭제합니다.
-     * @param fileName 삭제할 파일명
-     */
+
     @Override
     public void delete(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return;
         }
-
-        try {
-            Path filePath = Paths.get(uploadDir, fileName);
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("파일 삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        s3Template.deleteObject(bucket, fileName);
     }
 
     @Override
@@ -80,7 +76,8 @@ public class LocalFileStorage implements FileStorage{
         if (fileName == null || fileName.isEmpty()) {
             return "";
         }
-        return "/uploads/verifications/" + fileName;
+        // S3 Public URL 형식: https://[bucket].s3.[region].amazonaws.com/[fileName]
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
     }
 
     private String getExtension(String filename) {

@@ -6,6 +6,8 @@ import com.paynalty.global.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "challenge_verifications")
 @Getter
@@ -24,19 +26,24 @@ public class ChallengeVerification extends BaseTimeEntity {
     @JoinColumn(name = "challenge_id", nullable = false)
     private Challenge challenge;
 
-    // 인증 날짜 (비즈니스 로직용, createdAt과 별개)
+    // 인증 주간 계산 등 비즈니스 로직용 날짜
     @Column(name = "verification_date", nullable = false)
     private java.time.LocalDate date;
+
+    // 실제 인증 시각 (표시용)
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
 
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
     @Builder
-    public ChallengeVerification(User user, Challenge challenge, java.time.LocalDate date, String imageUrl) {
+    public ChallengeVerification(User user, Challenge challenge, java.time.LocalDate date, LocalDateTime verifiedAt, String imageUrl) {
         this.user = user;
         this.challenge = challenge;
         this.date = date;
+        this.verifiedAt = verifiedAt;
         this.imageUrl = imageUrl;
     }
 
