@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +56,30 @@ public class PenaltyService {
                 .build();
 
         return penaltyRepository.save(penalty);
+    }
+
+    /**
+     * 챌린지의 모든 벌금 내역 조회
+     * 사용자가 해당 챌린지에 참여하고 있는지 검증 후 모든 벌금 내역을 반환합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 토스 ID (검증용)
+     * @return 벌금 내역 리스트 (최신순 정렬)
+     * @throws CustomException 챌린지에 참여하지 않은 경우
+     */
+    @Transactional(readOnly = true)
+    public List<PenaltyResponse> getAllPenalties(Long challengeId, Long tossId) {
+        // 사용자가 해당 챌린지에 참여하는지 검증
+        ChallengeMember member = challengeMemberRepository
+                .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
+                .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.CHALLENGE_MEMBER_NOT_FOUND));
+
+        // 해당 챌린지의 모든 벌금 내역 조회
+        List<Penalty> penalties = penaltyRepository.findAllByChallengeId(challengeId);
+        
+        return penalties.stream()
+                .map(PenaltyResponse::from)
+                .toList();
     }
 }
 

@@ -35,4 +35,22 @@ public class PenaltyController {
         List<PenaltyResponse> response = penaltyService.getMyPenalty(challengeId, tossId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(
+            summary = "챌린지의 모든 벌금 내역 조회",
+            description = "특정 챌린지에서 발생한 모든 참여자들의 벌금 내역을 조회합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "📌 요청한 사용자가 해당 챌린지에 참여하고 있어야 합니다.\n" +
+                    "📌 최신순으로 정렬되어 반환됩니다."
+    )
+    @GetMapping("/{challengeId}/all")
+    public ResponseEntity<List<PenaltyResponse>> getAllPenalties(
+            @Parameter(description = "챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long tossId = userDetails.getUser().getTossId();
+        List<PenaltyResponse> response = penaltyService.getAllPenalties(challengeId, tossId);
+        return ResponseEntity.ok(response);
+    }
 }

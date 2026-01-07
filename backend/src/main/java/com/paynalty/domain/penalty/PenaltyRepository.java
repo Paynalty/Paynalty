@@ -2,6 +2,7 @@ package com.paynalty.domain.penalty;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,7 +28,28 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
         AND cm.user.tossId = :tossId
         ORDER BY p.createdAt DESC
         """)
-    List<Penalty> findByChallengeIdAndTossId(Long challengeId, Long tossId);
+    List<Penalty> findByChallengeIdAndTossId(
+            @Param("challengeId") Long challengeId,
+            @Param("tossId") Long tossId
+    );
+
+    /**
+     * 챌린지의 모든 벌금 내역 조회
+     * ChallengeMember와 User, Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @return 벌금 리스트 (최신순 정렬)
+     */
+    @Query("""
+        SELECT p 
+        FROM Penalty p
+        JOIN FETCH p.challengeMember cm
+        JOIN FETCH cm.user
+        JOIN FETCH cm.challenge
+        WHERE cm.challenge.id = :challengeId
+        ORDER BY p.createdAt DESC
+        """)
+    List<Penalty> findAllByChallengeId(@Param("challengeId") Long challengeId);
 
 }
 
