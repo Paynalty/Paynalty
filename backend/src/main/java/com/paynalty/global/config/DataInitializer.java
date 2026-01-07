@@ -1,4 +1,4 @@
-/*
+
 package com.paynalty.global.config;
 
 import com.paynalty.domain.challenge.Challenge;
@@ -119,14 +119,14 @@ public class DataInitializer {
                                 .title("하루 한 페이지 일기 쓰기")
                                 .startDate(today.minusDays(21)) // 3주 전 시작
                                 .endDate(today.plusDays(14)) // 2주 후 종료
-                                .frequency(3)
+                                .frequency(6)
                                 .penaltyAmount(10000L)
                                 .status(Challenge.calculateStatus(
                                         today.minusDays(21),
                                         today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(18, 0))
-                                .verifyEndAt(LocalTime.of(23, 59))
+                                .verifyEndAt(LocalTime.of(23, 59,59))
                                 .daysOfWeek(List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI))
                                 .user(users.get(0))
                                 .build());
@@ -144,7 +144,7 @@ public class DataInitializer {
                                         today.plusDays(14)))
                                 .verificationType(VerificationType.PHOTO)
                                 .verifyStartAt(LocalTime.of(0, 0, 0))
-                                .verifyEndAt(LocalTime.of(14, 39, 59))
+                                .verifyEndAt(LocalTime.of(16, 39, 59))
                                 .daysOfWeek(List.of(
                                         DayOfWeekType.MON,
                                         DayOfWeekType.TUE,
@@ -223,7 +223,25 @@ public class DataInitializer {
                                 .user(users.get(0))
                                 .build());
 
-                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (7개)");
+                // ✅ 챌린지 8: ACTIVE (진행 중 - 주간 횟수 기반, 6회)
+                challengeRepository.save(
+                        Challenge.builder()
+                                .title("주간 횟수 기반 챌린지 테스트 (6회)")
+                                .startDate(today.minusDays(21)) // 3주 전 시작
+                                .endDate(today.plusDays(14)) // 2주 후 종료
+                                .frequency(6) // 주간 6회 인증
+                                .penaltyAmount(10000L)
+                                .status(Challenge.calculateStatus(
+                                        today.minusDays(21),
+                                        today.plusDays(14)))
+                                .verificationType(VerificationType.PHOTO)
+                                .verifyStartAt(LocalTime.of(6, 0)) // 06:00
+                                .verifyEndAt(LocalTime.of(18, 9,50)) // 17:00
+                                .daysOfWeek(null) // 주간 횟수 기반 (daysOfWeek null)
+                                .user(users.get(0))
+                                .build());
+
+                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (8개)");
             }
 
             if (challengeMemberRepository.count() == 0) {
@@ -624,7 +642,95 @@ public class DataInitializer {
                 }
             }
 
+            // ✅ 챌린지 8번 테스트용 더미 데이터 (주간 횟수 기반, 6회)
+            if (challengeRepository.count() >= 8) {
+                Challenge challenge8 = challengeRepository.findById(8L).orElse(null);
+                User user1 = userRepository.findByTossId(1001L).orElse(null);
+                
+                if (challenge8 != null && user1 != null && challenge8.getDaysOfWeek() == null) {
+                    ChallengeMember member1 = challengeMemberRepository
+                            .findByChallengeIdAndUserTossIdWithFetch(8L, 1001L)
+                            .orElse(null);
+                    
+                    if (member1 != null) {
+                        LocalDate today = LocalDate.now();
+                        LocalDate weekStart = today.with(java.time.DayOfWeek.MONDAY);
+                        LocalDate weekEnd = weekStart.plusDays(6); // 일요일
+                        
+                        LocalTime verifyStartAt = challenge8.getVerifyStartAt() != null 
+                                ? challenge8.getVerifyStartAt() 
+                                : LocalTime.of(6, 0);
+                        LocalTime verifyEndAt = challenge8.getVerifyEndAt() != null 
+                                ? challenge8.getVerifyEndAt() 
+                                : LocalTime.of(17, 0);
+                        
+                        // 이번 주 ChallengeWindow 7개 생성
+                        // 벌금이 1회 생성되었다는 것은 화요일 Window가 이미 FAIL 상태여야 함
+                        for (int i = 0; i < 7; i++) {
+                            LocalDate windowDate = weekStart.plusDays(i);
+                            
+                            // 이미 존재하는지 확인
+                            boolean exists = challengeWindowRepository
+                                    .findByChallengeIdInAndTossIdInAndChallengeWindowStartBetween(
+                                            java.util.Set.of(8L),
+                                            java.util.Set.of(1001L),
+                                            windowDate.atTime(verifyStartAt),
+                                            windowDate.atTime(verifyStartAt).plusDays(1)
+                                    ).stream()
+                                    .anyMatch(w -> w.getChallengeWindowStart().toLocalDate().equals(windowDate));
+                            
+                            if (!exists) {
+                                // 화요일(i=1)은 벌금이 이미 생성되었으므로 FAIL 상태
+                                // 월요일(i=0)은 아직 마감 시간이 지나지 않았거나 벌금이 발생하지 않았으므로 PENDING
+                                // 수요일 이후(i>=2)는 아직 마감 시간이 지나지 않았으므로 PENDING
+                                ChallengeWindowStatus status = (i == 1) 
+                                        ? ChallengeWindowStatus.FAIL 
+                                        : ChallengeWindowStatus.PENDING;
+                                
+                                ChallengeWindow window = ChallengeWindow.builder()
+                                        .challengeId(8L)
+                                        .tossId(1001L)
+                                        .challengeWindowStart(windowDate.atTime(verifyStartAt))
+                                        .challengeWindowEnd(windowDate.atTime(verifyEndAt))
+                                        .challengeWindowStatus(status)
+                                        .build();
+                                challengeWindowRepository.save(window);
+                            }
+                        }
+                        
+                        // 이미 생성된 벌금 1회 (현재 인증 0회, 남은 인증 6회 > 남은 일수 5일)
+                        // 이번 주에 이미 생성된 벌금이 있는지 확인
+                        Long existingPenaltyCount = penaltyRepository.countWeeklyPenalties(
+                                8L, 1001L, weekStart, weekEnd);
+                        
+                        if (existingPenaltyCount == 0) {
+                            Penalty penalty = Penalty.builder()
+                                    .challengeMember(member1)
+                                    .penaltyAmount(challenge8.getPenaltyAmount())
+                                    .build();
+                            Penalty savedPenalty = penaltyRepository.save(penalty);
+                            // 이번 주 범위 내로 createdAt 설정 (예: 월요일 오전)
+                            savedPenalty.setCreatedAt(weekStart.atTime(10, 0));
+                            penaltyRepository.save(savedPenalty);
+                        }
+                        
+                        System.out.println("✅ 챌린지 8번 테스트용 더미 데이터 생성 완료 (주간 횟수 기반)");
+                        System.out.println("   📌 주간 인증 횟수: 6회");
+                        System.out.println("   📌 현재 주간 인증: 0회");
+                        System.out.println("   📌 오늘(수요일) 인증: 없음 (테스트용)");
+                        System.out.println("   📌 ChallengeWindow: 이번 주 7개");
+                        System.out.println("      - 월요일: PENDING (아직 마감 시간 전 또는 벌금 없음)");
+                        System.out.println("      - 화요일: FAIL (벌금 1회 생성됨)");
+                        System.out.println("      - 수요일~일요일: PENDING (아직 마감 시간 전)");
+                        System.out.println("   📌 이미 생성된 벌금: 1회 (화요일 Window 처리 시 생성)");
+                        System.out.println("   ⏰ 테스트 시나리오:");
+                        System.out.println("      - 오늘(수요일) 마감 시간(17:00)까지 인증 안 하면 → 벌금 추가 발생, 수요일 Window FAIL");
+                        System.out.println("      - 오늘(수요일) 인증하면 → 남은 인증 5회, 남은 일수 4일 → 벌금 발생 안 함");
+                    }
+                }
+            }
+
         };
     }
 }
-*/
+

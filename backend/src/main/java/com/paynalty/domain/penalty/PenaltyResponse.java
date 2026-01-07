@@ -24,6 +24,9 @@ public class PenaltyResponse {
     @Schema(description = "벌금액", example = "Long")
     private Long amount;
 
+    // 필드 맴버 이름 추가
+    @Schema(description = "맴버 이름")
+    private  String memberName;
     // 결제 관련 정보
     @Schema(description = "결제 여부", example = "Boolean")
     private Boolean paid;
@@ -44,6 +47,7 @@ public class PenaltyResponse {
                 .paid(penalty.getPaid())
                 .paidAt(penalty.getPaidAt())
                 .createdAt(penalty.getCreatedAt())
+                .memberName(penalty.getChallengeMember().getUser().getName())
                 .build();
     }
 }

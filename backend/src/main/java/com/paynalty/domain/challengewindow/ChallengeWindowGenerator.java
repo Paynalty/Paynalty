@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
  *      - 특정 요일에만 ChallengeWindow 생성
  *
  *   2) 주간 횟수 기반 챌린지 (N times per week)
- *      - ISO 주(월~일) 기준으로 주당 최대 N개의 window만 생성
+ *      - ISO 주(월~일) 기준으로 해당 주의 모든 날짜(월~일)에 window 생성
+ *      - 벌금은 남은 인증 횟수와 남은 일수를 비교하여 결정
  *
  * - 이미 생성된 ChallengeWindow는 재생성하지 않음 (멱등성 보장)
  */
@@ -58,8 +59,8 @@ public class ChallengeWindowGenerator {
 //     *
 //     * ⚠️ 테스트용: cron을 "0 */1 * * * *"로 변경하면 1분마다 실행됩니다.
 //     * 프로덕션 배포 전에는 "0 0 0 * * *"로 되돌려야 합니다.
-//    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
-     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
+    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
+//     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
     @Transactional
     public void generateWindows() {
 
@@ -196,29 +197,27 @@ public class ChallengeWindowGenerator {
                             .collect(Collectors.toSet())
                             : Collections.emptySet();
 
-            // today부터 until(today+LOOKAHEAD_DAYS)까지 날짜를 하루씩 순회하며 window 생성 여부 판단
-            // date: 해당 ChallengeWindow가 생성될 기준 일자
-            for (LocalDate date = today; !date.isAfter(until); date = date.plusDays(1)) {
+            // 주간 횟수 기반 챌린지의 경우: 해당 주의 모든 날짜(월~일) 생성
+            // 요일 기반 챌린지의 경우: today부터 until까지 순회하며 설정된 요일에만 생성
+            LocalDate startDate = isDaysOfWeekBased ? today : today.with(weekFields.dayOfWeek(), 1); // 주간 횟수 기반이면 해당 주의 월요일부터
+            LocalDate endDate = isDaysOfWeekBased ? until : today.with(weekFields.dayOfWeek(), 7); // 주간 횟수 기반이면 해당 주의 일요일까지
+
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
 
                 // 5-1. 다음 조건 중 하나라도 해당되면 생성하지 않음
                 // - 챌린지 기간 밖
                 // - 멤버가 아직 참여하지 않은 날짜
+                // - 주간 횟수 기반인 경우: lookahead 기간 밖 (오늘 이전 날짜는 생성하지 않음)
                 if (date.isBefore(challenge.getStartDate()) || date.isAfter(challenge.getEndDate()) || date.isBefore(memberJoinedDate)) continue;
+                if (!isDaysOfWeekBased && date.isBefore(today)) continue; // 주간 횟수 기반: 오늘 이전 날짜는 생성하지 않음
 
                 // 5-2. 챌린지 타입별 생성 조건
                 // 요일 기반: date의 요일이 설정된 요일에 포함되어야 함
-                // 횟수 기반: 해당 ISO 주의 window 개수가 frequency 미만이어야 함
-                int week = date.get(weekFields.weekOfWeekBasedYear());
-                int year = date.get(weekFields.weekBasedYear());
-
-                String weekKey = challengeId + ":" + tossId + ":" + year + ":" + week;
-
+                // 횟수 기반: 7개 모두 생성 (제한 없음)
                 if (isDaysOfWeekBased) {
                     if (!challengeDays.contains(date.getDayOfWeek())) continue;
-                } else {
-                    long currentCount = weeklyWindowCount.getOrDefault(weekKey, 0L);
-                    if (currentCount >= challenge.getFrequency()) continue;
                 }
+                // 주간 횟수 기반 챌린지는 frequency 제한 없이 해당 주의 모든 날짜(월~일) 생성
 
                 LocalDateTime challengeWindowStart = date.atTime(challenge.getVerifyStartAt());
                 LocalDateTime challengeWindowEnd = date.atTime(challenge.getVerifyEndAt());
@@ -237,14 +236,6 @@ public class ChallengeWindowGenerator {
                                 .challengeWindowStatus(ChallengeWindowStatus.PENDING)
                                 .build()
                 );
-
-                // 횟수 기반 챌린지인 경우 새 window를 추가한 즉시 주간 카운트 증가 → 같은 실행 내에서 초과 생성 방지
-                if (!isDaysOfWeekBased) {
-                    weeklyWindowCount.put(
-                            weekKey,
-                            weeklyWindowCount.getOrDefault(weekKey, 0L) + 1
-                    );
-                }
 
             }
         }
