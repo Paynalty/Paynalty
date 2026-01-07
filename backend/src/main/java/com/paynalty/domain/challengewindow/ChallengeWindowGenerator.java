@@ -122,47 +122,47 @@ public class ChallengeWindowGenerator {
         LocalDateTime searchRangeStart = firstWeekStart.atStartOfDay();
         LocalDateTime searchRangeEnd = lastWeekEnd.plusDays(1).atStartOfDay();
 
-        // 4-1. 유효한 (challenge_id, user_id) 조합 생성 (ex. 1:1, 1:4, 2:5) (4-3에서 무관한 조합 걸러내는 용도)
-        Set<String> validChallengeIdAndUserIdPairs =
+        // 4-1. 유효한 (challenge_id, toss_id) 조합 생성 (ex. 1:1, 1:4, 2:5) (4-3에서 무관한 조합 걸러내는 용도)
+        Set<String> validChallengeIdAndTossIdPairs =
                 challengeMembers.stream()
-                        .map(challengeMember -> challengeMember.getChallenge().getId() + ":" + challengeMember.getUser().getId())
+                        .map(challengeMember -> challengeMember.getChallenge().getId() + ":" + challengeMember.getUser().getTossId())
                         .collect(Collectors.toSet());
 
         // [4-2] cartesian 조건으로 기존 ChallengeWindow 조회
-        // challengeIds × userIds × time range
+        // challengeIds × tossIds × time range
         Set<Long> challengeIds =
                 challengeMembers.stream()
                         .map(challengeMember -> challengeMember.getChallenge().getId())
                         .collect(Collectors.toSet());
 
-        Set<Long> userIds =
+        Set<Long> tossIds =
                 challengeMembers.stream()
-                        .map(challengeMember -> challengeMember.getUser().getId())
+                        .map(challengeMember -> challengeMember.getUser().getTossId())
                         .collect(Collectors.toSet());
 
-        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndUserIdInAndChallengeWindowStartBetween(
+        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndTossIdInAndChallengeWindowStartBetween(
                                 challengeIds,
-                                userIds,
+                                tossIds,
                                 searchRangeStart,
                                 searchRangeEnd);
 
         // [4-3] 기존 ChallengeWindow의 lookup key 생성
-        // 형식: challengeId:userId:challengeWindowStart → 동일 window 중복 생성 방지
+        // 형식: challengeId:tossId:challengeWindowStart → 동일 window 중복 생성 방지
         Set<String> existingWindowLookupKeys = existingWindows.stream()
-                        // (1) 무관한 (challenge_id, user_id) 제거
-                        .filter(existingWindow -> validChallengeIdAndUserIdPairs.contains(existingWindow.getChallengeId() + ":" + existingWindow.getUserId()))
+                        // (1) 무관한 (challenge_id, toss_id) 제거
+                        .filter(existingWindow -> validChallengeIdAndTossIdPairs.contains(existingWindow.getChallengeId() + ":" + existingWindow.getTossId()))
                         // (2) deduplicate된 lookup key 생성
-                        .map(window -> window.getChallengeId() + ":" + window.getUserId() + ":" + window.getChallengeWindowStart())
+                        .map(window -> window.getChallengeId() + ":" + window.getTossId() + ":" + window.getChallengeWindowStart())
                         .collect(Collectors.toSet());
 
         // [4-4] ISO 주 단위 ChallengeWindow 개수 집계
-        // key 형식: challengeId:userId:weekBasedYear:weekOfWeekBasedYear
+        // key 형식: challengeId:tossId:weekBasedYear:weekOfWeekBasedYear
         // 횟수 기반 챌린지에서 "이번 주에 이미 몇 번 생성되었는지" 판단하는 데 사용
         Map<String, Long> weeklyWindowCount =
                 existingWindows.stream()
                         .collect(Collectors.groupingBy(
                                 w -> w.getChallengeId()
-                                        + ":" + w.getUserId()
+                                        + ":" + w.getTossId()
                                         + ":" + w.getChallengeWindowStart()
                                         .get(weekFields.weekBasedYear())
                                         + ":" + w.getChallengeWindowStart()
@@ -177,7 +177,7 @@ public class ChallengeWindowGenerator {
 
             Challenge challenge = member.getChallenge();
             Long challengeId = challenge.getId();
-            Long userId = member.getUser().getId();
+            Long tossId = member.getUser().getTossId();
             LocalDate memberJoinedDate = member.getJoinedAt().toLocalDate();
 
             // 챌린지 타입 판별
@@ -208,7 +208,7 @@ public class ChallengeWindowGenerator {
                 int week = date.get(weekFields.weekOfWeekBasedYear());
                 int year = date.get(weekFields.weekBasedYear());
 
-                String weekKey = challengeId + ":" + userId + ":" + year + ":" + week;
+                String weekKey = challengeId + ":" + tossId + ":" + year + ":" + week;
 
                 if (isDaysOfWeekBased) {
                     if (!challengeDays.contains(date.getDayOfWeek())) continue;
@@ -221,14 +221,14 @@ public class ChallengeWindowGenerator {
                 LocalDateTime challengeWindowEnd = date.atTime(challenge.getVerifyEndAt());
 
                 // ChallengeWindow가 이미 존재하는지 확인하기 위한 고유 식별자 생성
-                String lookupKey = challengeId + ":" + userId + ":" + challengeWindowStart;
+                String lookupKey = challengeId + ":" + tossId + ":" + challengeWindowStart;
                 // 5-3. 이미 동일한 ChallengeWindow가 존재하면 생성하지 않음
                 if (existingWindowLookupKeys.contains(lookupKey)) continue;
 
                 windowsToGenerate.add(
                         ChallengeWindow.builder()
                                 .challengeId(challengeId)
-                                .userId(userId)
+                                .tossId(tossId)
                                 .challengeWindowStart(challengeWindowStart)
                                 .challengeWindowEnd(challengeWindowEnd)
                                 .challengeWindowStatus(ChallengeWindowStatus.PENDING)

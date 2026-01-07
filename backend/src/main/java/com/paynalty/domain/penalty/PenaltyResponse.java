@@ -44,6 +44,9 @@ public class PenaltyResponse {
                 .challengeMemberId(member.getId())
                 .challengeTitle(member.getChallenge().getTitle())
                 .amount(penalty.getFixedAmount())
+                .paid(penalty.getPaid())
+                .paidAt(penalty.getPaidAt())
+                .paymentOrderId(penalty.getPaymentOrderId())
                 .createdAt(penalty.getCreatedAt())
                 .build();
     }
