@@ -54,7 +54,7 @@ export function VerificationItem({userName, userAvatar, imageUrl, dateTime, show
             </View>
             <View style={styles.bottomSection}>
                 <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                    이의제기
+                    {/* 이의제기 */}
                 </Txt>
                 <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
                     {formatTime(dateTime)}

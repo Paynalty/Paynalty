@@ -1,5 +1,5 @@
 import { Spacing, useNavigation } from '@granite-js/react-native';
-import { Badge, ListHeader, Top } from '@toss/tds-react-native';
+import { Badge, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { StyleSheet, View } from 'react-native';
 
@@ -101,14 +101,27 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
               자세히 보기
             </ListHeader.RightArrow>
             <Spacing size={6} />
-            <Badge size="small" type="blue" badgeStyle="weak">
-              {challenge.participants || '친구 0명'}
-            </Badge>
+            <ChallengeMembers members={challenge.members} />
           </View>
         }
       />
     </View>
   );
+}
+
+function ChallengeMembers({ members }: { members: Challenge['members'] }) {
+  const adaptive = useAdaptive();
+
+  if (members.length > 1) {
+    const randomIndex = Math.floor(Math.random() * members.length);
+    const randomMember = members[randomIndex];
+
+    return (
+      <Txt color={adaptive.grey600} typography="t7" numberOfLines={1} ellipsizeMode="tail" style={{ maxWidth: 100 }}>
+        {`${randomMember.userName} 외 ${members.length - 1}명`}
+      </Txt>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
