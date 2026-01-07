@@ -30,6 +30,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       AWS_REGION: ${AWS_REGION}
+    env_file:
+      - .env
     volumes:
       - ./logs:/var/log/paynalty
     depends_on:
