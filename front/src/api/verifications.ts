@@ -19,6 +19,7 @@ export const SliceResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
 
 export const ChallengeVerificationResponseSchema = z.object({
   id: z.number(),
+  userId: z.number(),
   userName: z.string(),
   imageUrl: z.string(),
   dateTime: z.string(),
@@ -78,4 +79,14 @@ export const createVerification = (challengeId: string, formData: FormData) => {
     body: formData,
     schema: ChallengeVerificationResponseSchema,
   });
+};
+
+/**
+ * 챌린지 인증을 삭제합니다.
+ * @param verificationId 인증 ID
+ */
+export const deleteVerification = (verificationId: number) => {
+    return apiFetch<void>(`/api/challenge-verifications/${verificationId}`, {
+        method: 'DELETE',
+    });
 };
