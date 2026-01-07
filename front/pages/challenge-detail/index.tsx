@@ -1,6 +1,7 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+import { AuthGuard } from '../../src/components/common/AuthGuard';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
@@ -43,7 +44,8 @@ function Page() {
   }
 
   return (
-    <ScrollView>
+    <AuthGuard>
+      <ScrollView>
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
         subtitle2={
@@ -318,7 +320,8 @@ function Page() {
           바로 인증하기
         </FixedBottomCTA>
       </FixedBottomCTAProvider>
-    </ScrollView>
+      </ScrollView>
+    </AuthGuard>
   );
 }
 

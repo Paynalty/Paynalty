@@ -40,8 +40,6 @@ function Page() {
       const hasCompletedOnboarding = await Storage.getItem('hasCompletedOnboarding');
       if (!hasCompletedOnboarding) {
         navigation.navigate('/auth');
-      } else {
-        navigation.navigate('/auth/login');
       }
     } catch (error) {
       console.error('Failed to check auth status:', error);
