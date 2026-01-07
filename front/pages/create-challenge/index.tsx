@@ -4,6 +4,7 @@ import {useAdaptive} from '@toss/tds-react-native/private';
 import { View } from "react-native";
 import { useCreateChallengeStore } from "../../src/stores/createChallengeStore";
 import { useEffect } from "react";
+import { AuthGuard } from "../../src/components/common/AuthGuard";
 
 export const Route = createRoute('/create-challenge', {
     component: Page,
@@ -19,7 +20,7 @@ function Page() {
     }, [resetData]);
 
     return (
-        <>
+        <AuthGuard>
             <Spacing size={12}/>
             <Top
                 title={
@@ -61,6 +62,6 @@ function Page() {
                 <FixedBottomCTA loading={false} onPress={() =>
                     navigation.navigate('/create-challenge/step2')}>목표 만들기</FixedBottomCTA>
             </FixedBottomCTAProvider>
-        </>
+        </AuthGuard>
     );
 }

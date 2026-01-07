@@ -17,7 +17,7 @@ interface VerificationGroupProps {
   verifications: VerificationData[];
 }
 
-export function VerificationGroup({ date, verifications }: VerificationGroupProps) {
+export function VerificationGroup({ date, verifications, imageHeight }: VerificationGroupProps & { imageHeight?: number }) {
   const adaptive = useAdaptive();
 
   return (
@@ -36,6 +36,7 @@ export function VerificationGroup({ date, verifications }: VerificationGroupProp
           imageUrl={item.imageUrl}
           dateTime={item.dateTime}
           showDivider={index > 0}
+          imageHeight={imageHeight}
         />
       ))}
     </View>

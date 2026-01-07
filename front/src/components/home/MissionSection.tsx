@@ -1,6 +1,7 @@
 import { Asset, Top, Txt, ListRow, Icon } from '@toss/tds-react-native';
 import { Spacing } from '@granite-js/react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+import { useAuthStore } from '../../stores/authStore';
 import React, { useState, useMemo } from 'react';
 import {
   View,
@@ -43,10 +44,14 @@ export function MissionSection({ missions, onCreateChallenge }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const { isLoggedIn } = useAuthStore();
+
   const carouselData = useMemo<CardItem[]>(() => {
-    const data: CardItem[] = [{ type: 'SUMMARY' }, { type: 'CREATE', action: onCreateChallenge }];
+    const data: CardItem[] = isLoggedIn
+      ? [{ type: 'SUMMARY' }, { type: 'CREATE', action: onCreateChallenge }]
+      : [{ type: 'CREATE', action: onCreateChallenge }, { type: 'SUMMARY' }];
     return data;
-  }, [onCreateChallenge]);
+  }, [isLoggedIn, onCreateChallenge]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollOffset = event.nativeEvent.contentOffset.x;

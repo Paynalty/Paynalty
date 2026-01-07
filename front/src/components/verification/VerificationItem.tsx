@@ -1,6 +1,7 @@
 import {Asset, Txt} from '@toss/tds-react-native';
+import {useEffect, useState} from 'react';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {StyleSheet, View} from 'react-native';
+import {Image, StyleSheet, View} from 'react-native';
 import {formatTime, getFileUrl} from '../../utils/challenge';
 
 interface VerificationItemProps {
@@ -9,10 +10,22 @@ interface VerificationItemProps {
     imageUrl: string;
     dateTime: string;
     showDivider?: boolean;
+    imageHeight?: number;
 }
 
-export function VerificationItem({userName, userAvatar, imageUrl, dateTime, showDivider}: VerificationItemProps) {
+export function VerificationItem({userName, userAvatar, imageUrl, dateTime, showDivider, imageHeight}: VerificationItemProps) {
     const adaptive = useAdaptive();
+    const [aspectRatio, setAspectRatio] = useState(1);
+
+    useEffect(() => {
+        if (!imageHeight && imageUrl) {
+            Image.getSize(getFileUrl(imageUrl), (width, height) => {
+                setAspectRatio(width / height);
+            }, (error) => {
+                console.error('Failed to get image size:', error);
+            });
+        }
+    }, [imageUrl, imageHeight]);
 
     return (
         <View
@@ -31,15 +44,17 @@ export function VerificationItem({userName, userAvatar, imageUrl, dateTime, show
                 </Txt>
             </View>
             <View style={styles.imageSection}>
-                <Asset.Image
-                    frameShape={{height: 300}}
+                <Image
                     source={{uri: getFileUrl(imageUrl)}}
-                    style={{width: '100%', height: 300, borderRadius: 12}}
+                    style={[
+                        { width: '100%', borderRadius: 12 },
+                        imageHeight ? { height: imageHeight } : { aspectRatio }
+                    ]}
                 />
             </View>
             <View style={styles.bottomSection}>
                 <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
-                    이의제기
+                    {/* 이의제기 */}
                 </Txt>
                 <Txt color={adaptive.grey500} typography="t7" fontWeight="medium">
                     {formatTime(dateTime)}

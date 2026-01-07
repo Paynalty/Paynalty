@@ -40,6 +40,15 @@ export const ChallengeDetailResponseSchema = z.object({
   daysOfWeek: z.array(z.string()).default([]),
   startAt: z.string().optional(),
   endAt: z.coerce.string(),
+  members: z.array(z.object({
+    id: z.coerce.number(), // ChallengeMember ID
+    tossId: z.coerce.number(),
+    userName: z.string(),
+    challengeId: z.coerce.number(),
+    joinedAt: z.string().optional(),
+    isSuccess: z.string().optional(),
+    endAt: z.string().optional(),
+  })).optional().default([]),
 });
 export type ChallengeDetailResponse = z.infer<typeof ChallengeDetailResponseSchema>;
 

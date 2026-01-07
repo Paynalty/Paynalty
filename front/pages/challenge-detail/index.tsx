@@ -1,6 +1,7 @@
 import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
+import { AuthGuard } from '../../src/components/common/AuthGuard';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
@@ -43,12 +44,21 @@ function Page() {
   }
 
   return (
-    <ScrollView>
+    <AuthGuard>
+      <ScrollView>
       <Top
         title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
         subtitle2={
           <Top.SubtitleParagraph color={adaptive.grey600}>
-            {`${selectedChallenge.participants} ${selectedChallenge.participantCount}명과 도전 중`}
+            {(() => {
+               if (!selectedChallenge.members || selectedChallenge.members.length <= 1) {
+                   return '첫 번째로 도전하고 있어요';
+               }
+              
+               const randomIndex = Math.floor(Math.random() * selectedChallenge.members.length);
+               const randomMember = selectedChallenge.members[randomIndex];
+               return `${randomMember.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
+            })()}
           </Top.SubtitleParagraph>
         }
         right={
@@ -69,9 +79,9 @@ function Page() {
         title=""
         subtitle1={
           <Top.SubtitleParagraph>
-            {selectedChallenge.verifyEnd
+            {selectedChallenge.status === 'ACTIVE' && selectedChallenge.verifyEnd
               ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
-              : '시간 정보 없음'}
+              : ''}
           </Top.SubtitleParagraph>
         }
         subtitle2={
@@ -81,7 +91,9 @@ function Page() {
                 selectedChallenge.verificationStatus,
                 selectedChallenge.daysOfWeek,
                 Number(selectedChallenge.weeklyRequiredCount),
-                selectedChallenge.weeklyProgressCount
+                selectedChallenge.weeklyProgressCount,
+                selectedChallenge.verifyStart,
+                selectedChallenge.verifyEnd
               ),
               {
                 label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
@@ -171,6 +183,35 @@ function Page() {
           </Txt>
         </View>
       )}
+      
+
+      <ListHeader
+        title={
+          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
+            패널티 이력 보기
+          </ListHeader.TitleParagraph>
+        }
+        right={
+          <Pressable onPress={() => navigation.navigate('/penalty-history')}>
+            <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+              자세히 보기
+            </ListHeader.RightArrow>
+          </Pressable>
+        }
+      />
+
+      <ListHeader
+        title={
+          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
+            참여중인 친구
+          </ListHeader.TitleParagraph>
+        }
+        right={
+          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+            자세히 보기
+          </ListHeader.RightArrow>
+        }
+      />
 
       {/* 챌린지 규칙 */}
       <ListHeader
@@ -288,37 +329,14 @@ function Page() {
           </View>
         </View>
       </View>
-      {/*<ListHeader
-        title={
-          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
-            패널티 이력 보기
-          </ListHeader.TitleParagraph>
-        }
-        right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
-          </ListHeader.RightArrow>
-        }
-      />*/}
-      {/*<ListHeader
-        title={
-          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
-            참여중인 친구
-          </ListHeader.TitleParagraph>
-        }
-        right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
-          </ListHeader.RightArrow>
-        }
-      />*/}
 
       <FixedBottomCTAProvider>
         <FixedBottomCTA loading={false} onPress={selectedChallenge ? openVerificationModal : undefined}>
           바로 인증하기
         </FixedBottomCTA>
       </FixedBottomCTAProvider>
-    </ScrollView>
+      </ScrollView>
+    </AuthGuard>
   );
 }
 

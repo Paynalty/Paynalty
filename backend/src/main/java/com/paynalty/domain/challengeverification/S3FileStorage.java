@@ -76,6 +76,10 @@ public class S3FileStorage implements FileStorage {
         if (fileName == null || fileName.isEmpty()) {
             return "";
         }
+        // 이미 전체 URL이거나 http로 시작하는 경우 그대로 반환
+        if (fileName.startsWith("http")) {
+            return fileName;
+        }
         // S3 Public URL 형식: https://[bucket].s3.[region].amazonaws.com/[fileName]
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, fileName);
     }
