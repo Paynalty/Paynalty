@@ -173,6 +173,35 @@ function Page() {
           </Txt>
         </View>
       )}
+      
+
+      <ListHeader
+        title={
+          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
+            패널티 이력 보기
+          </ListHeader.TitleParagraph>
+        }
+        right={
+          <Pressable onPress={() => navigation.navigate('/penalty-history')}>
+            <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+              자세히 보기
+            </ListHeader.RightArrow>
+          </Pressable>
+        }
+      />
+
+      <ListHeader
+        title={
+          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
+            참여중인 친구
+          </ListHeader.TitleParagraph>
+        }
+        right={
+          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+            자세히 보기
+          </ListHeader.RightArrow>
+        }
+      />
 
       {/* 챌린지 규칙 */}
       <ListHeader
@@ -290,30 +319,6 @@ function Page() {
           </View>
         </View>
       </View>
-      {/*<ListHeader
-        title={
-          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
-            패널티 이력 보기
-          </ListHeader.TitleParagraph>
-        }
-        right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
-          </ListHeader.RightArrow>
-        }
-      />*/}
-      {/*<ListHeader
-        title={
-          <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">
-            참여중인 친구
-          </ListHeader.TitleParagraph>
-        }
-        right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
-          </ListHeader.RightArrow>
-        }
-      />*/}
 
       <FixedBottomCTAProvider>
         <FixedBottomCTA loading={false} onPress={selectedChallenge ? openVerificationModal : undefined}>
