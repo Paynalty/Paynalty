@@ -1,4 +1,4 @@
-
+/*
 package com.paynalty.global.config;
 
 import com.paynalty.domain.challenge.Challenge;
@@ -733,4 +733,4 @@ public class DataInitializer {
         };
     }
 }
-
+*/
