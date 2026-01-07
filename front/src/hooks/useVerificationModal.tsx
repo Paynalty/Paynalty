@@ -141,12 +141,18 @@ export function useVerificationModal() {
                   try {
                     const result = await openCamera({ base64: true, maxWidth: 1024 });
 
-                      console.log('Camera Success:', result.id);
+                    if (!result) {
+                      return;
+                    }
 
-                      // 이미지 업로드 및 인증 생성
-                      await createVerificationMutation.mutateAsync(result.id);
+                    console.log('Camera Success:', result.id);
 
-                      close();
+                    const imageUri = `data:image/jpeg;base64,${result.dataUri}`;
+                    
+                    // 이미지 업로드 및 인증 생성
+                    await createVerificationMutation.mutateAsync(imageUri);
+
+                    close();
                   } catch (error) {
                     if (error instanceof OpenCameraPermissionError) {
                       Alert.alert('권한 오류', '카메라 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.');
@@ -189,8 +195,10 @@ export function useVerificationModal() {
                     console.log('Album Success:', firstPhoto?.id || 'no images');
 
                     if (firstPhoto) {
+                      const imageUri = `data:image/jpeg;base64,${firstPhoto.dataUri}`;
+                      
                       // 이미지 업로드 및 인증 생성
-                      await createVerificationMutation.mutateAsync(firstPhoto.id);
+                      await createVerificationMutation.mutateAsync(imageUri);
 
                       close();
                     }

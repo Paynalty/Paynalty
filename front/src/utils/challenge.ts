@@ -195,7 +195,9 @@ export const getChallengeStatusBadge = (
   status: verificationStatus,
   daysOfWeek: string[],
   weeklyRequiredCount: number,
-  weeklyProgressCount: number
+  weeklyProgressCount: number,
+  verifyStart?: string,
+  verifyEnd?: string
 ) => {
   // 1. 이미 인증을 완료한 경우 -> Green
   if (status === 'VERIFIED') {
@@ -204,7 +206,22 @@ export const getChallengeStatusBadge = (
 
   // 2. 오늘 인증해야 하는 경우 (isTodayChallenge 활용) -> Yellow
   if (isTodayChallenge(daysOfWeek, weeklyRequiredCount, weeklyProgressCount)) {
-    return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+    // 시간 정보가 있으면 현재 시간이 인증 시간 내인지 확인
+    if (verifyStart && verifyEnd) {
+      const start = getTimeDate(verifyStart).getTime();
+      const end = getTimeDate(verifyEnd).getTime();
+      const now = Date.now();
+      
+      // 시간이 유효하고 범위 내에 있으면 '지금 할 차례에요'
+      if (!isNaN(start) && !isNaN(end) && now >= start && now <= end) {
+         return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+      }
+      
+      // 범위 밖이면 '대기중'으로 처리 (아래로 흘러감)
+    } else {
+       // 시간 정보가 없으면 날짜만 맞으면 일단 활성화 (기존 로직 유지)
+       return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+    }
   }
 
   // 3. 그 외 -> Blue

@@ -47,7 +47,7 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
     if (response.status === 401) {
       console.error(`🔒 [Unauthorized] JWT Expired or Invalid. Logging out... (${url})`);
       await logout();
-      throw new ApiError(401, '인증이 만료되었습니다. 다시 로그인해주세요.');
+      // throw new ApiError(401, 'AUTH_REQUIRED');
     }
 
     if (!response.ok) {

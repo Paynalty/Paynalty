@@ -3,6 +3,7 @@ import { getMyProgressChallenges, ChallengeDetailResponse } from '../api/challen
 import { Challenge } from '../components/challenge/types';
 import { sortChallengesByPriority } from '../utils/challenge';
 import { ApiError } from '../api/client';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * API 응답 데이터를 UI용 Challenge 객체로 변환합니다.
@@ -80,9 +81,17 @@ export const challengeQueries = {
 };
 
 export const useChallenges = (status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
-  return useQuery(challengeQueries.lists(status));
+  const { isLoggedIn } = useAuthStore();
+  return useQuery({
+    ...challengeQueries.lists(status),
+    enabled: isLoggedIn,
+  });
 };
 
 export const useMissionChallenges = () => {
-  return useQuery(challengeQueries.missions());
+  const { isLoggedIn } = useAuthStore();
+  return useQuery({
+    ...challengeQueries.missions(),
+    enabled: isLoggedIn,
+  });
 };
