@@ -37,7 +37,9 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
             challenge.verificationStatus,
             challenge.daysOfWeek || [],
             Number(challenge.weeklyRequiredCount),
-            challenge.weeklyProgressCount
+            challenge.weeklyProgressCount,
+            challenge.verifyStart,
+            challenge.verifyEnd
           ),
           {
             label: `${challenge.weeklyProgressCount}/${challenge.weeklyRequiredCount}`,

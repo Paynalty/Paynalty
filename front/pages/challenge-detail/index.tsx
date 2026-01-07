@@ -79,9 +79,9 @@ function Page() {
         title=""
         subtitle1={
           <Top.SubtitleParagraph>
-            {selectedChallenge.verifyEnd
+            {selectedChallenge.status === 'ACTIVE' && selectedChallenge.verifyEnd
               ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
-              : '시간 정보 없음'}
+              : ''}
           </Top.SubtitleParagraph>
         }
         subtitle2={
@@ -91,7 +91,9 @@ function Page() {
                 selectedChallenge.verificationStatus,
                 selectedChallenge.daysOfWeek,
                 Number(selectedChallenge.weeklyRequiredCount),
-                selectedChallenge.weeklyProgressCount
+                selectedChallenge.weeklyProgressCount,
+                selectedChallenge.verifyStart,
+                selectedChallenge.verifyEnd
               ),
               {
                 label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
