@@ -1,3 +1,4 @@
+/*
 
 package com.paynalty.global.config;
 
@@ -51,7 +52,8 @@ public class DataInitializer {
                         .email("hong@example.com")
                         .tossId(1001L)
                         .build());
-                /*
+                */
+/*
                 // 2. 이순신 (ChallengeRequest 예시 데이터)
                 userRepository.save(User.builder()
                         .name("이순신")
@@ -69,11 +71,13 @@ public class DataInitializer {
                             .tossId(1000L + i)
                             .build());
                 }
-                            */
+                            *//*
+
 
                 System.out.println("테스트용 User 데이터 10개가 생성되었습니다.");
             }
-            /*
+            */
+/*
             if (challengeRepository.count() == 0) {
 
                 List<User> users = userRepository.findAll();
@@ -731,8 +735,10 @@ public class DataInitializer {
                     }
                 }
             }
-            */
+            *//*
+
         };
     }
 }
 
+*/
