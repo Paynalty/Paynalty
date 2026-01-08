@@ -2,14 +2,16 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { AuthGuard } from '../../src/components/common/AuthGuard';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card } from '../../src/components/common/Card';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
+import { useMe } from '../../src/hooks/useMe';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { getChallengeEditForm } from '../../src/api/challenges';
+import { leaveChallenge } from '../../src/api/challengeMembers';
 import {
   formatDate,
   formatDaysOfWeek,
@@ -35,6 +37,37 @@ function Page() {
     isLoading: isMemberCountsLoading,
     error: memberCountsError,
   } = useMemberVerificationCounts(selectedChallenge?.id || null);
+
+  const { data: me } = useMe();
+  
+  // 내 Role 확인
+  const myRole = selectedChallenge?.members?.find(m => m.tossId === me?.tossId)?.role;
+
+  const handleLeaveChallenge = () => {
+    Alert.alert(
+      '챌린지를 나갈까요?',
+      '나가면 더 이상 인증을 할 수 없어요.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '나가기',
+          style: 'destructive',
+          onPress: async () => {
+            if (!selectedChallenge) return;
+            try {
+               await leaveChallenge(selectedChallenge.id);
+               Alert.alert('알림', '챌린지에서 나갔어요.', [
+                 { text: '확인', onPress: () => navigation.pop() }
+               ]);
+            } catch (e) {
+              console.error(e);
+              Alert.alert('오류', '챌린지 나가기에 실패했어요.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (!selectedChallenge) {
     return (
@@ -219,9 +252,19 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
         right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            친구 초대하기
-          </ListHeader.RightArrow>
+          myRole === 'CREATOR' ? (
+            <Pressable onPress={() => navigation.navigate('/challenge-detail/manage-members')}>
+              <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+                친구 초대/관리
+              </ListHeader.RightArrow>
+            </Pressable>
+          ) : (
+            <Pressable onPress={handleLeaveChallenge}>
+              <ListHeader.RightArrow typography="t7" color={adaptive.red500}>
+                챌린지 나가기
+              </ListHeader.RightArrow>
+            </Pressable>
+          )
         }
       />
 

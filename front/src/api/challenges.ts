@@ -48,6 +48,7 @@ export const ChallengeDetailResponseSchema = z.object({
     joinedAt: z.string().optional(),
     isSuccess: z.string().optional(),
     endAt: z.string().optional(),
+    role: z.enum(['CREATOR', 'CHALLENGER']).optional(),
   })).optional().default([]),
 });
 export type ChallengeDetailResponse = z.infer<typeof ChallengeDetailResponseSchema>;
@@ -57,6 +58,13 @@ export const createChallenge = (data: CreateChallengeRequest) => {
     method: 'POST',
     body: JSON.stringify(data),
     schema: CreateChallengeResponseSchema,
+  });
+};
+
+export const getChallengeDetail = (challengeId: number) => {
+  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/detail`, {
+    method: 'GET',
+    schema: ChallengeDetailResponseSchema,
   });
 };
 
