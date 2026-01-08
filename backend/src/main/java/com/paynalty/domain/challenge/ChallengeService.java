@@ -93,7 +93,7 @@ public class ChallengeService {
         // ChallengeMember 생성 (생성자 + 초대된 친구들)
         // 변경 기존 : List<InvitionFriends> -> List<Long>
 
-        challengeMemberService.addMembersToNewChallenge(user,savedChallenge,request.getUserIds());
+        challengeMemberService.addMembersToNewChallenge(user,savedChallenge,request.getTossIds());
 
         // 생성된 챌린지 ID 반환
         return savedChallenge.getId();
@@ -645,7 +645,7 @@ public class ChallengeService {
      * 오늘의 인증 상태를 판단합니다. (challengeId로 조회)
      * 
      * @param challengeId 챌린지 ID
-     * @param userId 사용자 ID
+     * @param tossId toss ID
      * @return VerificationStatus (VERIFIED 또는 NOT_VERIFIED)
      */
     private VerificationStatus determineVerificationStatus(Long challengeId, Long tossId) {
