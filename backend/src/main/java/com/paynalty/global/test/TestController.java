@@ -1,6 +1,9 @@
 package com.paynalty.global.test;
 
-import com.paynalty.domain.challenge.*;
+import com.paynalty.domain.challenge.Challenge;
+import com.paynalty.domain.challenge.ChallengeRepository;
+import com.paynalty.domain.challenge.DayOfWeekType;
+import com.paynalty.domain.challenge.VerificationType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
@@ -10,8 +13,6 @@ import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
-
-import java.time.LocalDateTime;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import com.paynalty.global.security.CustomUserDetails;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -73,14 +75,14 @@ public class TestController {
         // 챌린지 생성 패턴 (DataInitializer의 로직 이식)
         
         // C1: PENDING - 건강한 아침 식사하기
-        Challenge c1 = createChallenge(currentUser, "더미: 건강한 아침 식사하기",
+        Challenge c1 = createChallenge(currentUser, "더미: 1. 건강한 아침 식사하기",
                 today.plusDays(3), today.plusDays(24), 3, 10000L,
                 LocalTime.of(9, 0), LocalTime.of(18, 0),
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
         addMembers(c1, allUsers, currentUser);
 
         // C2: ACTIVE - 주 3회 조깅
-        Challenge c2 = createChallenge(currentUser, "더미: 주 3회 조깅하기",
+        Challenge c2 = createChallenge(currentUser, "더미: 2. 주 3회 조깅하기",
                 today.minusDays(21), today.plusDays(14), 3, 10000L,
                 LocalTime.of(9, 0), LocalTime.of(18, 0),
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
@@ -123,6 +125,35 @@ public class TestController {
         addMembers(c6, allUsers, currentUser);
         createVerifications(c6, allUsers, today, currentUser);
         createPenalties(c6, allUsers, currentUser, today); // 벌금 더미 데이터
+
+        // C7: ACTIVE - 다른 사용자가 만든 챌린지 (참여중)
+        User otherCreator = allUsers.stream()
+                .filter(u -> !u.getTossId().equals(currentUser.getTossId()))
+                .findFirst()
+                .orElse(allUsers.get(0));
+
+        Challenge c7 = createChallenge(otherCreator, "더미: 친구가 만든 챌린지",
+                today.minusDays(5), today.plusDays(25), 7, 30000L,
+                LocalTime.of(7, 0), LocalTime.of(23, 0),
+                List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI));
+
+        // 멤버 추가: 생성자(친구) + 본인(currentUser)
+        challengeMemberRepository.save(ChallengeMember.builder()
+                .user(otherCreator)
+                .challenge(c7)
+                .role(MemberRole.CREATOR)
+                .isSuccess(c7.getStatus())
+                .build());
+
+        challengeMemberRepository.save(ChallengeMember.builder()
+                .user(currentUser)
+                .challenge(c7)
+                .role(MemberRole.CHALLENGER)
+                .isSuccess(c7.getStatus())
+                .build());
+
+        createVerifications(c7, allUsers, today, currentUser);
+        createPenalties(c7, allUsers, currentUser, today);
 
         return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 6개, 인증 내역, 벌금 내역) 생성이 완료되었습니다.");
     }

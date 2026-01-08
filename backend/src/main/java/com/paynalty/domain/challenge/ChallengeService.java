@@ -226,7 +226,7 @@ public class ChallengeService {
             throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_UPDATE);
         }
 
-        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeIdAndIsActiveTrue(challengeId);
         List<Long> userIds = challengeMembers.stream()
                 .map(ChallengeMember::getUser)
                 .map(User::getId)

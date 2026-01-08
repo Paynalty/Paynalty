@@ -103,6 +103,8 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
             @Param("tossId") Long tossId
     );
 
+    boolean existsByChallengeMemberIdAndPaidFalse(Long challengeMemberId);
+
 }
 
 
