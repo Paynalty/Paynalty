@@ -192,7 +192,7 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
         right={
-          <Pressable onPress={() => navigation.navigate('/penalty-history')}>
+          <Pressable onPress={() => navigation.navigate('/challenge-detail/penalty-history')}>
             <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
               자세히 보기
             </ListHeader.RightArrow>
@@ -208,7 +208,7 @@ function Page() {
         }
         right={
           <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
+            친구 초대하기
           </ListHeader.RightArrow>
         }
       />

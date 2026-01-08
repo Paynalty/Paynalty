@@ -120,7 +120,7 @@ function ChallengeMembers({ members }: { members: Challenge['members'] }) {
 
     return (
       <Txt color={adaptive.grey600} typography="t7" numberOfLines={1} ellipsizeMode="tail" style={{ maxWidth: 100 }}>
-        {`${randomMember.userName} 외 ${members.length - 1}명`}
+        {`${randomMember?.userName || '알 수 없음'} 외 ${members.length - 1}명`}
       </Txt>
     );
   }
