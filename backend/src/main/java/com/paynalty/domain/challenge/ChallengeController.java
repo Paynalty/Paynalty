@@ -129,6 +129,7 @@ public class ChallengeController {
     }
 
     // 패널티 현황판
+    @Operation(summary = "챌린지 벌금 전체 현황")
     @GetMapping("/{challengeId}/penalty_overview")
     public ResponseEntity<ChallengePenaltyOverviewResponse> penaltyOverview(
             @PathVariable Long challengeId,
