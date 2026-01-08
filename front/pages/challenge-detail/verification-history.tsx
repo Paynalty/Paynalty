@@ -1,12 +1,12 @@
-import { Asset, Txt, Top, ListHeader } from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
-import { ScrollView, View } from 'react-native';
-import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
-import { useVerifications } from '../../src/hooks/useVerifications';
-import { useChallengeStore } from '../../src/stores/challengeStore';
-import { getChallengeStatusBadge, getVerificationMessage } from '../../src/utils/challenge';
-import { ChallengeVerificationResponse } from '../../src/api/verifications';
-import { AuthGuard } from '../../src/components/common/AuthGuard';
+import {Asset, ListHeader, Top, Txt} from '@toss/tds-react-native';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {ScrollView, View} from 'react-native';
+import {VerificationGroup} from '../../src/components/verification/VerificationGroup';
+import {useVerifications} from '../../src/hooks/useVerifications';
+import {useChallengeStore} from '../../src/stores/challengeStore';
+import {getChallengeStatusBadge, getVerificationMessage} from '../../src/utils/challenge';
+import {ChallengeVerificationResponse} from '../../src/api/verifications';
+import {AuthGuard} from '../../src/components/common/AuthGuard';
 
 export default function Page() {
   const adaptive = useAdaptive();
@@ -86,35 +86,37 @@ export default function Page() {
             }
             lowerGap={0}
           />
-          <Top
-            title=""
-            subtitle1={
-              <Top.SubtitleParagraph>
-                {selectedChallenge.verifyStart && selectedChallenge.verifyEnd
-                  ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
-                  : '시간 정보 없음'}
-              </Top.SubtitleParagraph>
-            }
-            subtitle2={
-              <Top.SubtitleBadges
-                items={[
-                  getChallengeStatusBadge(
-                    selectedChallenge.verificationStatus,
-                    selectedChallenge.daysOfWeek || [],
-                    Number(selectedChallenge.weeklyRequiredCount || 0),
-                    selectedChallenge.weeklyProgressCount || 0
-                  ),
-                  {
-                    label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
-                    type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
-                    style: 'weak' as const,
-                  },
-                  { label: `${(selectedChallenge.penaltyAmount || 0).toLocaleString()}원`, type: 'blue', style: 'weak' },
-                ]}
-              />
-            }
-            upperGap={0}
-          />
+          {selectedChallenge.status === 'ACTIVE' && (
+            <Top
+              title=""
+              subtitle1={
+                <Top.SubtitleParagraph>
+                  {selectedChallenge.verifyStart && selectedChallenge.verifyEnd
+                    ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
+                    : '시간 정보 없음'}
+                </Top.SubtitleParagraph>
+              }
+              subtitle2={
+                <Top.SubtitleBadges
+                  items={[
+                    getChallengeStatusBadge(
+                      selectedChallenge.verificationStatus,
+                      selectedChallenge.daysOfWeek || [],
+                      Number(selectedChallenge.weeklyRequiredCount || 0),
+                      selectedChallenge.weeklyProgressCount || 0
+                    ),
+                    {
+                      label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
+                      type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+                      style: 'weak' as const,
+                    },
+                    { label: `${(selectedChallenge.penaltyAmount || 0).toLocaleString()}원`, type: 'blue', style: 'weak' },
+                  ]}
+                />
+              }
+              upperGap={0}
+            />
+          )}
           <ListHeader
             title={
               <ListHeader.TitleParagraph color={adaptive.grey800} fontWeight="bold" typography="t5">

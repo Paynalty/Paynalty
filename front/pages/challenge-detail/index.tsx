@@ -82,41 +82,43 @@ function Page() {
         }
         lowerGap={0}
       />
-      <Top
-        title=""
-        subtitle1={
-          <Top.SubtitleParagraph>
-            {selectedChallenge.status === 'ACTIVE' && selectedChallenge.verifyEnd
-              ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
-              : ''}
-          </Top.SubtitleParagraph>
-        }
-        subtitle2={
-          <Top.SubtitleBadges
-            items={[
-              getChallengeStatusBadge(
-                selectedChallenge.verificationStatus,
-                selectedChallenge.daysOfWeek,
-                selectedChallenge.weeklyRequiredCount,
-                selectedChallenge.weeklyProgressCount,
-                selectedChallenge.verifyStart,
-                selectedChallenge.verifyEnd
-              ),
-              {
-                label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
-                type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
-                style: 'weak' as const,
-              },
-              {
-                label: `${selectedChallenge.penaltyAmount.toLocaleString()}원`,
-                type: 'blue',
-                style: 'weak',
-              },
-            ]}
-          />
-        }
-        upperGap={0}
-      />
+      {selectedChallenge.status === 'ACTIVE' && (
+        <Top
+          title=""
+          subtitle1={
+            <Top.SubtitleParagraph>
+              {selectedChallenge.verifyEnd
+                ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
+                : ''}
+            </Top.SubtitleParagraph>
+          }
+          subtitle2={
+            <Top.SubtitleBadges
+              items={[
+                getChallengeStatusBadge(
+                  selectedChallenge.verificationStatus,
+                  selectedChallenge.daysOfWeek,
+                  selectedChallenge.weeklyRequiredCount,
+                  selectedChallenge.weeklyProgressCount,
+                  selectedChallenge.verifyStart,
+                  selectedChallenge.verifyEnd
+                ),
+                {
+                  label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
+                  type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+                  style: 'weak' as const,
+                },
+                {
+                  label: `${selectedChallenge.penaltyAmount.toLocaleString()}원`,
+                  type: 'blue',
+                  style: 'weak',
+                },
+              ]}
+            />
+          }
+          upperGap={0}
+        />
+      )}
 
       {/* 최근 인증 현황 */}
       <ListHeader
