@@ -80,7 +80,7 @@ export default function Page() {
               {
                 text: '확인',
                 onPress: () => {
-                  queryClient.invalidateQueries({ queryKey: ['myProgressChallenges'] });
+                  queryClient.invalidateQueries({ queryKey: ['challenges'] });
                   useChallengeStore.getState().setSelectedChallenge(null as any);
                   navigation.navigate('/'); // 홈으로 이동
                 },
