@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { apiFetch } from './client';
+import {z} from 'zod';
+import {apiFetch} from './client';
 
 export const VerificationTypeSchema = z.string().default('PHOTO');
 export type VerificationType = z.infer<typeof VerificationTypeSchema>;
@@ -17,7 +17,7 @@ export const CreateChallengeRequestSchema = z.object({
   verifyStartAt: z.string().optional().nullable(),
   verifyEndAt: z.string().optional().nullable(),
   verificationType: VerificationTypeSchema,
-  userIds: z.array(z.number()).optional().nullable(),
+  tossIds: z.array(z.number()).optional().nullable(),
 });
 export type CreateChallengeRequest = z.infer<typeof CreateChallengeRequestSchema>;
 

@@ -1,20 +1,11 @@
-import { createRoute, Spacing } from '@granite-js/react-native';
-import {
-  Top,
-  List,
-  ListRow,
-  FixedBottomCTA,
-  FixedBottomCTAProvider,
-  Txt,
-  ListHeader,
-  SegmentedControl,
-} from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
-import { Linking, Alert, View, ScrollView } from 'react-native';
-import React, { useState, useMemo } from 'react';
-import { useChallengeStore } from '../../src/stores/challengeStore';
-import { useAllPenalties, useMyPenalties } from '../../src/hooks/usePenalties';
-import { Card } from '../../src/components/common/Card';
+import {createRoute, Spacing} from '@granite-js/react-native';
+import {FixedBottomCTAProvider, List, ListHeader, ListRow, SegmentedControl, Top, Txt,} from '@toss/tds-react-native';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {Alert, Linking, ScrollView, View} from 'react-native';
+import React, {useMemo, useState} from 'react';
+import {useChallengeStore} from '../../src/stores/challengeStore';
+import {useAllPenalties, useMyPenalties} from '../../src/hooks/usePenalties';
+import {Card} from '../../src/components/common/Card';
 
 export const Route = createRoute('/penalty-history', {
   component: Page,
@@ -163,8 +154,8 @@ export default function Page() {
         </List>
         <Spacing size={40} />
       </ScrollView>
-
-      <FixedBottomCTA
+      {/* TODO: 토스 송금 기능 구현 */}
+      {/* <FixedBottomCTA
         type="primary"
         style="fill"
         disabled={unpaidTotal === 0}
@@ -173,7 +164,7 @@ export default function Page() {
         {unpaidTotal > 0
           ? `${unpaidTotal.toLocaleString()}원 토스로 송금하기`
           : '미납된 패널티가 없어요'}
-      </FixedBottomCTA>
+      </FixedBottomCTA> */}
     </FixedBottomCTAProvider>
   );
 }

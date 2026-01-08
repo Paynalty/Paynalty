@@ -34,12 +34,12 @@ public class ChallengeUpdateRequest {
 
     private VerificationType verificationType;
 
-    @Schema(example = "[7,8,9]")
-    private List<Long> userIds;
+    @Schema(example = "[1001, 1002, 1003]")
+    private List<Long> tossIds;
    
 
     // 챌린지 수정 요청 시 챌린지 데이터 조회
-    public ChallengeUpdateRequest (Challenge challenge,List<Long> userIds){
+    public ChallengeUpdateRequest (Challenge challenge,List<Long> tossIds){
         this.title = challenge.getTitle();
         this.endDate = challenge.getEndDate();
         this.verifyStartAt = challenge.getVerifyStartAt();
@@ -48,7 +48,7 @@ public class ChallengeUpdateRequest {
         this.daysOfWeek = challenge.getDaysOfWeek();
         this.frequency = challenge.getFrequency();
         this.verificationType = challenge .getVerificationType();
-        this.userIds = userIds;
+        this.tossIds = tossIds;
     }
 
 }
