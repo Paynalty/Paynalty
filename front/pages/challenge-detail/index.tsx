@@ -2,13 +2,16 @@ import { createRoute, Spacing } from '@granite-js/react-native';
 import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { AuthGuard } from '../../src/components/common/AuthGuard';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Card } from '../../src/components/common/Card';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
+import { useMe } from '../../src/hooks/useMe';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
 import { getChallengeEditForm } from '../../src/api/challenges';
+import { leaveChallenge } from '../../src/api/challengeMembers';
 import {
   formatDate,
   formatDaysOfWeek,
@@ -28,12 +31,43 @@ function Page() {
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
   const updateData = useCreateChallengeStore((s) => s.updateData);
-  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
+  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || null);
   const {
     data: memberCounts,
     isLoading: isMemberCountsLoading,
     error: memberCountsError,
-  } = useMemberVerificationCounts(selectedChallenge?.id || '');
+  } = useMemberVerificationCounts(selectedChallenge?.id || null);
+
+  const { data: me } = useMe();
+  
+  // 내 Role 확인
+  const myRole = selectedChallenge?.members?.find(m => m.tossId === me?.tossId)?.role;
+
+  const handleLeaveChallenge = () => {
+    Alert.alert(
+      '챌린지를 나갈까요?',
+      '나가면 더 이상 인증을 할 수 없어요.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '나가기',
+          style: 'destructive',
+          onPress: async () => {
+            if (!selectedChallenge) return;
+            try {
+               await leaveChallenge(selectedChallenge.id);
+               Alert.alert('알림', '챌린지에서 나갔어요.', [
+                 { text: '확인', onPress: () => navigation.pop() }
+               ]);
+            } catch (e) {
+              console.error(e);
+              Alert.alert('오류', '챌린지 나가기에 실패했어요.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (!selectedChallenge) {
     return (
@@ -57,7 +91,7 @@ function Page() {
               
                const randomIndex = Math.floor(Math.random() * selectedChallenge.members.length);
                const randomMember = selectedChallenge.members[randomIndex];
-               return `${randomMember.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
+               return `${randomMember?.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
             })()}
           </Top.SubtitleParagraph>
         }
@@ -90,7 +124,7 @@ function Page() {
               getChallengeStatusBadge(
                 selectedChallenge.verificationStatus,
                 selectedChallenge.daysOfWeek,
-                Number(selectedChallenge.weeklyRequiredCount),
+                selectedChallenge.weeklyRequiredCount,
                 selectedChallenge.weeklyProgressCount,
                 selectedChallenge.verifyStart,
                 selectedChallenge.verifyEnd
@@ -126,25 +160,31 @@ function Page() {
           </Pressable>
         }
       />
-      {latestVerification ? (
-        <VerificationGroup
-          date={latestVerification.dateTime}
-          verifications={[
-            {
-              id: latestVerification.id,
-              userName: latestVerification.name,
-              imageUrl: latestVerification.image,
-              dateTime: latestVerification.dateTime,
-            },
-          ]}
-        />
-      ) : (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            인증 내역이 없습니다.
-          </Txt>
-        </View>
-      )}
+      <View style={{ marginBottom: 24 }}>
+        {latestVerification ? (
+          <VerificationGroup
+            date={latestVerification.dateTime}
+            verifications={[
+              {
+                id: latestVerification.id,
+                userName: latestVerification.name,
+                imageUrl: latestVerification.image,
+                dateTime: latestVerification.dateTime,
+              },
+            ]}
+          />
+        ) : (
+          <View style={{ paddingHorizontal: 16 }}>
+            <Card>
+              <View style={styles.emptyCard}>
+                <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                  인증 내역이 없습니다.
+                </Txt>
+              </View>
+            </Card>
+          </View>
+        )}
+      </View>
 
       {/* 주간 인증 현황 */}
       <ListHeader
@@ -154,35 +194,40 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
       />
-      {memberCountsError ? (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            인증 현황을 불러올 수 없습니다.
-          </Txt>
-        </View>
-      ) : isMemberCountsLoading ? (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            로딩중...
-          </Txt>
-        </View>
-      ) : Array.isArray(memberCounts) &&
-        memberCounts.length > 0 &&
-        memberCounts.some((m) => m.verificationCount && m.verificationCount > 0) ? (
-        <BarChart
-          data={memberCounts.map((member) => ({
-            xAxisLabel: member.userName,
-            value: Number(member.verificationCount ?? 0),
-          }))}
-          fill={{ type: 'all-bar', theme: 'blue' }}
-        />
-      ) : (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            멤버별 인증 현황 데이터가 없습니다.
-          </Txt>
-        </View>
-      )}
+      <Spacing size={8} />
+      <View style={{ paddingHorizontal: 16 }}>
+        <Card>
+          {memberCountsError ? (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                인증 현황을 불러올 수 없습니다.
+              </Txt>
+            </View>
+          ) : isMemberCountsLoading ? (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                로딩중...
+              </Txt>
+            </View>
+          ) : Array.isArray(memberCounts) &&
+            memberCounts.length > 0 &&
+            memberCounts.some((m) => m.verificationCount && m.verificationCount > 0) ? (
+            <BarChart
+              data={memberCounts.map((member) => ({
+                xAxisLabel: member.userName,
+                value: Number(member.verificationCount ?? 0),
+              }))}
+              fill={{ type: 'all-bar', theme: 'blue' }}
+            />
+          ) : (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                멤버별 인증 현황 데이터가 없습니다.
+              </Txt>
+            </View>
+          )}
+        </Card>
+      </View>
       
 
       <ListHeader
@@ -192,7 +237,7 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
         right={
-          <Pressable onPress={() => navigation.navigate('/penalty-history')}>
+          <Pressable onPress={() => navigation.navigate('/challenge-detail/penalty-history')}>
             <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
               자세히 보기
             </ListHeader.RightArrow>
@@ -207,9 +252,19 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
         right={
-          <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-            자세히 보기
-          </ListHeader.RightArrow>
+          myRole === 'CREATOR' ? (
+            <Pressable onPress={() => navigation.navigate('/challenge-detail/manage-members')}>
+              <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+                친구 초대/관리
+              </ListHeader.RightArrow>
+            </Pressable>
+          ) : (
+            <Pressable onPress={handleLeaveChallenge}>
+              <ListHeader.RightArrow typography="t7" color={adaptive.red500}>
+                챌린지 나가기
+              </ListHeader.RightArrow>
+            </Pressable>
+          )
         }
       />
 
@@ -341,15 +396,6 @@ function Page() {
 }
 
 const styles = StyleSheet.create({
-  verificationCard: {
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
   emptyCard: {
     minHeight: 180,
     justifyContent: 'center',

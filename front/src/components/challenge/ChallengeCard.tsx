@@ -12,9 +12,9 @@ import {
   getVerificationMessage,
   isTodayChallenge,
 } from '../../utils/challenge';
-import { Challenge } from './types';
+import { ChallengeResponse } from '../../api/challenges';
 
-export function ChallengeCard({ challenge }: { challenge: Challenge }) {
+export function ChallengeCard({ challenge }: { challenge: ChallengeResponse }) {
   const adaptive = useAdaptive();
   const navigation = useNavigation();
 
@@ -24,7 +24,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
         return [
           { label: getDDay(challenge.startAt), type: 'blue' as const, style: 'weak' as const },
           {
-            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            label: `${challenge.penaltyAmount.toLocaleString()}원`,
             type: 'blue' as const,
             style: 'weak' as const,
           },
@@ -36,7 +36,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
           getChallengeStatusBadge(
             challenge.verificationStatus,
             challenge.daysOfWeek || [],
-            Number(challenge.weeklyRequiredCount),
+            challenge.weeklyRequiredCount,
             challenge.weeklyProgressCount,
             challenge.verifyStart,
             challenge.verifyEnd
@@ -47,7 +47,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
             style: 'weak' as const,
           },
           {
-            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            label: `${challenge.penaltyAmount.toLocaleString()}원`,
             type: 'blue' as const,
             style: 'weak' as const,
           },
@@ -67,7 +67,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
     if (challenge.status === 'ACTIVE' && challenge.verifyEnd) {
       return isTodayChallenge(
         challenge.daysOfWeek,
-        Number(challenge.weeklyRequiredCount),
+        challenge.weeklyRequiredCount,
         challenge.weeklyProgressCount
       )
         ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
@@ -111,7 +111,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   );
 }
 
-function ChallengeMembers({ members }: { members: Challenge['members'] }) {
+function ChallengeMembers({ members }: { members: ChallengeResponse['members'] }) {
   const adaptive = useAdaptive();
 
   if (members.length > 1) {
@@ -120,10 +120,11 @@ function ChallengeMembers({ members }: { members: Challenge['members'] }) {
 
     return (
       <Txt color={adaptive.grey600} typography="t7" numberOfLines={1} ellipsizeMode="tail" style={{ maxWidth: 100 }}>
-        {`${randomMember.userName} 외 ${members.length - 1}명`}
+        {`${randomMember?.userName || '알 수 없음'} 외 ${members.length - 1}명`}
       </Txt>
     );
   }
+  return null;
 }
 
 const styles = StyleSheet.create({

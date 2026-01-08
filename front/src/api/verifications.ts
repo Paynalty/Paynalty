@@ -41,7 +41,7 @@ export type CreateVerificationRequest = z.infer<typeof CreateVerificationRequest
 /**
  * 특정 챌린지의 가장 최근 인증 내역을 조회합니다.
  */
-export const getLatestVerification = (challengeId: string) => {
+export const getLatestVerification = (challengeId: number) => {
   return apiFetch<ChallengeVerificationResponse>(`/api/challenge-verifications/${challengeId}/latest`, {
     method: 'GET',
     schema: ChallengeVerificationResponseSchema,
@@ -51,7 +51,7 @@ export const getLatestVerification = (challengeId: string) => {
 /**
  * 특정 챌린지의 인증 내역 목록을 조회합니다 (페이징 지원).
  */
-export const getVerifications = (challengeId: string, page: number = 0, size: number = 5) => {
+export const getVerifications = (challengeId: number, page: number = 0, size: number = 5) => {
   return apiFetch<any>(`/api/challenge-verifications/${challengeId}/list?page=${page}&size=${size}`, {
     method: 'GET',
     schema: SliceResponseSchema(ChallengeVerificationResponseSchema),
@@ -61,7 +61,7 @@ export const getVerifications = (challengeId: string, page: number = 0, size: nu
 /**
  * 멤버별 주간 인증 횟수를 조회합니다.
  */
-export const getMemberVerificationCounts = (challengeId: string) => {
+export const getMemberVerificationCounts = (challengeId: number) => {
   return apiFetch<MemberVerificationCount[]>(`/api/challenge-verifications/${challengeId}/member/verification-count`, {
     method: 'GET',
     schema: z.array(MemberVerificationCountSchema),
@@ -73,7 +73,7 @@ export const getMemberVerificationCounts = (challengeId: string) => {
  * @param challengeId 챌린지 ID
  * @param formData 인증 요청 데이터 (image 파트 포함)
  */
-export const createVerification = (challengeId: string, formData: FormData) => {
+export const createVerification = (challengeId: number, formData: FormData) => {
   return apiFetch<ChallengeVerificationResponse>(`/api/challenge-verifications/${challengeId}`, {
     method: 'POST',
     body: formData,

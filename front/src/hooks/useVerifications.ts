@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { getLatestVerification, getVerifications, getMemberVerificationCounts } from '../api/verifications';
 import { ApiError } from '../api/client';
 
-export const useLatestVerification = (challengeId: string) => {
+export const useLatestVerification = (challengeId: number | null) => {
   return useQuery({
     queryKey: ['latestVerification', challengeId],
     queryFn: async () => {
@@ -28,7 +28,7 @@ export const useLatestVerification = (challengeId: string) => {
   });
 };
 
-export const useVerifications = (challengeId: string) => {
+export const useVerifications = (challengeId: number | null) => {
   return useInfiniteQuery({
     queryKey: ['verifications', challengeId],
     queryFn: async ({ pageParam = 0 }) => {
@@ -56,7 +56,7 @@ export const useVerifications = (challengeId: string) => {
 /**
  * 멤버별 주간 인증 횟수를 조회하는 Hook
  */
-export const useMemberVerificationCounts = (challengeId: string) => {
+export const useMemberVerificationCounts = (challengeId: number | null) => {
   return useQuery({
     queryKey: ['memberVerificationCounts', challengeId],
     queryFn: async () => {

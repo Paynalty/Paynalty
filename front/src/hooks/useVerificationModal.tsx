@@ -20,7 +20,7 @@ export function useVerificationModal() {
   const queryClient = useQueryClient();
 
   // 가장 최근 인증 내역 조회
-  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
+  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || null);
 
   // 인증 가능 상태 확인
   const getVerificationStatus = () => {

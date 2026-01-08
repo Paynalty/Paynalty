@@ -34,6 +34,9 @@ public class ChallengeMemberResponse {
 
     @Schema(description = "종료 날짜", example = "LocalDate")
     private LocalDate endAt;
+    
+    @Schema(description = "역할", example = "MemberRole")
+    private MemberRole role;
 
     public static ChallengeMemberResponse from(ChallengeMember cm) {
         return ChallengeMemberResponse.builder()
@@ -44,6 +47,7 @@ public class ChallengeMemberResponse {
                 .joinedAt(cm.getJoinedAt())
                 .isSuccess(cm.getIsSuccess().toString())
                 .endAt(cm.getEndAt())
+                .role(cm.getRole())
                 .build();
     }
 }

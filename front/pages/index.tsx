@@ -54,7 +54,7 @@ function Page() {
   const todayMissions = useMemo(
     () =>
       missionChallenges.filter((mission) =>
-        isTodayChallenge(mission.daysOfWeek, Number(mission.weeklyRequiredCount), mission.weeklyProgressCount)
+        isTodayChallenge(mission.daysOfWeek, mission.weeklyRequiredCount, mission.weeklyProgressCount)
       ),
     [missionChallenges]
   );
