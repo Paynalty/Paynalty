@@ -1,12 +1,12 @@
-import { createRoute, useNavigation } from '@granite-js/react-native';
-import { useChallengeStore } from '../../src/stores/challengeStore';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateChallengeMembers } from '../../src/api/challengeMembers';
-import { getChallengeDetail } from '../../src/api/challenges';
-import { MemberManager } from '../../src/components/challenge/MemberManager';
-import { Alert } from 'react-native';
-import { UserResponse } from '../../src/api/users';
-import { useMe } from '../../src/hooks/useMe';
+import {createRoute, useNavigation} from '@granite-js/react-native';
+import {useChallengeStore} from '../../src/stores/challengeStore';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {updateChallengeMembers} from '../../src/api/challengeMembers';
+import {getChallengeDetail} from '../../src/api/challenges';
+import {MemberManager} from '../../src/components/challenge/MemberManager';
+import {Alert} from 'react-native';
+import {UserResponse} from '../../src/api/users';
+import {useMe} from '../../src/hooks/useMe';
 
 export const Route = createRoute('/challenge-detail/manage-members', {
   component: Page,
@@ -19,10 +19,10 @@ export default function Page() {
   const { data: me } = useMe();
 
   const members = selectedChallenge?.members || [];
-  
+
   // ChallengeMemberResponse 형태를 UserResponse 형태로 변환 (이메일은 없으므로 빈 문자열 처리)
   const initialMembers: UserResponse[] = members.map(m => ({
-    id: 0, // 관리용 ID (실제 업데이트는 tossId 사용)
+      id: m.tossId,
     tossId: m.tossId,
     name: m.userName,
     email: '', // 상세 정보에 이메일이 없다면 빈 값 or API 추가 필요
