@@ -86,8 +86,25 @@ export default function Page() {
                 },
               },
             ]);
-          } catch (e) {
+          } catch (e: any) {
             console.error(e);
+            
+            // 미납 패널티 에러 처리 (MEM005)
+            if (e.data?.code === 'MEM005') {
+               Alert.alert(
+                 '미납된 패널티가 있어요', 
+                 '패널티를 모두 납부해야\n챌린지를 나갈 수 있어요.',
+                 [
+                   { text: '취소', style: 'cancel' },
+                   { 
+                     text: '납부하러 가기', 
+                     onPress: () => navigation.navigate('/challenge-detail/penalty-history') 
+                   }
+                 ]
+               );
+               return;
+            }
+
             Alert.alert('오류', '챌린지 나가기에 실패했어요.');
           }
         },
