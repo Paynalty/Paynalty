@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { apiFetch } from './client';
+import {z} from 'zod';
+import {apiFetch} from './client';
 
 export const SliceResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
   z.preprocess(
@@ -19,7 +19,7 @@ export const SliceResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
 
 export const ChallengeVerificationResponseSchema = z.object({
   id: z.number(),
-  userId: z.number(),
+  tossId: z.number(),
   userName: z.string(),
   imageUrl: z.string(),
   dateTime: z.string(),

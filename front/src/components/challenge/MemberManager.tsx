@@ -1,24 +1,27 @@
 import {
-  Post,
-  List,
-  ListRow,
-  Icon,
-  FixedBottomCTA,
-  FixedBottomCTAProvider,
-  Button,
-  SearchField,
+    Button,
+    FixedBottomCTA,
+    FixedBottomCTAProvider,
+    Icon,
+    List,
+    ListRow,
+    Post,
+    SearchField,
+    Txt,
 } from '@toss/tds-react-native';
-import { Paragraph, useAdaptive } from '@toss/tds-react-native/private';
-import { Spacing } from '@granite-js/react-native';
-import { useState, ReactNode } from 'react';
-import { View, ActivityIndicator, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useUserSearch } from '../../hooks/useUsers';
-import { UserResponse } from '../../api/users';
+import {Paragraph, useAdaptive} from '@toss/tds-react-native/private';
+import {Spacing} from '@granite-js/react-native';
+import {ReactNode, useState} from 'react';
+import {ActivityIndicator, Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import {useUserSearch} from '../../hooks/useUsers';
+import {UserResponse} from '../../api/users';
 
 interface MemberManagerProps {
   initialMembers?: UserResponse[];
   disabledMemberIds?: number[]; // tossId to disable removal
   onSave: (members: UserResponse[]) => void;
+  onLeave?: () => void; // 챌린지 나가기 핸들러
+  isCreator?: boolean;
   /**
    * 멤버 목록이 변경될 때마다 호출됩니다.
    * 부모 컴포넌트에서 실시간으로 상태를 동기화해야 할 때 사용합니다.
@@ -33,6 +36,8 @@ export function MemberManager({
   initialMembers = [],
   disabledMemberIds = [],
   onSave,
+  onLeave,
+  isCreator = true,
   onChange,
   saveButtonText = '저장',
   leftButton,
@@ -46,6 +51,9 @@ export function MemberManager({
   const { data: searchResults = [], isLoading: isSearchLoading } = useUserSearch(searchText);
 
   const handleToggleUser = (user: UserResponse) => {
+    // 생성자가 아니면 토글 불가 (보기 전용)
+    if (!isCreator) return;
+
     // 이미 선택된 유저인지 확인
     const isSelected = selectedUsers.find((u) => u.tossId === user.tossId);
     
@@ -68,6 +76,9 @@ export function MemberManager({
   };
 
   const handleRemoveUser = (tossId: number) => {
+    // 생성자가 아니면 삭제 불가
+    if (!isCreator) return;
+
     if (disabledMemberIds.includes(tossId)) return;
     const newSelectedUsers = selectedUsers.filter((u) => u.tossId !== tossId);
     setSelectedUsers(newSelectedUsers);
@@ -78,70 +89,78 @@ export function MemberManager({
     <FixedBottomCTAProvider>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <Spacing size={30} />
-        <SearchField
-          placeholder="친구의 이름, 이메일을 입력해요"
-          autoFocus={true}
-          value={searchText}
-          hasClearButton={true}
-          maxLength={40}
-          onChange={(e) => setSearchText(e.nativeEvent.text)}
-          style={{ borderRadius: 20, marginHorizontal: 16 }}
-        />
-        <Spacing size={30} />
+        
+        {/* 생성자일 때만 검색창 노출 */}
+        {isCreator && (
+            <>
+                <SearchField
+                  placeholder="친구의 이름, 이메일을 입력해요"
+                  autoFocus={true}
+                  value={searchText}
+                  hasClearButton={true}
+                  maxLength={40}
+                  onChange={(e) => setSearchText(e.nativeEvent.text)}
+                  style={{ borderRadius: 20, marginHorizontal: 16 }}
+                />
+                <Spacing size={30} />
 
-        {/* 검색 결과 */}
-        {searchText.length >= 2 && (
-          <View style={styles.section}>
-            <Post.Paragraph paddingBottom={8} typography="t7" color={adaptive.grey600}>
-              <Paragraph.Text>검색 결과</Paragraph.Text>
-            </Post.Paragraph>
-            {isSearchLoading ? (
-              <View style={{ padding: 20, alignItems: 'center' }}>
-                <ActivityIndicator size="small" color={adaptive.blue500} />
-              </View>
-            ) : searchResults.length === 0 ? (
-              <View style={{ padding: 20, alignItems: 'center' }}>
-                <Paragraph.Text color={adaptive.grey500}>검색 결과가 없습니다.</Paragraph.Text>
-              </View>
-            ) : (
-              <List rowSeparator="none">
-                {searchResults.map((user) => {
-                  const isSelected = selectedUsers.some((u) => u.tossId === user.tossId);
-                  
-                  return (
-                    <Pressable key={user.tossId} onPress={() => handleToggleUser(user)}>
-                      <ListRow
-                        contents={
-                          <ListRow.Texts
-                            type="2RowTypeB"
-                            top={user.name}
-                            topProps={{ color: adaptive.grey800 }}
-                            bottom={user.email}
-                            bottomProps={{ color: adaptive.grey600, typography: 't7' }}
-                          />
-                        }
-                        verticalPadding="small"
-                        right={
-                          isSelected ? (
-                            <Icon name="icon-check-mono" color={adaptive.blue500} size={24} />
-                          ) : (
-                            <Icon name="icon-plus-mono" color={adaptive.grey400} size={24} />
-                          )
-                        }
-                      />
-                    </Pressable>
-                  );
-                })}
-              </List>
-            )}
-            <Spacing size={20} />
-          </View>
+                {/* 검색 결과 */}
+                {searchText.length >= 2 && (
+                  <View style={styles.section}>
+                    <Post.Paragraph paddingBottom={8} typography="t7" color={adaptive.grey600}>
+                      <Paragraph.Text>검색 결과</Paragraph.Text>
+                    </Post.Paragraph>
+                    {isSearchLoading ? (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <ActivityIndicator size="small" color={adaptive.blue500} />
+                      </View>
+                    ) : searchResults.length === 0 ? (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Paragraph.Text color={adaptive.grey500}>검색 결과가 없습니다.</Paragraph.Text>
+                      </View>
+                    ) : (
+                      <List rowSeparator="none">
+                        {searchResults.map((user) => {
+                          const isSelected = selectedUsers.some((u) => u.tossId === user.tossId);
+                          
+                          return (
+                            <Pressable key={user.tossId} onPress={() => handleToggleUser(user)}>
+                              <ListRow
+                                contents={
+                                  <ListRow.Texts
+                                    type="2RowTypeB"
+                                    top={user.name}
+                                    topProps={{ color: adaptive.grey800 }}
+                                    bottom={user.email}
+                                    bottomProps={{ color: adaptive.grey600, typography: 't7' }}
+                                  />
+                                }
+                                verticalPadding="small"
+                                right={
+                                  isSelected ? (
+                                    <Icon name="icon-check-mono" color={adaptive.blue500} size={24} />
+                                  ) : (
+                                    <Icon name="icon-plus-mono" color={adaptive.grey400} size={24} />
+                                  )
+                                }
+                              />
+                            </Pressable>
+                          );
+                        })}
+                      </List>
+                    )}
+                    <Spacing size={20} />
+                  </View>
+                )}
+            </>
         )}
 
-        {/* 추가한 친구 */}
+
+        {/* 추가한 친구 / 멤버 목록 */}
         <View style={styles.section}>
           <Post.Paragraph paddingBottom={8} typography="t7" color={adaptive.grey600}>
-            <Paragraph.Text>추가한 친구 ({selectedUsers.length})</Paragraph.Text>
+            {/* 생성자면 '추가한 친구', 아니면 '함께하는 챌린저' 문구 변경 가능 */}
+            <Paragraph.Text>{isCreator ? `추가한 친구 (${selectedUsers.length})` : `함께하는 친구 (${selectedUsers.length})`}</Paragraph.Text>
           </Post.Paragraph>
           {selectedUsers.length === 0 ? (
             <View style={{ padding: 20, alignItems: 'center' }}>
@@ -165,7 +184,7 @@ export function MemberManager({
                     }
                     verticalPadding="small"
                     right={
-                      !isDisabled ? (
+                      isCreator && !isDisabled ? (
                         <Pressable onPress={() => handleRemoveUser(user.tossId)}>
                           <Icon name="icon-chip-x-mono" color={adaptive.grey300} size={24} />
                         </Pressable>
@@ -185,14 +204,16 @@ export function MemberManager({
           leftButton={leftButton}
           rightButton={
             <Button
-              type="primary"
+              type={isCreator ? "primary" : "danger"}
               style="fill"
               display="block"
               disabled={isExternalLoading}
               loading={isExternalLoading}
-              onPress={() => onSave(selectedUsers)}
+              onPress={() => isCreator ? onSave(selectedUsers) : onLeave?.()}
             >
-              {saveButtonText}
+              <Txt color={adaptive.background}>
+                  {isCreator ? saveButtonText : '챌린지 나가기'}
+              </Txt>
             </Button>
           }
         />
@@ -200,9 +221,12 @@ export function MemberManager({
         <FixedBottomCTA
           disabled={isExternalLoading}
           loading={isExternalLoading}
-          onPress={() => onSave(selectedUsers)}
+          onPress={() => isCreator ? onSave(selectedUsers) : onLeave?.()}
+          type={isCreator ? "primary" : "danger"}
         >
-          {saveButtonText}
+          <Txt color={adaptive.background}>
+            {isCreator ? saveButtonText : '챌린지 나가기'}
+          </Txt>
         </FixedBottomCTA>
       )}
     </FixedBottomCTAProvider>

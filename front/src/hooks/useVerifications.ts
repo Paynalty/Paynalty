@@ -1,6 +1,6 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { getLatestVerification, getVerifications, getMemberVerificationCounts } from '../api/verifications';
-import { ApiError } from '../api/client';
+import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
+import {getLatestVerification, getMemberVerificationCounts, getVerifications} from '../api/verifications';
+import {ApiError} from '../api/client';
 
 export const useLatestVerification = (challengeId: number | null) => {
   return useQuery({
@@ -11,6 +11,7 @@ export const useLatestVerification = (challengeId: number | null) => {
         const data = await getLatestVerification(challengeId);
         return {
           id: data.id,
+          tossId: data.tossId,
           name: data.userName,
           // avatar: response.data.userAvatar,
           image: data.imageUrl,
