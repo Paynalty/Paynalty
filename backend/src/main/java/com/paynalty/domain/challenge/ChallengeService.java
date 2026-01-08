@@ -525,6 +525,10 @@ public class ChallengeService {
         // 패널티서비스에서 따로 매서드 구현후 패널티서비스 사용하기
         PenaltyOverview penaltyOverview = penaltyService.getPenaltyOverview(challengeId);
 
+        // 챌린지 id로 해당 챌린지 맴버 조회
+        // 맴버 별 주간 현황 데이터 불러오기 List에 담겨있음
+        // penalty 서비스에서 구현
+
         return ChallengePenaltyOverviewResponse.builder()
                 .totalPenalty(penaltyOverview.getTotalPenalty())
                 .paidPenalty(penaltyOverview.getPaidPenalty())

@@ -1,8 +1,11 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.penalty.MemberPenalty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -11,6 +14,9 @@ public class ChallengePenaltyOverviewResponse {
     private Long totalPenalty; // penalty 필드 penaltyAmount 총합
     private Long paidPenalty; // penalty 필드 값중 paid가 true 인 데이터들의 penaltyAmount 총합
     private Long nonPaidPenalty;// paid가 false인 데이터들의 penaltyAmount 총합
+
+    private List<MemberPenalty> memberPenaltyList;
+
 
     // 내 패널티 현황 주간 단위.
     // 주 단위 기준 챌린지 시작일~ 챌린지 시작일이 포함된 그 주 일요일 사이,
@@ -31,10 +37,7 @@ public class ChallengePenaltyOverviewResponse {
     // 내 패널티 현황 주간 단위와 유사
     // 내 패널티와 맴버 별 패너리 주간 단위 따로 구분할 필요없이 해당 챌린지의 주간 현황 불러오는 매서드를 만들고 해당 매서드에서 filter를 통해 사용자 정보 꺼내 사용하기,사용자 제외한 맴버별 정보 꺼내 사용하기
 
-    public ChallengePenaltyOverviewResponse(Long amount1,Long amount2,Long amount3){
-        this.totalPenalty = amount1;
-        this.paidPenalty = amount2;
-        this.nonPaidPenalty = amount3;
-    }
+
+
 
 }

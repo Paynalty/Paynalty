@@ -10,10 +10,5 @@ public class PenaltyOverview {
     private Long paidPenalty;
     private Long nonPaidPenalty;
 
-    public PenaltyOverview(Long totalPenalty,Long paidPenalty,Long nonPaidPenalty){
-        this.totalPenalty = totalPenalty;
-        this.paidPenalty = paidPenalty;
-        this.nonPaidPenalty = nonPaidPenalty;
-    }
 
 }
