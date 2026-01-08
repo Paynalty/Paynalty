@@ -1,17 +1,17 @@
-import { BottomSheet, List, ListRow, Asset } from '@toss/tds-react-native';
-import { useOverlay, useAdaptive } from '@toss/tds-react-native/private';
-import { View, Pressable, Alert } from 'react-native';
-import { getSelectedChallenge } from '../stores/challengeStore';
+import {Asset, BottomSheet, List, ListRow} from '@toss/tds-react-native';
+import {useAdaptive, useOverlay} from '@toss/tds-react-native/private';
+import {Alert, Pressable, View} from 'react-native';
+import {getSelectedChallenge} from '../stores/challengeStore';
 import {
-  openCamera,
-  fetchAlbumPhotos,
-  OpenCameraPermissionError,
-  FetchAlbumPhotosPermissionError,
+    fetchAlbumPhotos,
+    FetchAlbumPhotosPermissionError,
+    openCamera,
+    OpenCameraPermissionError,
 } from '@apps-in-toss/framework';
-import { createVerification } from '../api/verifications';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLatestVerification } from './useVerifications';
-import { getTimeDate, isTodayChallenge } from '../utils/challenge';
+import {createVerification} from '../api/verifications';
+import {useMutation, useQueryClient} from '@tanstack/react-query';
+import {useLatestVerification} from './useVerifications';
+import {getTimeDate, isTodayChallenge} from '../utils/challenge';
 
 export function useVerificationModal() {
   const overlay = useOverlay();
@@ -29,6 +29,12 @@ export function useVerificationModal() {
     const now = new Date();
     const today = now.getTime();
 
+     // 0. 시작 전(PENDING) 챌린지 확인
+    if (selectedChallenge.status === 'PENDING') {
+        const startText = selectedChallenge.startAt ? `(${selectedChallenge.startAt} 시작 예정)` : '';
+        return { canVerify: false, reason: `아직 시작되지 않은 챌린지예요.\n${startText}` };
+    }
+    
     // 1. 챌린지 기간 확인 (마감 여부)
     if (selectedChallenge.endAt) {
       const endDate = new Date(selectedChallenge.endAt);

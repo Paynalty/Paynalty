@@ -1,9 +1,6 @@
 package com.paynalty.domain.challenge;
 
-import com.paynalty.domain.challengemember.ChallengeMember;
-import com.paynalty.domain.challengemember.ChallengeMemberRepository;
-import com.paynalty.domain.challengemember.ChallengeMemberResponse;
-import com.paynalty.domain.challengemember.ChallengeMemberService;
+import com.paynalty.domain.challengemember.*;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.penalty.MemberPenalty;
@@ -18,7 +15,6 @@ import com.paynalty.global.error.ChallengeMemberErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
-import com.paynalty.domain.challengemember.MemberRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -235,7 +231,7 @@ public class ChallengeService {
             throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_UPDATE);
         }
 
-        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeIdAndIsActiveTrue(challengeId);
         List<Long> userIds = challengeMembers.stream()
                 .map(ChallengeMember::getUser)
                 .map(User::getId)
@@ -300,9 +296,9 @@ public class ChallengeService {
 
             VerificationStatus verificationStatus = determineVerificationStatus(challenge, tossId);
 
-            // request 의 userIds 데이터 토대로 다시 챌린지 맴버 전환
-            List<Long> userIds = request.getUserIds();
-            challengeMemberService.addMembersToNewChallenge(user,challenge,userIds);
+            // request 의 tossIds 데이터 토대로 다시 챌린지 맴버 전환
+            List<Long> tossIds = request.getTossIds();
+            challengeMemberService.addMembersToNewChallenge(user,challenge,tossIds);
 
             // 챌린지 상태 재계산
             ChallengeStatus challengeStatus = challenge.calculateStatus();

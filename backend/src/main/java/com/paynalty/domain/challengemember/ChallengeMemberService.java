@@ -23,9 +23,11 @@ public class ChallengeMemberService {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    private final com.paynalty.domain.penalty.PenaltyRepository penaltyRepository;
+
     // 챌린지 참여 중 인 맴버 목록 불러오기
     public List<ChallengeMemberResponse> getMembersByChallengeId(Long challengeId) {
-        List<ChallengeMember> members = challengeMemberRepository.findByChallengeId(challengeId);
+        List<ChallengeMember> members = challengeMemberRepository.findByChallengeIdAndIsActiveTrue(challengeId);
         return members.stream()
                 .map(ChallengeMemberResponse::from)
                 .collect(Collectors.toList());
@@ -34,27 +36,35 @@ public class ChallengeMemberService {
     // 챌린지 맴버 이미 있는지 검증 하고 추가
     @Transactional
     public void addMemberIfNotExists(User user, Challenge challenge) {
-        // 이미 챌린지 멤버인지 확인
-        boolean isAlreadyMember = challengeMemberRepository
-                .findByUserTossIdAndChallengeId(user.getTossId(), challenge.getId())
-                .isPresent();
+        // 이미 챌린지 멤버인지 확인 (탈퇴한 멤버 포함 조회)
+        Optional<ChallengeMember> existingMember = challengeMemberRepository
+                .findByUserTossIdAndChallengeId(user.getTossId(), challenge.getId());
 
-        MemberRole role = MemberRole.CHALLENGER;
-        if (!isAlreadyMember) {
-            // 챌린지의 user 과 매개변수 user 이 서로 같다면 role = creator 아니면 challenger
-            if (Objects.equals(challenge.getUser().getTossId(), user.getTossId())) {
-                role = MemberRole.CREATOR;
+        if (existingMember.isPresent()) {
+            ChallengeMember member = existingMember.get();
+            if (!member.getIsActive()) {
+                // 탈퇴한 멤버라면 재가입 처리
+                member.rejoin();
             }
-
-            ChallengeMember challengeMember = ChallengeMember.builder()
-                    .user(user)
-                    .challenge(challenge)
-                    .isSuccess(challenge.getStatus()) // 초기 상태 설정
-                    .endAt(challenge.getEndDate())
-                    .role(role)
-                    .build();
-            challengeMemberRepository.save(challengeMember);
+            // 이미 Active 상태라면 아무것도 하지 않음
+            return;
         }
+
+        // 신규 가입 로직
+        MemberRole role = MemberRole.CHALLENGER;
+        // 챌린지의 user 과 매개변수 user 이 서로 같다면 role = creator 아니면 challenger
+        if (Objects.equals(challenge.getUser().getTossId(), user.getTossId())) {
+            role = MemberRole.CREATOR;
+        }
+
+        ChallengeMember challengeMember = ChallengeMember.builder()
+                .user(user)
+                .challenge(challenge)
+                .isSuccess(challenge.getStatus()) // 초기 상태 설정
+                .endAt(challenge.getEndDate())
+                .role(role)
+                .build();
+        challengeMemberRepository.save(challengeMember);
     }
 
     // 챌린지 생성 시 생성자와 초대 친구들 챌린지 맴버로 생성
@@ -97,12 +107,8 @@ public class ChallengeMemberService {
             throw new CustomException(ChallengeMemberErrorCode.CREATOR_CANNOT_BE_REMOVED);
         }
 
-        // DB에 저장된 멤버 목록 조회
-        List<ChallengeMember> currentMembers = challengeMemberRepository.findByChallengeId(challengeId);
-
-        Set<Long> currentMemberTossIds = currentMembers.stream()
-                .map(member -> member.getUser().getTossId())
-                .collect(Collectors.toSet());
+        // DB에 저장된 멤버 목록 조회 (Active 멤버만)
+        List<ChallengeMember> currentMembers = challengeMemberRepository.findByChallengeIdAndIsActiveTrue(challengeId);
 
         Set<Long> updateMemberTossIdsSet = new HashSet<>(updateMemberTossIds);
 
@@ -111,32 +117,26 @@ public class ChallengeMemberService {
                 .filter(member -> !updateMemberTossIdsSet.contains(member.getUser().getTossId()))
                 .collect(Collectors.toList());
 
-        // 추가할 멤버 찾기
+        // 추가할 멤버 찾기 (이미 Active인 사람은 제외됨)
         Set<Long> memberIdsToAdd = updateMemberTossIdsSet.stream()
-                .filter(member -> !currentMemberTossIds.contains(member))
+                .filter(tossId -> currentMembers.stream().noneMatch(m -> m.getUser().getTossId().equals(tossId)))
                 .collect(Collectors.toSet());
 
-        // 멤버 업데이트
-        if (!membersToRemove.isEmpty()) {
-            challengeMemberRepository.deleteAll(membersToRemove);
+        // 멤버 삭제 (Soft Delete - Withdraw)
+        for (ChallengeMember member : membersToRemove) {
+            member.withdraw();
         }
 
+        // 멤버 추가 (재가입 로직은 addMemberIfNotExists 내부에 있음)
         if (!memberIdsToAdd.isEmpty()) {
             List<User> userToAdd = userRepository.findAllByTossIdIn(new ArrayList<>(memberIdsToAdd));
-            List<ChallengeMember> updateChallengeMembers = userToAdd.stream()
-                    .map(user -> ChallengeMember.builder()
-                            .user(user)
-                            .challenge(challenge)
-                            .role(MemberRole.CHALLENGER)
-                            .isSuccess(challenge.getStatus())
-                            .endAt(challenge.getEndDate())
-                            .build())
-                    .collect(Collectors.toList());
-            challengeMemberRepository.saveAll(updateChallengeMembers);
+            for (User user : userToAdd) {
+                addMemberIfNotExists(user, challenge);
+            }
         }
     }
 
-    // 챌린지 탈퇴
+    // 챌린지 탈퇴 (본인 스스로)
     @Transactional
     public void withdrawChallenge(Long challengeId, Long userId) {
         ChallengeMember member = challengeMemberRepository
@@ -147,7 +147,13 @@ public class ChallengeMemberService {
             throw new CustomException(ChallengeMemberErrorCode.CREATOR_CANNOT_BE_REMOVED);
         }
 
-        challengeMemberRepository.delete(member);
+        // 미납 패널티 확인 (본인 탈퇴 시 필수 체크)
+        if (penaltyRepository.existsByChallengeMemberIdAndPaidFalse(member.getId())) {
+            throw new CustomException(ChallengeMemberErrorCode.MEMBER_HAS_UNPAID_PENALTY);
+        }
+
+        // Soft Delete
+        member.withdraw();
     }
 
     /**

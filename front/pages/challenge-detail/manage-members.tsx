@@ -62,12 +62,37 @@ export default function Page() {
     },
   });
 
+  // 권한 확인: 생성자 여부
+  const isCreator = me && selectedChallenge && selectedChallenge.members?.find(m => m.tossId === me.tossId)?.role === 'CREATOR';
+
+  const handleLeave = async () => {
+    if (!selectedChallenge) return;
+    try {
+        // 이미 api/challengeMembers.ts 에 leaveChallenge 가 있다고 가정 (ChallengeDetail 에서 사용중인 것 확인)
+        const { leaveChallenge } = require('../../src/api/challengeMembers'); 
+        await leaveChallenge(selectedChallenge.id);
+        Alert.alert('알림', '챌린지에서 나갔어요.', [
+            { text: '확인', onPress: () => {
+                queryClient.invalidateQueries({ queryKey: ['myProgressChallenges'] });
+                // 선택된 챌린지 초기화 또는 목록으로 이동
+                useChallengeStore.getState().setSelectedChallenge(null as any); 
+                navigation.navigate('/'); // 홈으로 이동
+            }}
+        ]);
+    } catch (e) {
+        console.error(e);
+        Alert.alert('오류', '챌린지 나가기에 실패했어요.');
+    }
+  };
+
   if (!selectedChallenge) return null;
 
   return (
     <MemberManager
       initialMembers={initialMembers}
       disabledMemberIds={me ? [me.tossId] : []} // 나(생성자)는 삭제 불가
+      isCreator={!!isCreator}
+      onLeave={handleLeave}
       onSave={(users) => {
         const tossIds = users.map(u => u.tossId);
         mutate(tossIds);

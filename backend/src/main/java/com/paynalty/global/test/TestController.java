@@ -1,6 +1,9 @@
 package com.paynalty.global.test;
 
-import com.paynalty.domain.challenge.*;
+import com.paynalty.domain.challenge.Challenge;
+import com.paynalty.domain.challenge.ChallengeRepository;
+import com.paynalty.domain.challenge.DayOfWeekType;
+import com.paynalty.domain.challenge.VerificationType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
@@ -10,8 +13,6 @@ import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
-
-import java.time.LocalDateTime;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import com.paynalty.global.security.CustomUserDetails;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -71,16 +73,16 @@ public class TestController {
         LocalDate today = LocalDate.now();
 
         // 챌린지 생성 패턴 (DataInitializer의 로직 이식)
-        
+
         // C1: PENDING - 건강한 아침 식사하기
-        Challenge c1 = createChallenge(currentUser, "더미: 건강한 아침 식사하기",
+        Challenge c1 = createChallenge(currentUser, "건강한 아침 식사하기",
                 today.plusDays(3), today.plusDays(24), 3, 10000L,
                 LocalTime.of(9, 0), LocalTime.of(18, 0),
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
         addMembers(c1, allUsers, currentUser);
 
         // C2: ACTIVE - 주 3회 조깅
-        Challenge c2 = createChallenge(currentUser, "더미: 주 3회 조깅하기",
+        Challenge c2 = createChallenge(currentUser, "주 3회 조깅하기",
                 today.minusDays(21), today.plusDays(14), 3, 10000L,
                 LocalTime.of(9, 0), LocalTime.of(18, 0),
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
@@ -89,7 +91,7 @@ public class TestController {
         createPenalties(c2, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C3: ACTIVE - 하루 한 페이지 일기 쓰기 (저녁)
-        Challenge c3 = createChallenge(currentUser, "더미: 하루 한 페이지 일기 쓰기",
+        Challenge c3 = createChallenge(currentUser, "하루 한 페이지 일기 쓰기",
                 today.minusDays(21), today.plusDays(14), 3, 10000L,
                 LocalTime.of(18, 0), LocalTime.of(23, 59),
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
@@ -98,7 +100,7 @@ public class TestController {
         createPenalties(c3, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C4: ACTIVE - 매일 물 2L 마시기 (매일)
-        Challenge c4 = createChallenge(currentUser, "더미: 매일 물 2L 마시기",
+        Challenge c4 = createChallenge(currentUser, "매일 물 2L 마시기",
                 today.minusDays(21), today.plusDays(14), 7, 5000L,
                 LocalTime.of(0, 0), LocalTime.of(23, 59),
                 List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI, DayOfWeekType.SAT, DayOfWeekType.SUN));
@@ -107,7 +109,7 @@ public class TestController {
         createPenalties(c4, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C5: COMPLETE - 영어 단어 외우기
-        Challenge c5 = createChallenge(currentUser, "더미: 지난달 영어 단어 외우기",
+        Challenge c5 = createChallenge(currentUser, "지난달 영어 단어 외우기",
                 today.minusDays(40), today.minusDays(10), 5, 20000L,
                 LocalTime.of(9, 0), LocalTime.of(22, 0),
                 List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI));
@@ -116,13 +118,42 @@ public class TestController {
         createPenalties(c5, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C6: ACTIVE - 스쿼트 50개 (화목토일)
-        Challenge c6 = createChallenge(currentUser, "더미: 스쿼트 50개",
+        Challenge c6 = createChallenge(currentUser, "스쿼트 50개",
                 today.minusDays(21), today.plusDays(14), 4, 15000L,
                 LocalTime.of(9, 0), LocalTime.of(18, 0),
                 List.of(DayOfWeekType.TUE, DayOfWeekType.THU, DayOfWeekType.SAT, DayOfWeekType.SUN));
         addMembers(c6, allUsers, currentUser);
         createVerifications(c6, allUsers, today, currentUser);
         createPenalties(c6, allUsers, currentUser, today); // 벌금 더미 데이터
+
+        // C7: ACTIVE - 다른 사용자가 만든 챌린지 (참여중)
+        User otherCreator = allUsers.stream()
+                .filter(u -> !u.getTossId().equals(currentUser.getTossId()))
+                .findFirst()
+                .orElse(allUsers.get(0));
+
+        Challenge c7 = createChallenge(otherCreator, "더미: 친구가 만든 챌린지",
+                today.minusDays(5), today.plusDays(25), 7, 30000L,
+                LocalTime.of(7, 0), LocalTime.of(23, 0),
+                List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI));
+
+        //         멤버 추가: 생성자(친구) + 본인(currentUser)
+        challengeMemberRepository.save(ChallengeMember.builder()
+                .user(otherCreator)
+                .challenge(c7)
+                .role(MemberRole.CREATOR)
+                .isSuccess(c7.getStatus())
+                .build());
+
+        challengeMemberRepository.save(ChallengeMember.builder()
+                .user(currentUser)
+                .challenge(c7)
+                .role(MemberRole.CHALLENGER)
+                .isSuccess(c7.getStatus())
+                .build());
+
+        createVerifications(c7, allUsers, today, currentUser);
+        createPenalties(c7, allUsers, currentUser, today);
 
         return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 6개, 인증 내역, 벌금 내역) 생성이 완료되었습니다.");
     }
@@ -168,7 +199,7 @@ public class TestController {
         // 시작일부터 어제까지의 인증 데이터
         for (LocalDate date = challenge.getStartDate(); date.isBefore(today); date = date.plusDays(1)) {
             final LocalDate d = date;
-            
+
             // 1. 현재 사용자(본인) 인증 추가 (어제까지만)
             challengeVerificationRepository.save(ChallengeVerification.builder()
                     .user(currentUser)
@@ -195,7 +226,7 @@ public class TestController {
     private void createVerificationsForCompleted(Challenge challenge, List<User> allUsers, User currentUser) {
         for (LocalDate date = challenge.getStartDate(); !date.isAfter(challenge.getEndDate()); date = date.plusDays(1)) {
             final LocalDate d = date;
-            
+
             // 본인 포함 모든 멤버 인증 기록 생성
             challengeVerificationRepository.save(ChallengeVerification.builder()
                     .user(currentUser)
@@ -203,7 +234,7 @@ public class TestController {
                     .date(d)
                     .verifiedAt(d.atTime(13, 0)) // 오후 1시
                     .imageUrl("temp.png")
-                    
+
                     .build());
 
             allUsers.stream()
@@ -222,7 +253,7 @@ public class TestController {
     /**
      * 벌금 더미 데이터 생성
      * ACTIVE와 COMPLETE 챌린지에 대해 다양한 시나리오의 벌금 데이터를 생성합니다.
-     * 
+     *
      * @param challenge 챌린지
      * @param allUsers 전체 사용자 목록
      * @param currentUser 현재 로그인한 사용자
@@ -240,13 +271,13 @@ public class TestController {
             // 미납 벌금들 (paid = false)
             // 오늘 벌금
             createPenaltyForMember(currentMember, penaltyAmount, today, false, null);
-            
+
             // 어제 벌금
             createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(1), false, null);
-            
+
             // 3일 전 벌금
             createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(3), false, null);
-            
+
             // 7일 전 벌금
             createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(7), false, null);
 
@@ -274,7 +305,7 @@ public class TestController {
 
             if (member != null) {
                 Long penaltyAmount = challenge.getPenaltyAmount();
-                
+
                 if (i == 0) {
                     // 다른 멤버 1: 2일 전, 4일 전 미납 벌금
                     createPenaltyForMember(member, penaltyAmount, today.minusDays(2), false, null);
@@ -290,14 +321,14 @@ public class TestController {
 
     /**
      * 특정 멤버에 대한 벌금 생성
-     * 
+     *
      * @param member 챌린지 멤버
      * @param amount 벌금 금액
      * @param createdDate 벌금 생성 날짜
      * @param paid 결제 여부
      * @param paidAt 결제 시간 (paid가 true인 경우 필수)
      */
-    private void createPenaltyForMember(ChallengeMember member, Long amount, 
+    private void createPenaltyForMember(ChallengeMember member, Long amount,
                                        LocalDate createdDate, boolean paid, LocalDateTime paidAt) {
         Penalty penalty = Penalty.builder()
                 .challengeMember(member)

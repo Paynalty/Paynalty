@@ -14,8 +14,8 @@ public class ChallengeVerificationResponse {
     @Schema(description = "인증 ID", example = "Long")
     private Long id;
 
-    @Schema(description = "인증한 사용자 ID", example = "Long")
-    private Long userId;
+    @Schema(description = "인증한 사용자 Toss ID", example = "Long")
+    private Long tossId;
 
     @Schema(description = "인증한 사용자 이름", example = "String")
     private String userName;
@@ -38,7 +38,7 @@ public class ChallengeVerificationResponse {
         
         return ChallengeVerificationResponse.builder()
                 .id(cv.getId())
-                .userId(cv.getUser().getId())
+                .tossId(cv.getUser().getTossId())
                 .userName(cv.getUser().getName())
                 .challengeId(cv.getChallenge().getId())
                 .dateTime(cv.getVerifiedAt())

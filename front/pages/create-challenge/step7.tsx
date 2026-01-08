@@ -1,17 +1,17 @@
-import { createRoute, Spacing } from '@granite-js/react-native';
+import {createRoute, Spacing} from '@granite-js/react-native';
 import {
-  ProgressBar,
-  Top,
-  FixedBottomCTA,
-  FixedBottomCTAProvider,
-  Button,
-  TextField,
-  Txt,
+    Button,
+    FixedBottomCTA,
+    FixedBottomCTAProvider,
+    ProgressBar,
+    TextField,
+    Top,
+    Txt,
 } from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
-import { View } from 'react-native';
-import { useState } from 'react';
-import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {View} from 'react-native';
+import {useState} from 'react';
+import {useCreateChallengeStore} from '../../src/stores/createChallengeStore';
 
 export const Route = createRoute('/create-challenge/step7', {
   component: Page,
@@ -28,8 +28,28 @@ export default function Page() {
   const adaptive = useAdaptive();
   const navigation = Route.useNavigation();
   const { data, updateData } = useCreateChallengeStore();
-  const [selectAmount, setSelectAmount] = useState<number | string>(data.penaltyAmount ?? 10000);
-  const [customAmount, setCustomAmount] = useState(data.customAmount || '');
+  
+  // 초기 상태 설정 로직 분리
+  const getInitialState = () => {
+    const amount = Number(data.penaltyAmount);
+    if (!amount) return { select: 10000, custom: '' };
+    
+    // 프리셋 값인지 확인
+    if ([1000, 5000, 10000].includes(amount)) {
+      return { select: amount, custom: '' };
+    }
+    
+    // 프리셋이 아니면 커스텀으로 설정 (단, 'custom' 문자열이 들어온 경우 제외)
+    if (data.penaltyAmount === 'custom') {
+        return { select: 'custom', custom: data.customAmount || '' };
+    }
+
+    return { select: 'custom', custom: String(amount) };
+  };
+
+  const initialState = getInitialState();
+  const [selectAmount, setSelectAmount] = useState<number | string>(initialState.select);
+  const [customAmount, setCustomAmount] = useState(initialState.custom);
 
   const isNextButtonEnabled =
     (selectAmount !== 'custom' && Number(selectAmount) > 0) ||
@@ -127,7 +147,7 @@ export default function Page() {
               loading={false}
               onPress={() => {
                 updateData({
-                  penaltyAmount: selectAmount,
+                  penaltyAmount: selectAmount === 'custom' ? Number(customAmount) : selectAmount,
                   customAmount: selectAmount === 'custom' ? customAmount : undefined,
                 });
                 if (data.isEditing) {

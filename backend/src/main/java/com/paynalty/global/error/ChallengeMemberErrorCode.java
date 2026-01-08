@@ -13,7 +13,8 @@ public enum ChallengeMemberErrorCode implements ErrorCode {
 
     // 챌린지 멤버 관리 권한 에러
     NOT_CREATOR(HttpStatus.FORBIDDEN, "MEM003", "챌린지 생성자만 멤버를 관리할 수 있습니다."),
-    CREATOR_CANNOT_BE_REMOVED(HttpStatus.BAD_REQUEST, "MEM004", "챌린지 생성자는 자신을 제외할 수 없습니다.");
+    CREATOR_CANNOT_BE_REMOVED(HttpStatus.BAD_REQUEST, "MEM004", "챌린지 생성자는 자신을 제외할 수 없습니다."),
+    MEMBER_HAS_UNPAID_PENALTY(HttpStatus.BAD_REQUEST, "MEM005", "미납된 패널티가 있어 탈퇴할 수 없습니다.");
 
 
     private final HttpStatus status;

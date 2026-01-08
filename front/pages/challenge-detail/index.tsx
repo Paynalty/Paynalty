@@ -1,24 +1,24 @@
-import { createRoute, Spacing } from '@granite-js/react-native';
-import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt } from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
-import { AuthGuard } from '../../src/components/common/AuthGuard';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Card } from '../../src/components/common/Card';
-import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
-import { useVerificationModal } from '../../src/hooks/useVerificationModal';
-import { useMe } from '../../src/hooks/useMe';
-import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
-import { useChallengeStore } from '../../src/stores/challengeStore';
-import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
-import { getChallengeEditForm } from '../../src/api/challenges';
-import { leaveChallenge } from '../../src/api/challengeMembers';
+import {createRoute, Spacing} from '@granite-js/react-native';
+import {Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, Top, Txt} from '@toss/tds-react-native';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {AuthGuard} from '../../src/components/common/AuthGuard';
+import {Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import {Card} from '../../src/components/common/Card';
+import {VerificationGroup} from '../../src/components/verification/VerificationGroup';
+import {useVerificationModal} from '../../src/hooks/useVerificationModal';
+import {useMe} from '../../src/hooks/useMe';
+import {useLatestVerification, useMemberVerificationCounts} from '../../src/hooks/useVerifications';
+import {useChallengeStore} from '../../src/stores/challengeStore';
+import {useCreateChallengeStore} from '../../src/stores/createChallengeStore';
+import {getChallengeEditForm} from '../../src/api/challenges';
+
 import {
-  formatDate,
-  formatDaysOfWeek,
-  formatTime,
-  getChallengeStatusBadge,
-  getVerificationMessage,
-  getVerificationTypeLabel,
+    formatDate,
+    formatDaysOfWeek,
+    formatTime,
+    getChallengeStatusBadge,
+    getVerificationMessage,
+    getVerificationTypeLabel,
 } from '../../src/utils/challenge';
 
 export const Route = createRoute('/challenge-detail', {
@@ -42,33 +42,6 @@ function Page() {
   
   // 내 Role 확인
   const myRole = selectedChallenge?.members?.find(m => m.tossId === me?.tossId)?.role;
-
-  const handleLeaveChallenge = () => {
-    Alert.alert(
-      '챌린지를 나갈까요?',
-      '나가면 더 이상 인증을 할 수 없어요.',
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '나가기',
-          style: 'destructive',
-          onPress: async () => {
-            if (!selectedChallenge) return;
-            try {
-               await leaveChallenge(selectedChallenge.id);
-               Alert.alert('알림', '챌린지에서 나갔어요.', [
-                 { text: '확인', onPress: () => navigation.pop() }
-               ]);
-            } catch (e) {
-              console.error(e);
-              Alert.alert('오류', '챌린지 나가기에 실패했어요.');
-            }
-          },
-        },
-      ]
-    );
-  };
-
   if (!selectedChallenge) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -109,41 +82,43 @@ function Page() {
         }
         lowerGap={0}
       />
-      <Top
-        title=""
-        subtitle1={
-          <Top.SubtitleParagraph>
-            {selectedChallenge.status === 'ACTIVE' && selectedChallenge.verifyEnd
-              ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
-              : ''}
-          </Top.SubtitleParagraph>
-        }
-        subtitle2={
-          <Top.SubtitleBadges
-            items={[
-              getChallengeStatusBadge(
-                selectedChallenge.verificationStatus,
-                selectedChallenge.daysOfWeek,
-                selectedChallenge.weeklyRequiredCount,
-                selectedChallenge.weeklyProgressCount,
-                selectedChallenge.verifyStart,
-                selectedChallenge.verifyEnd
-              ),
-              {
-                label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
-                type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
-                style: 'weak' as const,
-              },
-              {
-                label: `${selectedChallenge.penaltyAmount.toLocaleString()}원`,
-                type: 'blue',
-                style: 'weak',
-              },
-            ]}
-          />
-        }
-        upperGap={0}
-      />
+      {selectedChallenge.status === 'ACTIVE' && (
+        <Top
+          title=""
+          subtitle1={
+            <Top.SubtitleParagraph>
+              {selectedChallenge.verifyEnd
+                ? getVerificationMessage(selectedChallenge.verifyStart, selectedChallenge.verifyEnd)
+                : ''}
+            </Top.SubtitleParagraph>
+          }
+          subtitle2={
+            <Top.SubtitleBadges
+              items={[
+                getChallengeStatusBadge(
+                  selectedChallenge.verificationStatus,
+                  selectedChallenge.daysOfWeek,
+                  selectedChallenge.weeklyRequiredCount,
+                  selectedChallenge.weeklyProgressCount,
+                  selectedChallenge.verifyStart,
+                  selectedChallenge.verifyEnd
+                ),
+                {
+                  label: `${selectedChallenge.weeklyProgressCount}/${selectedChallenge.weeklyRequiredCount}`,
+                  type: (selectedChallenge.verificationStatus === 'VERIFIED' ? 'green' : 'yellow') as any,
+                  style: 'weak' as const,
+                },
+                {
+                  label: `${selectedChallenge.penaltyAmount.toLocaleString()}원`,
+                  type: 'blue',
+                  style: 'weak',
+                },
+              ]}
+            />
+          }
+          upperGap={0}
+        />
+      )}
 
       {/* 최근 인증 현황 */}
       <ListHeader
@@ -167,6 +142,7 @@ function Page() {
             verifications={[
               {
                 id: latestVerification.id,
+                tossId: latestVerification.tossId,
                 userName: latestVerification.name,
                 imageUrl: latestVerification.image,
                 dateTime: latestVerification.dateTime,
@@ -259,9 +235,9 @@ function Page() {
               </ListHeader.RightArrow>
             </Pressable>
           ) : (
-            <Pressable onPress={handleLeaveChallenge}>
-              <ListHeader.RightArrow typography="t7" color={adaptive.red500}>
-                챌린지 나가기
+            <Pressable onPress={() => navigation.navigate('/challenge-detail/manage-members')}>
+              <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+                친구 보기 / 나가기
               </ListHeader.RightArrow>
             </Pressable>
           )
@@ -276,51 +252,53 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
         right={
-          <Pressable
-            onPress={async () => {
-              try {
-                const editForm = await getChallengeEditForm(selectedChallenge.id.toString());
-                const dayMapping: { [key: string]: string } = {
-                  MON: '월',
-                  TUE: '화',
-                  WED: '수',
-                  THU: '목',
-                  FRI: '금',
-                  SAT: '토',
-                  SUN: '일',
-                };
+          myRole === 'CREATOR' ? (
+            <Pressable
+              onPress={async () => {
+                try {
+                  const editForm = await getChallengeEditForm(selectedChallenge.id.toString());
+                  const dayMapping: { [key: string]: string } = {
+                    MON: '월',
+                    TUE: '화',
+                    WED: '수',
+                    THU: '목',
+                    FRI: '금',
+                    SAT: '토',
+                    SUN: '일',
+                  };
 
-                const isDayType = editForm.daysOfWeek && editForm.daysOfWeek.length > 0;
-                const periodValue = isDayType
-                  ? editForm.daysOfWeek!.map((d: string) => dayMapping[d] || d).join(', ')
-                  : `${editForm.frequency}회`;
+                  const isDayType = editForm.daysOfWeek && editForm.daysOfWeek.length > 0;
+                  const periodValue = isDayType
+                    ? editForm.daysOfWeek!.map((d: string) => dayMapping[d] || d).join(', ')
+                    : `${editForm.frequency}회`;
 
-                updateData({
-                  isEditing: true,
-                  challengeId: selectedChallenge.id.toString(),
-                  title: editForm.title,
-                  verificationType: editForm.verificationType,
-                  penaltyAmount: editForm.penaltyAmount,
-                  endDate: editForm.endDate,
-                  verifyStartAt: editForm.verifyStartAt ?? undefined,
-                  verifyEndAt: editForm.verifyEndAt ?? undefined,
-                  daysOfWeek: editForm.daysOfWeek || [],
-                  frequency: editForm.frequency || 0,
-                  period: periodValue,
-                  startDate: isDayType ? 'day' : 'count',
-                });
+                  updateData({
+                    isEditing: true,
+                    challengeId: selectedChallenge.id.toString(),
+                    title: editForm.title,
+                    verificationType: editForm.verificationType,
+                    penaltyAmount: editForm.penaltyAmount,
+                    endDate: editForm.endDate,
+                    verifyStartAt: editForm.verifyStartAt ?? undefined,
+                    verifyEndAt: editForm.verifyEndAt ?? undefined,
+                    daysOfWeek: editForm.daysOfWeek || [],
+                    frequency: editForm.frequency || 0,
+                    period: periodValue,
+                    startDate: isDayType ? 'day' : 'count',
+                  });
 
-                navigation.navigate('/create-challenge/step2');
-              } catch (error) {
-                console.error('수정 데이터 로드 실패:', error);
-                alert('챌린지 정보를 불러오지 못했습니다.');
-              }
-            }}
-          >
-            <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
-              수정하기
-            </ListHeader.RightArrow>
-          </Pressable>
+                  navigation.navigate('/create-challenge/step2');
+                } catch (error) {
+                  console.error('수정 데이터 로드 실패:', error);
+                  alert('챌린지 정보를 불러오지 못했습니다.');
+                }
+              }}
+            >
+              <ListHeader.RightArrow typography="t7" color={adaptive.grey600}>
+                수정하기
+              </ListHeader.RightArrow>
+            </Pressable>
+          ) : undefined
         }
       />
       <View style={styles.rulesCard}>

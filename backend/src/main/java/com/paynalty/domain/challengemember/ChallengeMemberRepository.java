@@ -16,6 +16,8 @@ public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember
 
     List<ChallengeMember> findByChallengeId(Long challengeId);
 
+    List<ChallengeMember> findByChallengeIdAndIsActiveTrue(Long challengeId);
+
     /**
      * 챌린지 ID와 사용자 토스 ID로 ChallengeMember를 조회합니다.
      * User와 Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
