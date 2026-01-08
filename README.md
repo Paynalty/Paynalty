@@ -1,206 +1,105 @@
-## Penalty (페이널티)
+<h1 align="center" style="font-size:2.5em; font-weight:bold; margin:1em 0;">Paynalty (페이널티)</h1>
 
-**“목표를 못 지키면 돈을 내고, 실패는 기록으로 남기는 토스 미니앱 기반 목표 관리 서비스”**
+<p align="center">
+  <strong>"실패는 중단이 아니라, 다음 도약을 위한 비용 이벤트입니다."</strong>
+</p>
 
-4인 팀이 개발하는 프로젝트로,  
-**백엔드(Spring Boot, Java)** + **프론트(React Native, 토스 앱인토스 미니앱)** 구조입니다.
-
----
-
-## 1. 서비스 소개
-
-- 챌린지를 만들고 매일 인증합니다.
-- 실패할 때마다 **사전에 정한 벌금이 발생**합니다.
-- 모인 벌금은 **토스 송금/보관 흐름**과 연결됩니다.
-- 실패는 **중단이 아니라 비용 이벤트**이며, 모든 실패/성공 기록이 남습니다.
-
-핵심 개념:
-
-- **mTLS 기반 토스 AppsInToss 연동**
-- **그룹 챌린지 / 벌금 관리 / 통계 시각화**
+<p align="center">
+  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.5.x-brightgreen?style=flat-square&logo=springboot" alt="Spring Boot"></a>
+  <a href="https://reactnative.dev/"><img src="https://img.shields.io/badge/React%20Native-Latest-blue?style=flat-square&logo=react" alt="React Native"></a>
+  <a href="https://openjdk.org/projects/jdk/21/"><img src="https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk" alt="Java 21"></a>
+  <a href="https://developers-apps-in-toss.toss.im/"><img src="https://img.shields.io/badge/Platform-AppsInToss-004FE0?style=flat-square" alt="AppsInToss"></a>
+  <img src="https://img.shields.io/badge/Security-mTLS-blueviolet?style=flat-square" alt="mTLS">
+</p>
 
 ---
 
-## 2. 프로젝트 구조
+### 📌 Project Overview
 
-```text
-Paynalty/
-├── backend/             # Spring Boot (Java 21)
-│   ├── src/main/java/com/paynalty
-│   │   ├── domain/
-│   │   │   ├── challenge/ ...
-│   │   │   ├── penalty/           # 벌금 도메인
-│   │   │   └── toss/              # 토스 연동 (mTLS, 테스트 컨트롤러 등)
-│   │   └── global/
-│   │       ├── config/            # Security, CORS, TossApiConfig(mTLS)
-│   │       └── error/             # 공통 에러 코드/핸들러
-│   └── src/main/resources/
-│       ├── application.yml        # 공통 설정 (토스 설정 포함)
-│       ├── application-dev.yml    # 개발용 DB 설정
-│       └── application-prod.yml   # 운영용 DB 설정
-└── frontend/            # React Native (토스 미니앱용 클라이언트)
-    └── src/
-        ├── navigation/
-        ├── services/api/          # 백엔드 연동 클라이언트
-        └── types/
-```
+**Paynalty**는 사용자가 목표를 달성하지 못했을 때 사전에 약속한 벌금을 부과함으로써 강력한 동기부여를 제공하는 **AppsInToss 기반의 목표 관리 Service**입니다. 
+
+기존의 단순 기록형 서비스들과 달리, Paynalty는 **'실패의 비용 이벤트화'**라는 철학을 바탕으로 토스의 금융 인프라와 긴밀히 결합되어 있습니다. **mTLS 기반의 고도화된 보안 통신**을 통해 실제 결제 및 송금 Flow를 안전하게 처리하며, 사용자의 행동 변화를 실질적으로 이끌어냅니다.
 
 ---
 
-## 3. 개발 환경
+### 📱 UI Preview
 
-- **OS**: Windows 10 (팀원 기준)
-- **Backend**
-  - Java 21
-  - Spring Boot 3.5.x
-  - Gradle (Wrapper 사용)
-  - DB: H2 (dev), MySQL (prod)
-- **Frontend**
-  - React Native
-  - TypeScript
-  - Axios 기반 API 클라이언트
+| 챌린지 생성 | 인증 및 대시보드 |
+| :---: | :---: |
+| <img src="./docs/img/screenshot_1.png" width="300" alt="Challenge Creation"> | <img src="./docs/img/screenshot_2.png" width="300" alt="Dashboard"> |
+| **벌금 납부 내역** | **그룹 랭킹** |
+| <img src="./docs/img/screenshot_3.png" width="300" alt="Penalty History"> | <img src="./docs/img/screenshot_4.png" width="300" alt="Group Ranking"> |
+
+> [!TIP]
+> 서비스의 실제 구동 화면은 `./docs/img/` 경로에 스크린샷 파일을 추가하여 확인할 수 있습니다.
 
 ---
 
-## 4. 백엔드 실행 방법 (개발용)
+### 🛠 Product Stack & Status
 
-### 4-1. 사전 준비
+| Category | Technology & Description |
+| :--- | : :--- |
+| **Backend** | Java 21, Spring Boot 3.5.x, Spring Security, JPA |
+| **Frontend** | React Native (TypeScript), Axios, Toss Design System (TDS) |
+| **Security** | **mTLS (Mutual TLS)** integration, JWT, OAuth 2.0 |
+| **Database** | MySQL (Production), H2 (Development) |
 
-1. **JDK 21 설치**
-2. **환경 변수 설정 (선택)**  
-   `.env` 파일 대신 OS 환경 변수로 관리:
+---
 
-```powershell
-# 예시 (PowerShell)
-$env:SPRING_PROFILES_ACTIVE="dev"
+### 🚀 Key Technical Highlights
 
-# 토스 연동 관련 (나중에 실제 값으로 교체)
-$env:TOSS_API_BASE_URL="https://apps-in-toss.toss.im"
-$env:TOSS_CLIENT_ID="your-client-id"
-$env:TOSS_CLIENT_SECRET="your-client-secret"
-```
+#### 1. Skin in the Game: 강력한 행동 제약
+단순한 알림 보단 **실제 금융 비용(Penalty)**과 연결하여 사용자가 목표를 포기할 수 없는 환경을 조성합니다. 실패는 기록의 파편화가 아닌 정산의 Trigger이며, 모든 내역은 투명하게 로그로 남습니다.
 
-### 4-2. 빌드 & 실행
+#### 2. mTLS 기반의 Fintech 보안 구현
+AppsInToss 플랫폼과의 통신 시, Client와 Server가 상호 인증하는 **mTLS(Mutual TLS)**를 적용하였습니다. 이는 높은 수준의 보안이 요구되는 금융권 API 연동 표준을 준수하며, 프로젝트의 기술적 완성도를 뒷받침합니다.
 
+#### 3. Embedded Mini-app 기반의 심리스한 UX
+별도의 앱 설치 없이 토스 앱 내에서 즉시 구동되는 **WebView 기반 Mini-app** 형태로 개발되었습니다. 토스 사용자의 접근성을 극대화하고, 익숙한 UI를 통해 서비스 몰입감을 높였습니다.
+
+#### 4. 데이터 기반의 실패 분석 (Failure Analytics)
+모든 실패와 벌금 발생 내역을 데이터화하여 시각화합니다. 사용자는 자신의 실패 패턴을 파악하고, 이를 바탕으로 더 현실적이고 달성 가능한 목표를 재설계할 수 있습니다.
+
+---
+
+### 🏗 Architecture & Domain Model
+
+Paynalty는 유지보수와 확장을 고려하여 **Domain-Driven Design (DDD)** 지향의 구조를 가집니다.
+
+| Component | Responsibility & Description |
+| :--- | :--- |
+| **Challenge** | 목표 정의, 인증 규칙, Penalty 정책 등을 관리하는 핵심 도메인 |
+| **Penalty** | 실패 이벤트 발생 시 생성되는 벌금 데이터를 처리하며, 결제 상태와 연계 |
+| **Toss Integration** | mTLS Handshake, Token Exchange 등 토스 플랫폼 연동을 추상화한 Module |
+| **User** | 토스 OAuth를 통한 사용자 식별 및 Profile 정보 관리 |
+
+---
+
+### 💻 Getting Started
+
+#### Prerequisites
+- **JDK 21** & **Node.js 18+**
+- AppsInToss Console에서 발급받은 **mTLS 인증서 (.pem)**
+
+#### Backend Setup
 ```bash
 cd backend
-./gradlew clean build
-./gradlew bootRun
+./gradlew bootRun --args='--spring.profiles.active=dev'
 ```
 
-서버 기본 포트: `http://localhost:8080`
-
-API 기본 prefix: `http://localhost:8080/api`
-
----
-
-## 5. 토스 mTLS 설정 요약
-
-백엔드는 **AppsInToss API 호출 시 mTLS(mutual TLS)** 를 사용합니다.
-
-### 5-1. 필요한 파일
-
-앱인토스 콘솔에서 **서버 mTLS 인증서** 발급 후, 받은 파일을 기준으로:
-
-- `client-cert_public.crt` → `backend/src/main/resources/certs/client-cert.pem`
-- `client-cert_private.key` → `backend/src/main/resources/certs/client-key.pem`
-
-> 현재 코드는 **클라이언트 인증서 + 개인키만 사용**하고,  
-> TrustStore는 JDK 기본값을 사용하도록 단순화되어 있습니다.
-
-### 5-2. 설정 파일
-
-`backend/src/main/resources/application.yml`:
-
-```yaml
-toss:
-  api:
-    base-url: ${TOSS_API_BASE_URL:https://api.toss.im}
-    client-id: ${TOSS_CLIENT_ID:}
-    client-secret: ${TOSS_CLIENT_SECRET:}
-    # mTLS 인증서 경로 (resources/certs 폴더 기준)
-    mtls:
-      client-cert-path: ${TOSS_CLIENT_CERT_PATH:classpath:certs/client-cert.pem}
-      client-key-path: ${TOSS_CLIENT_KEY_PATH:classpath:certs/client-key.pem}
-      # 인증서 비밀번호 (있는 경우만)
-      key-password: ${TOSS_KEY_PASSWORD:}
+#### Frontend Setup
+```bash
+cd front
+npm install
+npm run start
 ```
 
-### 5-3. mTLS 설정 코드 위치
-
-- `backend/src/main/java/com/paynalty/global/config/TossApiConfig.java`
-  - 클라이언트 인증서/키 로딩
-  - `SSLContext` 생성
-  - mTLS 적용 `RestTemplate` Bean (`tossRestTemplate`) 제공
-
-### 5-4. 토스 로그인 테스트 엔드포인트
-
-테스트용 컨트롤러:
-
-- `backend/src/main/java/com/paynalty/domain/toss/test/TossTestController.java`
-
-엔드포인트:
-
-- `GET /api/toss/login-test?code={authorizationCode}`
-  - 프론트(미니앱)에서 AppsInToss `appLogin()` 호출로 받은 `authorizationCode`를 넘기면,
-  - 백엔드가 토스 OAuth 토큰 교환 API를 호출하면서 **mTLS가 실제로 동작하는지 테스트**할 수 있습니다.
-
-> 실제 AppsInToss 로그인/결제 플로우는 토스 공식 문서(`TOSS_full`)를 기준으로 프론트에서 `appLogin` → 백엔드에서 토큰 교환/영수증 검증 순서로 구현합니다.
-
 ---
 
-## 6. 주요 도메인 개요
-
-- `challenge` : 챌린지(목표) 정의, 벌금 금액, 주기 등
-- `penalty` : 실패 시 발생하는 벌금 기록 (사용자, 챌린지, 금액, 결제 상태 등)
-- `toss` : 토스 로그인/결제 연동 DTO & 서비스
-- `user` : 사용자 정보
+### 📄 License
+본 프로젝트는 팀 Paynalty의 포트폴리오 프로젝트로, 무단 복제 및 전재를 금합니다. 
 
 ---
-
-## 7. 프론트엔드 개요
-
-- React Native 기반 앱 (토스 미니앱 컨셉)
-- API 클라이언트: `frontend/src/services/api/`
-  - `client.ts` : Axios 인스턴스 (Base URL, 공통 인터셉터)
-  - `penaltyApi.ts`, `paymentApi.ts`, `userApi.ts` 등 도메인별 래퍼
-- 타입 정의: `frontend/src/types/`
-
-프론트 개발/실행 방법은 추후 정리 예정 (예: `npm install`, `npm run android/ios` 등).
-
----
-
-## 8. 팀 개발 규칙 (초안)
-
-- **브랜치 전략**
-  - `main`: 배포/데모용
-  - `dev`: 통합 개발 브랜치
-  - 기능 단위 브랜치: `feature/도메인-기능명` (예: `feature/penalty-payment`)
-
-- **커밋 메시지 컨벤션 (예시)**
-  - `feat: ~`  새로운 기능
-  - `fix: ~`   버그 수정
-  - `chore: ~` 설정/빌드/기타
-  - `docs: ~`  문서 수정 (README 등)
-
-- **코딩 컨벤션**
-  - Java: Spring 기본 컨벤션 + Lombok 활용
-  - TypeScript: ESLint/Prettier 설정 기준
-
----
-
-## 9. 앞으로 할 일 (로드맵 초안)
-
-- [ ] AppsInToss `appLogin` 연동 (프론트)
-- [ ] 토스 결제/영수증 검증 API 정식 연동
-- [ ] 벌금 결제 플로우 (`Penalty` + `Payment`) 설계 및 구현
-- [ ] 그룹 챌린지, 대시보드, 통계 API/화면 구현
-- [ ] 운영 환경 mTLS/DB/로깅 설정 정리
-
----
-
-## 10. 문의
-
-프로젝트 관련 질문은 팀 내 Slack/Notion 또는 이 저장소 이슈로 공유합니다.
+<p align="right"><a href="#paynalty-페이널티">↑ Back to Top</a></p>
 
 
