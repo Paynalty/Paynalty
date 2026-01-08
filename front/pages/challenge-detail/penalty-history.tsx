@@ -10,7 +10,7 @@ import {
 } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { Linking, Alert, View, ScrollView } from 'react-native';
-import { useChallengeStore } from '../src/stores/challengeStore';
+import { useChallengeStore } from '../../src/stores/challengeStore';
 
 export const Route = createRoute('/penalty-history', {
   component: Page,

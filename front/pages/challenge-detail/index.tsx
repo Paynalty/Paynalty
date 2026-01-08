@@ -28,12 +28,12 @@ function Page() {
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const { open: openVerificationModal } = useVerificationModal();
   const updateData = useCreateChallengeStore((s) => s.updateData);
-  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || '');
+  const { data: latestVerification } = useLatestVerification(selectedChallenge?.id || null);
   const {
     data: memberCounts,
     isLoading: isMemberCountsLoading,
     error: memberCountsError,
-  } = useMemberVerificationCounts(selectedChallenge?.id || '');
+  } = useMemberVerificationCounts(selectedChallenge?.id || null);
 
   if (!selectedChallenge) {
     return (
@@ -90,7 +90,7 @@ function Page() {
               getChallengeStatusBadge(
                 selectedChallenge.verificationStatus,
                 selectedChallenge.daysOfWeek,
-                Number(selectedChallenge.weeklyRequiredCount),
+                selectedChallenge.weeklyRequiredCount,
                 selectedChallenge.weeklyProgressCount,
                 selectedChallenge.verifyStart,
                 selectedChallenge.verifyEnd

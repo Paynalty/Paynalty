@@ -24,7 +24,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
         return [
           { label: getDDay(challenge.startAt), type: 'blue' as const, style: 'weak' as const },
           {
-            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            label: `${challenge.penaltyAmount.toLocaleString()}원`,
             type: 'blue' as const,
             style: 'weak' as const,
           },
@@ -36,7 +36,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
           getChallengeStatusBadge(
             challenge.verificationStatus,
             challenge.daysOfWeek || [],
-            Number(challenge.weeklyRequiredCount),
+            challenge.weeklyRequiredCount,
             challenge.weeklyProgressCount,
             challenge.verifyStart,
             challenge.verifyEnd
@@ -47,7 +47,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
             style: 'weak' as const,
           },
           {
-            label: `${Number(challenge.penaltyAmount).toLocaleString()}원`,
+            label: `${challenge.penaltyAmount.toLocaleString()}원`,
             type: 'blue' as const,
             style: 'weak' as const,
           },
@@ -67,7 +67,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
     if (challenge.status === 'ACTIVE' && challenge.verifyEnd) {
       return isTodayChallenge(
         challenge.daysOfWeek,
-        Number(challenge.weeklyRequiredCount),
+        challenge.weeklyRequiredCount,
         challenge.weeklyProgressCount
       )
         ? getVerificationMessage(challenge.verifyStart, challenge.verifyEnd)
@@ -124,6 +124,7 @@ function ChallengeMembers({ members }: { members: Challenge['members'] }) {
       </Txt>
     );
   }
+  return null;
 }
 
 const styles = StyleSheet.create({

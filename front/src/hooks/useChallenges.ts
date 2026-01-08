@@ -10,8 +10,8 @@ import { useAuthStore } from '../stores/authStore';
  */
 const mapToChallenge = (item: ChallengeDetailResponse, status?: 'ACTIVE' | 'PENDING' | 'COMPLETE'): Challenge => ({
   ...item,
-  id: String(item.id),
-  weeklyRequiredCount: String(item.weeklyRequiredCount),
+  id: item.id,
+  weeklyRequiredCount: item.weeklyRequiredCount,
   participantCount: 2, // Mock
   participants: '기영, 호영', // Mock
   status,

@@ -72,7 +72,7 @@ export const sortChallengesByPriority = <
     verifyStart?: string;
     verifyEnd?: string;
     daysOfWeek?: string | string[];
-    weeklyRequiredCount?: number | string;
+    weeklyRequiredCount?: number;
     weeklyProgressCount?: number;
   },
 >(
@@ -88,7 +88,7 @@ export const sortChallengesByPriority = <
     const days = Array.isArray(item.daysOfWeek) ? item.daysOfWeek : [item.daysOfWeek || ''];
     const isToday = isTodayChallenge(
       days as string[],
-      Number(item.weeklyRequiredCount || 0),
+      item.weeklyRequiredCount || 0,
       item.weeklyProgressCount || 0
     );
 

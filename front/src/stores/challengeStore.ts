@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import { Challenge } from '../components/challenge/types';
 
 interface ChallengeStore {
-  selectedChallengeId: string | null;
+  selectedChallengeId: number | null;
   selectedChallengeObject: Challenge | null;
-  setSelectedChallengeId: (id: string | null) => void;
+  setSelectedChallengeId: (id: number | null) => void;
   setSelectedChallenge: (challenge: Challenge | null) => void;
 }
 
@@ -20,7 +20,7 @@ export const useChallengeStore = create<ChallengeStore>((set) => ({
 }));
 
 // 하위 호환성을 위한 헬퍼 함수
-export const setSelectedChallengeId = (id: string | null) => useChallengeStore.getState().setSelectedChallengeId(id);
+export const setSelectedChallengeId = (id: number | null) => useChallengeStore.getState().setSelectedChallengeId(id);
 export const setSelectedChallenge = (challenge: Challenge | null) =>
   useChallengeStore.getState().setSelectedChallenge(challenge);
 export const getSelectedChallengeId = () => useChallengeStore.getState().selectedChallengeId;

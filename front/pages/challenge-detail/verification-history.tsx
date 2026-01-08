@@ -11,7 +11,7 @@ import { AuthGuard } from '../../src/components/common/AuthGuard';
 export default function Page() {
   const adaptive = useAdaptive();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
-  const challengeId = selectedChallenge?.id ? String(selectedChallenge.id) : '';
+  const challengeId = selectedChallenge?.id || null;
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useVerifications(challengeId);
 
   // 무한 쿼리 데이터를 단일 배열로 평탄화
