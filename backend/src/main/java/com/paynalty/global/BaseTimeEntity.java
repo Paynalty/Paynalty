@@ -16,4 +16,12 @@ public class BaseTimeEntity {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    /**
+     * 테스트용: createdAt을 직접 설정합니다.
+     * 프로덕션 코드에서는 사용하지 않으며, 더미 데이터 생성 시에만 사용합니다.
+     */
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }

@@ -27,7 +27,7 @@ public class ChallengeWindow {
 
     private Long challengeId;
 
-    private Long userId;
+    private Long tossId;
 
     private LocalDateTime challengeWindowStart;
 
@@ -37,12 +37,22 @@ public class ChallengeWindow {
     private ChallengeWindowStatus challengeWindowStatus;
 
     @Builder
-    public ChallengeWindow(Long challengeId, Long userId, LocalDateTime challengeWindowStart, LocalDateTime challengeWindowEnd, ChallengeWindowStatus challengeWindowStatus) {
+    public ChallengeWindow(Long challengeId, Long tossId, LocalDateTime challengeWindowStart, LocalDateTime challengeWindowEnd, ChallengeWindowStatus challengeWindowStatus) {
         this.challengeId = challengeId;
-        this.userId = userId;
+        this.tossId = tossId;
         this.challengeWindowStart = challengeWindowStart;
         this.challengeWindowEnd = challengeWindowEnd;
         this.challengeWindowStatus = challengeWindowStatus;
+    }
+
+    /**
+     * ChallengeWindow의 상태를 변경합니다.
+     * Enforcer에서 사용됩니다.
+     *
+     * @param status 변경할 상태
+     */
+    public void setChallengeWindowStatus(ChallengeWindowStatus status) {
+        this.challengeWindowStatus = status;
     }
 
 }

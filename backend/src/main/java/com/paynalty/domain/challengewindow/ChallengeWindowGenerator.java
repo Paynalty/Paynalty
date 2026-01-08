@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
  *      - 특정 요일에만 ChallengeWindow 생성
  *
  *   2) 주간 횟수 기반 챌린지 (N times per week)
- *      - ISO 주(월~일) 기준으로 주당 최대 N개의 window만 생성
+ *      - ISO 주(월~일) 기준으로 해당 주의 모든 날짜(월~일)에 window 생성
+ *      - 벌금은 남은 인증 횟수와 남은 일수를 비교하여 결정
  *
  * - 이미 생성된 ChallengeWindow는 재생성하지 않음 (멱등성 보장)
  */
@@ -44,19 +45,22 @@ public class ChallengeWindowGenerator {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeWindowRepository challengeWindowRepository;
 
-    /**
-     * ChallengeWindow 생성
-     * [1] today - (today + LOOKAHEAD_DAYS) 기간과 겹치는 Challenge 조회
-     * [2] lookahead 기간과 관련 있는 Challenge만 후보로 필터링
-     *     - 요일 기반: lookahead 기간의 요일과 겹쳐야 함
-     *     - 횟수 기반: 요일 제한이 없으므로 모두 통과
-     * [3] 후보 Challenge에 속한 ChallengeMember 조회
-     * [4] 기존 ChallengeWindow 조회
-     *     - 멱등성 유지
-     *     - 주간 횟수 계산을 위해 ISO 주 단위 전체 범위 조회
-     * [5] 누락된 ChallengeWindow만 신규 생성
-     */
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+
+//     * ChallengeWindow 생성
+//     * [1] today - (today + LOOKAHEAD_DAYS) 기간과 겹치는 Challenge 조회
+//     * [2] lookahead 기간과 관련 있는 Challenge만 후보로 필터링
+//     *     - 요일 기반: lookahead 기간의 요일과 겹쳐야 함
+//     *     - 횟수 기반: 요일 제한이 없으므로 모두 통과
+//     * [3] 후보 Challenge에 속한 ChallengeMember 조회
+//     * [4] 기존 ChallengeWindow 조회
+//     *     - 멱등성 유지
+//     *     - 주간 횟수 계산을 위해 ISO 주 단위 전체 범위 조회
+//     * [5] 누락된 ChallengeWindow만 신규 생성
+//     *
+//     * ⚠️ 테스트용: cron을 "0 */1 * * * *"로 변경하면 1분마다 실행됩니다.
+//     * 프로덕션 배포 전에는 "0 0 0 * * *"로 되돌려야 합니다.
+    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
+//     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
     @Transactional
     public void generateWindows() {
 
@@ -122,47 +126,47 @@ public class ChallengeWindowGenerator {
         LocalDateTime searchRangeStart = firstWeekStart.atStartOfDay();
         LocalDateTime searchRangeEnd = lastWeekEnd.plusDays(1).atStartOfDay();
 
-        // 4-1. 유효한 (challenge_id, user_id) 조합 생성 (ex. 1:1, 1:4, 2:5) (4-3에서 무관한 조합 걸러내는 용도)
-        Set<String> validChallengeIdAndUserIdPairs =
+        // 4-1. 유효한 (challenge_id, toss_id) 조합 생성 (ex. 1:1, 1:4, 2:5) (4-3에서 무관한 조합 걸러내는 용도)
+        Set<String> validChallengeIdAndTossIdPairs =
                 challengeMembers.stream()
-                        .map(challengeMember -> challengeMember.getChallenge().getId() + ":" + challengeMember.getUser().getId())
+                        .map(challengeMember -> challengeMember.getChallenge().getId() + ":" + challengeMember.getUser().getTossId())
                         .collect(Collectors.toSet());
 
         // [4-2] cartesian 조건으로 기존 ChallengeWindow 조회
-        // challengeIds × userIds × time range
+        // challengeIds × tossIds × time range
         Set<Long> challengeIds =
                 challengeMembers.stream()
                         .map(challengeMember -> challengeMember.getChallenge().getId())
                         .collect(Collectors.toSet());
 
-        Set<Long> userIds =
+        Set<Long> tossIds =
                 challengeMembers.stream()
-                        .map(challengeMember -> challengeMember.getUser().getId())
+                        .map(challengeMember -> challengeMember.getUser().getTossId())
                         .collect(Collectors.toSet());
 
-        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndUserIdInAndChallengeWindowStartBetween(
+        List<ChallengeWindow> existingWindows = challengeWindowRepository.findByChallengeIdInAndTossIdInAndChallengeWindowStartBetween(
                                 challengeIds,
-                                userIds,
+                                tossIds,
                                 searchRangeStart,
                                 searchRangeEnd);
 
         // [4-3] 기존 ChallengeWindow의 lookup key 생성
-        // 형식: challengeId:userId:challengeWindowStart → 동일 window 중복 생성 방지
+        // 형식: challengeId:tossId:challengeWindowStart → 동일 window 중복 생성 방지
         Set<String> existingWindowLookupKeys = existingWindows.stream()
-                        // (1) 무관한 (challenge_id, user_id) 제거
-                        .filter(existingWindow -> validChallengeIdAndUserIdPairs.contains(existingWindow.getChallengeId() + ":" + existingWindow.getUserId()))
+                        // (1) 무관한 (challenge_id, toss_id) 제거
+                        .filter(existingWindow -> validChallengeIdAndTossIdPairs.contains(existingWindow.getChallengeId() + ":" + existingWindow.getTossId()))
                         // (2) deduplicate된 lookup key 생성
-                        .map(window -> window.getChallengeId() + ":" + window.getUserId() + ":" + window.getChallengeWindowStart())
+                        .map(window -> window.getChallengeId() + ":" + window.getTossId() + ":" + window.getChallengeWindowStart())
                         .collect(Collectors.toSet());
 
         // [4-4] ISO 주 단위 ChallengeWindow 개수 집계
-        // key 형식: challengeId:userId:weekBasedYear:weekOfWeekBasedYear
+        // key 형식: challengeId:tossId:weekBasedYear:weekOfWeekBasedYear
         // 횟수 기반 챌린지에서 "이번 주에 이미 몇 번 생성되었는지" 판단하는 데 사용
         Map<String, Long> weeklyWindowCount =
                 existingWindows.stream()
                         .collect(Collectors.groupingBy(
                                 w -> w.getChallengeId()
-                                        + ":" + w.getUserId()
+                                        + ":" + w.getTossId()
                                         + ":" + w.getChallengeWindowStart()
                                         .get(weekFields.weekBasedYear())
                                         + ":" + w.getChallengeWindowStart()
@@ -177,7 +181,7 @@ public class ChallengeWindowGenerator {
 
             Challenge challenge = member.getChallenge();
             Long challengeId = challenge.getId();
-            Long userId = member.getUser().getId();
+            Long tossId = member.getUser().getTossId();
             LocalDate memberJoinedDate = member.getJoinedAt().toLocalDate();
 
             // 챌린지 타입 판별
@@ -193,55 +197,45 @@ public class ChallengeWindowGenerator {
                             .collect(Collectors.toSet())
                             : Collections.emptySet();
 
-            // today부터 until(today+LOOKAHEAD_DAYS)까지 날짜를 하루씩 순회하며 window 생성 여부 판단
-            // date: 해당 ChallengeWindow가 생성될 기준 일자
-            for (LocalDate date = today; !date.isAfter(until); date = date.plusDays(1)) {
+            // 주간 횟수 기반 챌린지의 경우: 해당 주의 모든 날짜(월~일) 생성
+            // 요일 기반 챌린지의 경우: today부터 until까지 순회하며 설정된 요일에만 생성
+            LocalDate startDate = isDaysOfWeekBased ? today : today.with(weekFields.dayOfWeek(), 1); // 주간 횟수 기반이면 해당 주의 월요일부터
+            LocalDate endDate = isDaysOfWeekBased ? until : today.with(weekFields.dayOfWeek(), 7); // 주간 횟수 기반이면 해당 주의 일요일까지
+
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
 
                 // 5-1. 다음 조건 중 하나라도 해당되면 생성하지 않음
                 // - 챌린지 기간 밖
                 // - 멤버가 아직 참여하지 않은 날짜
+                // - 주간 횟수 기반인 경우: lookahead 기간 밖 (오늘 이전 날짜는 생성하지 않음)
                 if (date.isBefore(challenge.getStartDate()) || date.isAfter(challenge.getEndDate()) || date.isBefore(memberJoinedDate)) continue;
+                if (!isDaysOfWeekBased && date.isBefore(today)) continue; // 주간 횟수 기반: 오늘 이전 날짜는 생성하지 않음
 
                 // 5-2. 챌린지 타입별 생성 조건
                 // 요일 기반: date의 요일이 설정된 요일에 포함되어야 함
-                // 횟수 기반: 해당 ISO 주의 window 개수가 frequency 미만이어야 함
-                int week = date.get(weekFields.weekOfWeekBasedYear());
-                int year = date.get(weekFields.weekBasedYear());
-
-                String weekKey = challengeId + ":" + userId + ":" + year + ":" + week;
-
+                // 횟수 기반: 7개 모두 생성 (제한 없음)
                 if (isDaysOfWeekBased) {
                     if (!challengeDays.contains(date.getDayOfWeek())) continue;
-                } else {
-                    long currentCount = weeklyWindowCount.getOrDefault(weekKey, 0L);
-                    if (currentCount >= challenge.getFrequency()) continue;
                 }
+                // 주간 횟수 기반 챌린지는 frequency 제한 없이 해당 주의 모든 날짜(월~일) 생성
 
                 LocalDateTime challengeWindowStart = date.atTime(challenge.getVerifyStartAt());
                 LocalDateTime challengeWindowEnd = date.atTime(challenge.getVerifyEndAt());
 
                 // ChallengeWindow가 이미 존재하는지 확인하기 위한 고유 식별자 생성
-                String lookupKey = challengeId + ":" + userId + ":" + challengeWindowStart;
+                String lookupKey = challengeId + ":" + tossId + ":" + challengeWindowStart;
                 // 5-3. 이미 동일한 ChallengeWindow가 존재하면 생성하지 않음
                 if (existingWindowLookupKeys.contains(lookupKey)) continue;
 
                 windowsToGenerate.add(
                         ChallengeWindow.builder()
                                 .challengeId(challengeId)
-                                .userId(userId)
+                                .tossId(tossId)
                                 .challengeWindowStart(challengeWindowStart)
                                 .challengeWindowEnd(challengeWindowEnd)
                                 .challengeWindowStatus(ChallengeWindowStatus.PENDING)
                                 .build()
                 );
-
-                // 횟수 기반 챌린지인 경우 새 window를 추가한 즉시 주간 카운트 증가 → 같은 실행 내에서 초과 생성 방지
-                if (!isDaysOfWeekBased) {
-                    weeklyWindowCount.put(
-                            weekKey,
-                            weeklyWindowCount.getOrDefault(weekKey, 0L) + 1
-                    );
-                }
 
             }
         }

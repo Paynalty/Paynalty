@@ -6,15 +6,12 @@ import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
 import com.paynalty.global.error.ChallengeMemberErrorCode;
-import com.paynalty.global.error.ChallengeErrorCode;
 import com.paynalty.global.error.CustomException;
-import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +31,6 @@ public class ChallengeMemberService {
                 .collect(Collectors.toList());
     }
 
-
     // 챌린지 맴버 이미 있는지 검증 하고 추가
     @Transactional
     public void addMemberIfNotExists(User user, Challenge challenge) {
@@ -46,8 +42,8 @@ public class ChallengeMemberService {
         MemberRole role = MemberRole.CHALLENGER;
         if (!isAlreadyMember) {
             // 챌린지의 user 과 매개변수 user 이 서로 같다면 role = creator 아니면 challenger
-            if(Objects.equals(challenge.getUser().getTossId(), user.getTossId())){
-                 role = MemberRole.CREATOR;
+            if (Objects.equals(challenge.getUser().getTossId(), user.getTossId())) {
+                role = MemberRole.CREATOR;
             }
 
             ChallengeMember challengeMember = ChallengeMember.builder()
@@ -60,7 +56,6 @@ public class ChallengeMemberService {
             challengeMemberRepository.save(challengeMember);
         }
     }
-
 
     // 챌린지 생성 시 생성자와 초대 친구들 챌린지 맴버로 생성
     @Transactional
@@ -75,44 +70,69 @@ public class ChallengeMemberService {
         // usersId 값으로 user찾아서 list에 넣고 아래 초대된 친구 추가에 전달
         List<User> users = userRepository.findAllByTossIdIn(userIds);
 
-
         // 2. 초대된 친구들 추가
         for (User user : users) {
             addMemberIfNotExists(user, challenge);
         }
     }
 
-
-    // 안쓰고있는것
+    // 챌린지 생성자가 챌린지 멤버 수정
     @Transactional
-    public String addMemberByInvitation(Long challengeId, Long inviterTossId, String inviteName, String invitePhoneNum) {
-        
-        Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+    public void updateChallengeMembers(Long challengeId, List<Long> updateMemberTossIds, Long requesterTossId) {
 
-        // 0. 초대하는 사람이 챌린지 멤버인지 확인
-        boolean isInviterMember = challengeMemberRepository
-                .findByUserTossIdAndChallengeId(inviterTossId, challengeId)
-                .isPresent();
-        
-        if (!isInviterMember) {
-            throw new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER);
-        }
-        
-        User invite = userRepository.findByNameAndPhoneNum(inviteName, invitePhoneNum)
-                .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
-        
-        boolean isAlreadyMember = challengeMemberRepository
-                .findByUserTossIdAndChallengeId(invite.getTossId(), challengeId)
-                .isPresent();
-        
-        if (isAlreadyMember) {
-            return "이미 챌린지 멤버입니다.";
+        // 챌린지와 정보 조회 및 권한 확인
+        ChallengeMember requesterMember = challengeMemberRepository
+                .findByChallengeIdAndUserTossIdWithFetch(challengeId, requesterTossId)
+                .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
+
+        if (requesterMember.getRole() != MemberRole.CREATOR) {
+            throw new CustomException(ChallengeMemberErrorCode.NOT_CREATOR);
         }
 
-        addMemberIfNotExists(invite, challenge);
-        
-        return "챌린지 맴버로 초대 되었습니다.";
+        Challenge challenge = requesterMember.getChallenge();
+
+        // 수정 목록에 생성자 포함 여부 확인
+        if (!updateMemberTossIds.contains(requesterTossId)) {
+            throw new CustomException(ChallengeMemberErrorCode.CREATOR_CANNOT_BE_REMOVED);
+        }
+
+        // DB에 저장된 멤버 목록 조회
+        List<ChallengeMember> currentMembers = challengeMemberRepository.findByChallengeId(challengeId);
+
+        Set<Long> currentMemberTossIds = currentMembers.stream()
+                .map(member -> member.getUser().getTossId())
+                .collect(Collectors.toSet());
+
+        Set<Long> updateMemberTossIdsSet = new HashSet<>(updateMemberTossIds);
+
+        // 삭제할 멤버 찾기
+        List<ChallengeMember> membersToRemove = currentMembers.stream()
+                .filter(member -> !updateMemberTossIdsSet.contains(member.getUser().getTossId()))
+                .collect(Collectors.toList());
+
+        // 추가할 멤버 찾기
+        Set<Long> memberIdsToAdd = updateMemberTossIdsSet.stream()
+                .filter(member -> !currentMemberTossIds.contains(member))
+                .collect(Collectors.toSet());
+
+        // 멤버 업데이트
+        if (!membersToRemove.isEmpty()) {
+            challengeMemberRepository.deleteAll(membersToRemove);
+        }
+
+        if (!memberIdsToAdd.isEmpty()) {
+            List<User> userToAdd = userRepository.findAllByTossIdIn(new ArrayList<>(memberIdsToAdd));
+            List<ChallengeMember> updateChallengeMembers = userToAdd.stream()
+                    .map(user -> ChallengeMember.builder()
+                            .user(user)
+                            .challenge(challenge)
+                            .role(MemberRole.CHALLENGER)
+                            .isSuccess(challenge.getStatus())
+                            .endAt(challenge.getEndDate())
+                            .build())
+                    .collect(Collectors.toList());
+            challengeMemberRepository.saveAll(updateChallengeMembers);
+        }
     }
 
     /**
