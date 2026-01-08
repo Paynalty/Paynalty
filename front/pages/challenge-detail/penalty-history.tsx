@@ -1,11 +1,13 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {FixedBottomCTAProvider, List, ListHeader, ListRow, SegmentedControl, Top, Txt,} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {Alert, Linking, ScrollView, View} from 'react-native';
+import {Alert, Linking, Pressable, ScrollView, View} from 'react-native';
 import React, {useMemo, useState} from 'react';
 import {useChallengeStore} from '../../src/stores/challengeStore';
 import {useAllPenalties, useMyPenalties} from '../../src/hooks/usePenalties';
 import {Card} from '../../src/components/common/Card';
+import {updatePenaltyStatus} from '../../src/api/penalties';
+import {useQueryClient} from '@tanstack/react-query';
 
 export const Route = createRoute('/penalty-history', {
   component: Page,
@@ -34,11 +36,12 @@ export default function Page() {
   const adaptive = useAdaptive();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
   const challengeId = selectedChallenge?.id || null;
+  const queryClient = useQueryClient(); // Define hook at top level
 
   const [tab, setTab] = useState<'ME' | 'ALL'>('ME');
 
-  const { data: myPenalties = [] } = useMyPenalties(challengeId, { enabled: true }); // 내 내역은 기본으로 진입시 로드 (미납액 계산 위해 필수)
-  const { data: allPenalties = [] } = useAllPenalties(challengeId, { enabled: tab === 'ALL' }); // 전체 내역은 탭 누를 때만
+  const { data: myPenalties = [] } = useMyPenalties(challengeId, { enabled: true });
+  const { data: allPenalties = [] } = useAllPenalties(challengeId, { enabled: tab === 'ALL' });
 
   const displayPenalties = useMemo(() => {
     return tab === 'ME' ? myPenalties : allPenalties;
@@ -88,8 +91,8 @@ export default function Page() {
         </View>
 
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-          <SegmentedControl.Root name="penalty-history-tab" value={tab} onChange={(value) => setTab(value as 'ME' | 'ALL')}>
-            <SegmentedControl.Item value="ME">내 내역</SegmentedControl.Item>
+          <SegmentedControl.Root name="penalty-history-tab" value={tab} onChange={(value) => setTab(value as 'ME' | 'ALL')} style={{ width: '100%' }}>
+            <SegmentedControl.Item value="ME">나의 내역</SegmentedControl.Item>
             <SegmentedControl.Item value="ALL">전체 내역</SegmentedControl.Item>
           </SegmentedControl.Root>
         </View>
@@ -127,7 +130,7 @@ export default function Page() {
                   />
                 }
                 right={
-                  <View style={{ alignItems: 'flex-end' }}>
+                  <View style={{ alignItems: 'flex-end', gap: 6 }}>
                     <Txt
                       typography="t6"
                       fontWeight="bold"
@@ -135,12 +138,43 @@ export default function Page() {
                     >
                       {penalty.amount.toLocaleString()}원
                     </Txt>
-                    <Txt
-                      typography="t7"
-                      color={!penalty.paid ? adaptive.red500 : adaptive.grey400}
-                    >
-                      {!penalty.paid ? '미납' : '납부완료'}
-                    </Txt>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        {tab === 'ME' ? (
+                             <Pressable
+                               onPress={async () => {
+                                 try {
+                                   await updatePenaltyStatus(penalty.penaltyId, !penalty.paid);
+                                   // Invalidate queries to refresh data
+                                   await queryClient.invalidateQueries({ queryKey: ['penalties'] });
+                                 } catch (e) {
+                                   Alert.alert('오류', '상태 변경에 실패했습니다.');
+                                 }
+                               }}
+                               style={({ pressed }) => [{
+                                 backgroundColor: !penalty.paid ? adaptive.red100 : adaptive.grey200,
+                                 paddingHorizontal: 8,
+                                 paddingVertical: 4,
+                                 borderRadius: 4,
+                                 opacity: pressed ? 0.7 : 1,
+                               }]}
+                             >
+                               <Txt
+                                 typography="t7"
+                                 color={!penalty.paid ? adaptive.red600 : adaptive.grey600}
+                                 fontWeight="medium"
+                               >
+                                 {!penalty.paid ? '납부 체크' : '납부 완료'}
+                               </Txt>
+                             </Pressable>
+                        ) : (
+                            <Txt
+                              typography="t7"
+                              color={!penalty.paid ? adaptive.red500 : adaptive.grey400}
+                            >
+                              {!penalty.paid ? '미납' : '납부완료'}
+                            </Txt>
+                        )}
+                    </View>
                   </View>
                 }
                 verticalPadding="small"
