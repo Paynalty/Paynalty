@@ -1,0 +1,348 @@
+import { VerificationStatus } from '../api/challenges';
+
+/**
+ * "HH:mm:ss" 형식의 시간 문자열을 받아 오늘 날짜의 Date 객체로 변환합니다.
+ * 백엔드에서 LocalTime이나 LocalDateTime(ISO string) 어떤 것을 보내도 처리할 수 있습니다.
+ */
+export const getTimeDate = (timeString: string) => {
+  if (!timeString) return new Date();
+
+  // 날짜까지 포함된 ISO string인 경우
+  if (timeString.includes('T') || timeString.includes('-')) {
+    return new Date(timeString);
+  }
+
+  // 시간만 있는 경우 (LocalTime)
+  const parts = timeString.split(':').map(Number);
+  const hours = parts[0] ?? 0;
+  const minutes = parts[1] ?? 0;
+
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
+
+/**
+ * 인증 시작 시간과 종료 시간을 받아 현재 상태에 맞는 메시지를 반환합니다.
+ */
+export const getVerificationMessage = (verifyStart?: string, verifyEnd?: string): string => {
+  if (!verifyStart || !verifyEnd) return '시간 정보 없음';
+
+  const start = getTimeDate(verifyStart).getTime();
+  const end = getTimeDate(verifyEnd).getTime();
+  const now = Date.now();
+
+  if (isNaN(start) || isNaN(end)) return '시간 정보 없음';
+
+  if (now < start) {
+    const diff = start - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+
+    if (diff < 10 * 60000) {
+      return `곧 시작돼요!`;
+    }
+    if (h > 0) return `${h}시간 ${m}분 후 시작!`;
+    return `${m}분 후 시작!`;
+  } else if (now <= end) {
+    const diff = end - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+
+    if (diff < 10 * 60000) {
+      return `🔥 마감 임박!`;
+    }
+    if (h > 0) return `${h}시간 ${m}분 남았어요`;
+    return `${m}분 남았어요`;
+  } else {
+    return '오늘 인증을 못했어요';
+  }
+};
+
+/**
+ * 챌린지 또는 미션 목록을 우선순위에 따라 정렬합니다.
+ * 1. 인증 가능 (IN_PROGRESS & NOT_VERIFIED)
+ * 2. 시작 대기 (WAITING & NOT_VERIFIED)
+ * 3. 완료 (VERIFIED)
+ * 4. 오늘 아님 (기타)
+ */
+export const sortChallengesByPriority = <
+  T extends {
+    verificationStatus: string;
+    verifyStart?: string;
+    verifyEnd?: string;
+    daysOfWeek?: string | string[];
+    weeklyRequiredCount?: number;
+    weeklyProgressCount?: number;
+  },
+>(
+  items: T[]
+) => {
+  const now = new Date().getTime();
+
+  const getPriority = (item: T) => {
+    const isVerified = item.verificationStatus === 'VERIFIED';
+    const start = item.verifyStart ? getTimeDate(item.verifyStart).getTime() : 0;
+    const end = item.verifyEnd ? getTimeDate(item.verifyEnd).getTime() : 0;
+
+    const days = Array.isArray(item.daysOfWeek) ? item.daysOfWeek : [item.daysOfWeek || ''];
+    const isToday = isTodayChallenge(
+      days as string[],
+      item.weeklyRequiredCount || 0,
+      item.weeklyProgressCount || 0
+    );
+
+    if (isToday) {
+      if (!isVerified) {
+        if (now >= start && now <= end) return 1; // 인증 중 (최우선)
+        if (now < start) return 2; // 대기 중
+      }
+      if (isVerified) return 3; // 완료
+    }
+
+    return 4; // 오늘 아님 또는 기간 종료 등
+  };
+
+  return [...items].sort((a, b) => {
+    const pA = getPriority(a);
+    const pB = getPriority(b);
+
+    if (pA !== pB) return pA - pB;
+
+    // 같은 우선순위 내에서는 마감 시간이 빠른 순
+    const endA = a.verifyEnd ? getTimeDate(a.verifyEnd).getTime() : Infinity;
+    const endB = b.verifyEnd ? getTimeDate(b.verifyEnd).getTime() : Infinity;
+    return endA - endB;
+  });
+};
+
+// 요일 매핑 (Backend String -> JS Date.getDay())
+const DAYS_MAP: { [key: string]: number } = {
+  MON: 1,
+  TUE: 2,
+  WED: 3,
+  THU: 4,
+  FRI: 5,
+  SAT: 6,
+  SUN: 7,
+};
+
+// JS Date.getDay() -> 한글 요일
+const DAYS_LABEL: { [key: number]: string } = {
+  1: '월',
+  2: '화',
+  3: '수',
+  4: '목',
+  5: '금',
+  6: '토',
+  7: '일',
+};
+
+/**
+ * 오늘 수행해야 할 미션인지 확인합니다.
+ * @param daysOfWeek 인증 요일 목록 (['MON', 'WED']...)
+ * @param weeklyRequiredCount 주간 필수 인증 횟수
+ * @param weeklyProgressCount 현재 주간 인증 횟수
+ */
+export const isTodayChallenge = (
+  daysOfWeek: string[] | undefined,
+  weeklyRequiredCount: number,
+  weeklyProgressCount: number
+): boolean => {
+  // 인증 요일이 정해져 있는 경우
+  if (daysOfWeek && daysOfWeek.length > 0) {
+    const today = new Date().getDay();
+    const todayAdjusted = today === 0 ? 7 : today; // 일요일을 0에서 7로 보정
+    return daysOfWeek.some((day) => DAYS_MAP[day] === todayAdjusted);
+  }
+
+  // 인증 요일이 없는 경우 (자율) -> 횟수가 남았으면 오늘 할 수 있음
+  return weeklyProgressCount < weeklyRequiredCount;
+};
+
+/**
+ * 인증 요일이 아닐 때, 다음 인증 가능한 요일을 안내하는 메시지를 반환합니다.
+ */
+export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string => {
+  if (!daysOfWeek || daysOfWeek.length === 0) return '자율 인증 가능';
+
+  const today = new Date().getDay();
+  const todayAdjusted = today === 0 ? 7 : today; // 일요일 보정
+
+  // 오늘의 요일 숫자 리스트로 변환 및 정렬
+  const scheduleDays = daysOfWeek
+    .map((day) => DAYS_MAP[day])
+    .filter((d): d is number => d !== undefined)
+    .sort((a, b) => a - b);
+
+  // 오늘 이후의 가장 가까운 요일 찾기
+  let nextDay = scheduleDays.find((day) => day > todayAdjusted);
+
+  // 오늘 이후에 없으면, 다음 주의 첫 번째 요일이 다음 인증일
+  if (nextDay === undefined) {
+    nextDay = scheduleDays[0];
+  }
+
+  if (nextDay === undefined) return ''; // 예외 케이스
+
+  return `다음 인증일 : ${DAYS_LABEL[nextDay]}요일`;
+};
+
+/**
+ * 챌린지 상태에 따른 뱃지(라벨, 색상) 정보를 반환합니다.
+ */
+export const getChallengeStatusBadge = (
+  status: VerificationStatus,
+  daysOfWeek: string[],
+  weeklyRequiredCount: number,
+  weeklyProgressCount: number,
+  verifyStart?: string,
+  verifyEnd?: string
+) => {
+  // 1. 이미 인증을 완료한 경우 -> Green
+  if (status === 'VERIFIED') {
+    return { label: '인증 완료', type: 'green' as const, style: 'weak' as const };
+  }
+
+  // 2. 오늘 인증해야 하는 경우 (isTodayChallenge 활용) -> Yellow
+  if (isTodayChallenge(daysOfWeek, weeklyRequiredCount, weeklyProgressCount)) {
+    // 시간 정보가 있으면 현재 시간이 인증 시간 내인지 확인
+    if (verifyStart && verifyEnd) {
+      const start = getTimeDate(verifyStart).getTime();
+      const end = getTimeDate(verifyEnd).getTime();
+      const now = Date.now();
+      
+      // 시간이 유효하고 범위 내에 있으면 '지금 할 차례에요'
+      if (!isNaN(start) && !isNaN(end) && now >= start && now <= end) {
+         return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+      }
+      
+      // 범위 밖이면 '대기중'으로 처리 (아래로 흘러감)
+    } else {
+       // 시간 정보가 없으면 날짜만 맞으면 일단 활성화 (기존 로직 유지)
+       return { label: '지금 할 차례에요', type: 'yellow' as const, style: 'weak' as const };
+    }
+  }
+
+  // 3. 그 외 -> Blue
+  return { label: '대기중', type: 'blue' as const, style: 'weak' as const };
+};
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 "M월 D일" 형식으로 변환합니다.
+ */
+export const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = getTimeDate(dateString);
+  return date.toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+/**
+ * ISO 날짜 문자열 또는 시간 문자열을 받아 24시간제 형식으로 변환합니다.
+ * 백엔드에서 23:59:59 등으로 오는 마감 시간은 "24:00"으로 표시합니다.
+ */
+export const formatTime = (timeString: string) => {
+  if (!timeString) return '';
+
+  // 1. 마감 시간 처리 (23:59:59, 23:59, 24:00 -> 24시)
+  if (timeString.includes('23:59') || timeString.startsWith('24:00')) {
+    return '24시';
+  }
+
+  // 2. 시간 파싱
+  const date = getTimeDate(timeString);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // 3. 24시간제 형식으로 반환 (XX시 또는 XX시 YY분)
+  if (minutes === 0) {
+    return `${hours}시`;
+  }
+
+  return `${hours}시 ${minutes}분`;
+};
+
+export const formatDaysOfWeek = (days: string[] | undefined) => {
+  if (!days || days.length === 0) return '';
+
+  // 7일 모두 선택된 경우
+  if (days.length === 7) return '매일';
+
+  // 평일(월~금)만 선택된 경우
+  const isWeekdays = days.length === 5 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI'].includes(d));
+  if (isWeekdays) return '평일';
+
+  // 평일(월~금)+ 토요일만 선택된 경우
+  const isWeekdaysAndSaturday =
+    days.length === 6 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].includes(d));
+  if (isWeekdaysAndSaturday) return '평일+토요일';
+
+  // 평일(월~금)+ 일요일만 선택된 경우
+  const isWeekdaysAndSunday =
+    days.length === 6 && days.every((d) => ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SUN'].includes(d));
+  if (isWeekdaysAndSunday) return '평일+일요일';
+
+  // 주말(토, 일)만 선택된 경우
+  const isWeekend = days.length === 2 && days.every((d) => ['SAT', 'SUN'].includes(d));
+  if (isWeekend) return '주말';
+
+  // 그 외에는 요일 순서대로 정렬하여 반환
+  return [...days]
+    .sort((a, b) => (DAYS_MAP[a] ?? 0) - (DAYS_MAP[b] ?? 0))
+    .map((day) => {
+      const dayNum = DAYS_MAP[day];
+      return dayNum !== undefined ? DAYS_LABEL[dayNum] : day;
+    })
+    .join(', ');
+};
+
+/**
+ * 영문 인증 방식을 한글 명칭으로 변환합니다.
+ */
+/**
+ * 목표 날짜까지 남은 일수(D-Day)를 계산합니다.
+ */
+export const getDDay = (dateString: string | undefined): string => {
+  if (!dateString) return '';
+
+  const targetDate = new Date(dateString);
+  targetDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = targetDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'D-Day';
+  if (diffDays < 0) return '진행 중';
+  return `D-${diffDays}`;
+};
+
+export const getVerificationTypeLabel = (type: string | undefined) => {
+  if (!type) return '사진';
+  const typeMap: { [key: string]: string } = {
+    PHOTO: '사진',
+    TEXT: '텍스트',
+    VOTE: '투표',
+  };
+  return typeMap[type] || type;
+};
+
+/**
+ * 이미지 URL을 처리합니다.
+ * 상대 경로(/uploads/...)인 경우 API_BASE_URL을 붙여주고,
+ * S3 URL(http...)인 경우 그대로 반환합니다.
+ */
+export const getFileUrl = (url: string | undefined): string => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+
+  // Circular dependency 방지를 위해 여기서 직접 가져오거나 ENV 사용
+  const { ENV } = require('../config/env');
+  return `${ENV.API_BASE_URL}${url}`;
+};

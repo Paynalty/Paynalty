@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: paynalty-db
+    environment:
+      MYSQL_DATABASE: paynalty
+      MYSQL_USER: paynalty_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - paynalty-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: paynalty-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/paynalty?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: paynalty_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AWS_REGION: ${AWS_REGION}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/var/log/paynalty
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - paynalty-network
+    restart: unless-stopped
+
+
+networks:
+  paynalty-network:
+    driver: bridge

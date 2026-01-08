@@ -1,9 +1,9 @@
 spring:
-  # MySQL 데이터베이스 설정 (운영 환경)
+  # MySQL 데이터베이스 설정
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:paynalty}?useSSL=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://${DB_HOST:db}:${DB_PORT:3306}/${DB_NAME:paynalty}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USERNAME}
+    username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 10
@@ -12,15 +12,29 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
 
+  # AWS S3 설정
+  cloud:
+    aws:
+      s3:
+        bucket: ${AWS_S3_BUCKET}
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      stack:
+        auto: false
+
   # JPA 설정 (운영)
   jpa:
     hibernate:
-      ddl-auto: validate  # 운영에서는 스키마 변경 금지
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: false
     properties:
       hibernate:
         format_sql: false
         highlight_sql: false
+        jdbc:
+          batch_size: 50
+        order_updates: true
+        order_inserts: true
 
 # 서버 설정 (운영)
 server:
@@ -32,7 +46,7 @@ server:
 
 # JWT 설정 (운영)
 jwt:
-  secret: ${JWT_SECRET}  # 반드시 환경변수로 주입
+  secret: ${JWT_SECRET} # 반드시 환경변수로 주입
   access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:3600000}
   refresh-token-validity: ${JWT_REFRESH_TOKEN_VALIDITY:604800000}
 

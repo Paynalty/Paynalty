@@ -1,2 +1,4 @@
 CLAUDE.md
 .idea
+/.claude/settings.local.json
+/development
