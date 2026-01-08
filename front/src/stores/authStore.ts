@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { Storage } from '@apps-in-toss/framework';
+import {create} from 'zustand';
+import {Storage} from '@apps-in-toss/framework';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -14,7 +14,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await Storage.removeItem('accessToken');
       set({ isLoggedIn: false });
-      console.log('🔓 [AuthStore] Logged out and token removed');
+      // console.log('🔓 [AuthStore] Logged out and token removed');
     } catch (error) {
       console.error('Failed to remove access token during logout:', error);
     }

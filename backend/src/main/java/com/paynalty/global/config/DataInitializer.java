@@ -1,3 +1,4 @@
+/*
 
 package com.paynalty.global.config;
 
@@ -18,6 +19,7 @@ import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,7 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class DataInitializer {
 
     private final UserRepository userRepository;
@@ -51,7 +54,8 @@ public class DataInitializer {
                         .email("hong@example.com")
                         .tossId(1001L)
                         .build());
-                /*
+                */
+/*
                 // 2. 이순신 (ChallengeRequest 예시 데이터)
                 userRepository.save(User.builder()
                         .name("이순신")
@@ -69,11 +73,13 @@ public class DataInitializer {
                             .tossId(1000L + i)
                             .build());
                 }
-                            */
+                            *//*
 
-                System.out.println("테스트용 User 데이터 10개가 생성되었습니다.");
+
+                log.info("테스트용 User 데이터 10개가 생성되었습니다.");
             }
-            /*
+            */
+/*
             if (challengeRepository.count() == 0) {
 
                 List<User> users = userRepository.findAll();
@@ -243,7 +249,7 @@ public class DataInitializer {
                                 .user(users.get(0))
                                 .build());
 
-                System.out.println("✅ 테스트용 Challenge 데이터 생성 완료 (8개)");
+                log.info("✅ 테스트용 Challenge 데이터 생성 완료 (8개)");
             }
 
             if (challengeMemberRepository.count() == 0) {
@@ -288,8 +294,8 @@ public class DataInitializer {
                     }
                 }
 
-                System.out.println("테스트용 ChallengeMember 데이터가 생성되었습니다.");
-                System.out.println("✅ userId=1, 2, 3은 모든 챌린지에 포함됨");
+                log.info("테스트용 ChallengeMember 데이터가 생성되었습니다.");
+                log.info("✅ userId=1, 2, 3은 모든 챌린지에 포함됨");
             }
 
             if (challengeVerificationRepository.count() == 0) {
@@ -498,12 +504,12 @@ public class DataInitializer {
                 // 오늘: 모두 인증 안 함 (userId=1,2,3 모두 테스트 가능)
                 // (저녁 챌린지는 별도 테스트용)
 
-                System.out.println("✅ 테스트용 인증 데이터 생성 완료");
-                System.out.println("   📌 챌린지 2 (09:00~18:00, 월/수/금): userId=2 인증완료");
-                System.out.println("   📌 챌린지 3 (18:00~23:59, 월/수/금): userId=3 인증완료");
-                System.out.println("   📌 챌린지 4 (00:00~23:59, 매일): userId=2 인증완료");
-                System.out.println("   📌 챌린지 6 (09:00~18:00, 화/목/토/일): userId=1 인증완료");
-                System.out.println("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
+                log.info("✅ 테스트용 인증 데이터 생성 완료");
+                log.info("   📌 챌린지 2 (09:00~18:00, 월/수/금): userId=2 인증완료");
+                log.info("   📌 챌린지 3 (18:00~23:59, 월/수/금): userId=3 인증완료");
+                log.info("   📌 챌린지 4 (00:00~23:59, 매일): userId=2 인증완료");
+                log.info("   📌 챌린지 6 (09:00~18:00, 화/목/토/일): userId=1 인증완료");
+                log.info("   📌 챌린지 7 (18:00~23:59, 화/목/토/일): 모두 인증안함");
             }
 
             // ✅ 챌린지 4번 테스트용 더미 데이터 (userId=1, tossId=1001)
@@ -624,22 +630,22 @@ public class DataInitializer {
                             penaltyRepository.save(savedPenalty3_1);
                         }
 
-                        System.out.println("✅ 챌린지 4번 테스트용 더미 데이터 생성 완료");
-                        System.out.println("   📌 ChallengeWindow: 2개 (PENDING, userId=1)");
-                        System.out.println("      - Window 1: 오늘, 인증 없음, 마감 시간: " + window1End + " (챌린지 verifyEndAt 기준)");
-                        System.out.println("         → 인증을 하면 SUCCESS, 안 하면 FAIL");
-                        System.out.println("      - Window 2: 어제, 인증 없음, 마감 시간 지남 (FAIL 예상)");
-                        System.out.println("   📌 ChallengeVerification: 오늘 인증 없음 (사용자가 직접 생성)");
-                        System.out.println("   📌 Penalty: 총 6개");
-                        System.out.println("      - userId=1: 3개 (3일 전, 5일 전, 7일 전)");
-                        System.out.println("      - userId=2: 2개 (4일 전, 6일 전)");
-                        System.out.println("      - userId=3: 1개 (2일 전)");
-                        System.out.println("   ⏰ 스케줄러는 10분마다 실행되며, " + window1End + " 이후 Window 1이 처리됩니다.");
-                        System.out.println("   📝 테스트 방법:");
-                        System.out.println("      1. 챌린지 4번의 verifyEndAt을 원하는 시간으로 수정 후 빌드");
-                        System.out.println("      2. 마감 시간 전에 인증 API 호출 → 인증 생성");
-                        System.out.println("      3. 마감 시간 후 스케줄러 실행 → SUCCESS 확인");
-                        System.out.println("      4. 또는 인증 없이 마감 시간 후 → FAIL 확인");
+                        log.info("✅ 챌린지 4번 테스트용 더미 데이터 생성 완료");
+                        log.info("   📌 ChallengeWindow: 2개 (PENDING, userId=1)");
+                        log.info("      - Window 1: 오늘, 인증 없음, 마감 시간: " + window1End + " (챌린지 verifyEndAt 기준)");
+                        log.info("         → 인증을 하면 SUCCESS, 안 하면 FAIL");
+                        log.info("      - Window 2: 어제, 인증 없음, 마감 시간 지남 (FAIL 예상)");
+                        log.info("   📌 ChallengeVerification: 오늘 인증 없음 (사용자가 직접 생성)");
+                        log.info("   📌 Penalty: 총 6개");
+                        log.info("      - userId=1: 3개 (3일 전, 5일 전, 7일 전)");
+                        log.info("      - userId=2: 2개 (4일 전, 6일 전)");
+                        log.info("      - userId=3: 1개 (2일 전)");
+                        log.info("   ⏰ 스케줄러는 10분마다 실행되며, " + window1End + " 이후 Window 1이 처리됩니다.");
+                        log.info("   📝 테스트 방법:");
+                        log.info("      1. 챌린지 4번의 verifyEndAt을 원하는 시간으로 수정 후 빌드");
+                        log.info("      2. 마감 시간 전에 인증 API 호출 → 인증 생성");
+                        log.info("      3. 마감 시간 후 스케줄러 실행 → SUCCESS 확인");
+                        log.info("      4. 또는 인증 없이 마감 시간 후 → FAIL 확인");
                     }
                 }
             }
@@ -716,23 +722,25 @@ public class DataInitializer {
                             penaltyRepository.save(savedPenalty);
                         }
 
-                        System.out.println("✅ 챌린지 8번 테스트용 더미 데이터 생성 완료 (주간 횟수 기반)");
-                        System.out.println("   📌 주간 인증 횟수: 6회");
-                        System.out.println("   📌 현재 주간 인증: 0회");
-                        System.out.println("   📌 오늘(수요일) 인증: 없음 (테스트용)");
-                        System.out.println("   📌 ChallengeWindow: 이번 주 7개");
-                        System.out.println("      - 월요일: PENDING (아직 마감 시간 전 또는 벌금 없음)");
-                        System.out.println("      - 화요일: FAIL (벌금 1회 생성됨)");
-                        System.out.println("      - 수요일~일요일: PENDING (아직 마감 시간 전)");
-                        System.out.println("   📌 이미 생성된 벌금: 1회 (화요일 Window 처리 시 생성)");
-                        System.out.println("   ⏰ 테스트 시나리오:");
-                        System.out.println("      - 오늘(수요일) 마감 시간(17:00)까지 인증 안 하면 → 벌금 추가 발생, 수요일 Window FAIL");
-                        System.out.println("      - 오늘(수요일) 인증하면 → 남은 인증 5회, 남은 일수 4일 → 벌금 발생 안 함");
+                        log.info("✅ 챌린지 8번 테스트용 더미 데이터 생성 완료 (주간 횟수 기반)");
+                        log.info("   📌 주간 인증 횟수: 6회");
+                        log.info("   📌 현재 주간 인증: 0회");
+                        log.info("   📌 오늘(수요일) 인증: 없음 (테스트용)");
+                        log.info("   📌 ChallengeWindow: 이번 주 7개");
+                        log.info("      - 월요일: PENDING (아직 마감 시간 전 또는 벌금 없음)");
+                        log.info("      - 화요일: FAIL (벌금 1회 생성됨)");
+                        log.info("      - 수요일~일요일: PENDING (아직 마감 시간 전)");
+                        log.info("   📌 이미 생성된 벌금: 1회 (화요일 Window 처리 시 생성)");
+                        log.info("   ⏰ 테스트 시나리오:");
+                        log.info("      - 오늘(수요일) 마감 시간(17:00)까지 인증 안 하면 → 벌금 추가 발생, 수요일 Window FAIL");
+                        log.info("      - 오늘(수요일) 인증하면 → 남은 인증 5회, 남은 일수 4일 → 벌금 발생 안 함");
                     }
                 }
             }
-            */
+            *//*
+
         };
     }
 }
 
+*/

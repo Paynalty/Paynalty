@@ -164,7 +164,7 @@ export function useVerificationModal() {
                       return;
                     }
 
-                    console.log('Camera Success:', result.id);
+                    // console.log('Camera Success:', result.id);
 
                     const imageUri = `data:image/jpeg;base64,${result.dataUri}`;
                     
@@ -211,7 +211,7 @@ export function useVerificationModal() {
                       base64: true,
                     });
                     const firstPhoto = result?.[0];
-                    console.log('Album Success:', firstPhoto?.id || 'no images');
+                    // console.log('Album Success:', firstPhoto?.id || 'no images');
 
                     if (firstPhoto) {
                       const imageUri = `data:image/jpeg;base64,${firstPhoto.dataUri}`;

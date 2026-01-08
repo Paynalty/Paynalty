@@ -1,5 +1,5 @@
 spring:
-  # MySQL 데이터베이스 설정 (예시)
+  # MySQL 데이터베이스 설정
   datasource:
     url: jdbc:mysql://${DB_HOST:db}:${DB_PORT:3306}/${DB_NAME:paynalty}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
