@@ -53,13 +53,13 @@ public class ChallengeController {
                     "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
     @GetMapping("/{status}")
-    public ResponseEntity<List<ChallengeDetailResponse>> getByStatus(
+    public ResponseEntity<List<ChallengeResponse>> getByStatus(
             @Parameter(description = "챌린지 상태", required = true, example = "PENDING")
             @PathVariable ChallengeStatus status,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long tossId = userDetails.getUser().getTossId();
-        List<ChallengeDetailResponse> response = challengeService.findDetailByStatus(tossId, status);
+        List<ChallengeResponse> response = challengeService.findDetailByStatus(tossId, status);
         return ResponseEntity.ok(response);
     }
 
@@ -86,14 +86,14 @@ public class ChallengeController {
                     "⚠️ 챌린지 생성자만 수정 가능"
     )
     @PutMapping("/{challengeId}/")
-    public ResponseEntity<ChallengeDetailResponse> updateChallenge(
+    public ResponseEntity<ChallengeResponse> updateChallenge(
             @PathVariable Long challengeId,
             @RequestBody ChallengeUpdateRequest updateRequest,
             @AuthenticationPrincipal CustomUserDetails userDetails
     )
     {
         Long tossId = userDetails.getUser().getTossId();
-        ChallengeDetailResponse response = challengeService.update(challengeId, updateRequest, tossId);
+        ChallengeResponse response = challengeService.update(challengeId, updateRequest, tossId);
         return ResponseEntity.ok(response);
     }
 

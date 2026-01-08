@@ -100,7 +100,7 @@ public class ChallengeService {
     }
 
 
-    public List<ChallengeDetailResponse> findDetailByStatus(Long tossId, ChallengeStatus status) {
+    public List<ChallengeResponse> findDetailByStatus(Long tossId, ChallengeStatus status) {
         // 사용자가 참여 중인 챌린지 중 특정 상태의 챌린지 불러오기
         List<Challenge> challenges = challengeRepository.findByUserTossIdAndStatus(tossId, status);
 
@@ -112,7 +112,7 @@ public class ChallengeService {
 
                     if (challengeStatus == ChallengeStatus.PENDING) {
                         // 시작 전 챌린지: 기본값 설정
-                        return ChallengeDetailResponse.builder()
+                        return ChallengeResponse.builder()
                                 .id(challenge.getId())
                                 .title(challenge.getTitle())
                                 .weeklyProgressCount(0)
@@ -131,7 +131,7 @@ public class ChallengeService {
                         // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
                         Integer lastWeekProgressCount = calculateWeeklyProgressCountForDate(challenge.getId(), tossId, challenge.getEndDate());
 
-                        return ChallengeDetailResponse.builder()
+                        return ChallengeResponse.builder()
                                 .id(challenge.getId())
                                 .title(challenge.getTitle())
                                 .weeklyProgressCount(lastWeekProgressCount)  // 마지막 주의 주간 인증 횟수
@@ -151,7 +151,7 @@ public class ChallengeService {
                         VerificationStatus verificationStatus = determineVerificationStatus(challenge.getId(), tossId);
                         Integer weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), tossId);
 
-                        return ChallengeDetailResponse.builder()
+                        return ChallengeResponse.builder()
                                 .id(challenge.getId())
                                 .title(challenge.getTitle())
                                 .weeklyProgressCount(weeklyProgressCount)
@@ -200,7 +200,7 @@ public class ChallengeService {
 
         //update
         @Transactional
-        public ChallengeDetailResponse update(Long challengeId ,ChallengeUpdateRequest request,Long tossId){
+        public ChallengeResponse update(Long challengeId , ChallengeUpdateRequest request, Long tossId){
             // 1단계: 챌린지 존재 여부 확인
             Challenge challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
@@ -258,7 +258,7 @@ public class ChallengeService {
             challengeMemberService.addMembersToNewChallenge(user,challenge,userIds);
 
             // hallengeDetailResponse 생성 및 반환
-            return ChallengeDetailResponse.builder()
+            return ChallengeResponse.builder()
                     .id(challenge.getId())
                     .title(challenge.getTitle())
                     .weeklyProgressCount(currentWeeklyCount.intValue())
