@@ -2,6 +2,7 @@ package com.paynalty.domain.penalty;
 
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
+import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.global.error.ChallengeMemberErrorCode;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.PenaltyErrorCode;
@@ -9,6 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -152,6 +158,133 @@ public class PenaltyService {
                 .build();
     }
 
+    /**
+     * 특정 멤버의 주간 패널티 현황 리스트 생성
+     * 챌린지 기간을 주 단위로 나누어 각 주의 패널티 정보를 생성합니다.
+     *
+     * @param challengeMember 챌린지 멤버
+     * @return 주간 패널티 현황 리스트
+     */
+    public List<WeeklyPenalty> getWeeklyPenaltiesByMember(ChallengeMember challengeMember) {
+        Challenge challenge = challengeMember.getChallenge();
+        LocalDate startDate = challenge.getStartDate();
+        LocalDate endDate = challenge.getEndDate();
+        
+        List<WeeklyPenalty> weeklyPenalties = new ArrayList<>();
+        
+        // 첫 주 계산: 시작일이 월요일이 아니라면 시작일 ~ 시작일이 포함된 그 주의 일요일
+        LocalDate firstWeekStart = startDate;
+        LocalDate firstWeekEnd;
+        
+        if (startDate.getDayOfWeek() == DayOfWeek.MONDAY) {
+            // 시작일이 월요일이면 첫 주는 월요일 ~ 일요일
+            firstWeekEnd = startDate.with(DayOfWeek.SUNDAY);
+        } else {
+            // 시작일이 월요일이 아니면 시작일 ~ 시작일이 포함된 그 주의 일요일
+            firstWeekEnd = startDate.with(DayOfWeek.SUNDAY);
+        }
+        
+        // 첫 주가 마감일을 포함하는지 확인 (챌린지가 1주일 미만인 경우)
+        if (firstWeekEnd.isAfter(endDate) || firstWeekEnd.isEqual(endDate)) {
+            // 첫 주가 마감일을 포함하면 첫 주만 생성하고 종료
+            firstWeekEnd = endDate;
+            WeeklyPenalty firstWeek = createWeeklyPenalty(challengeMember, firstWeekStart, firstWeekEnd);
+            weeklyPenalties.add(firstWeek);
+            return weeklyPenalties;
+        }
+        
+        // 첫 주 패널티 생성
+        WeeklyPenalty firstWeek = createWeeklyPenalty(challengeMember, firstWeekStart, firstWeekEnd);
+        weeklyPenalties.add(firstWeek);
+        
+        // 중간 주들 계산 (월요일 ~ 일요일)
+        LocalDate currentWeekStart = firstWeekEnd.plusDays(1); // 다음 주 월요일
+        
+        // 마지막 주 전까지의 주들 처리
+        while (currentWeekStart.isBefore(endDate) || currentWeekStart.isEqual(endDate)) {
+            LocalDate currentWeekEnd = currentWeekStart.with(DayOfWeek.SUNDAY);
+            
+            // 마감일이 포함된 주인지 확인
+            if (currentWeekEnd.isAfter(endDate)) {
+                // 마지막 주: 마감일이 일요일이 아니면 마감일이 포함된 그 주의 월요일 ~ 마감일
+                if (endDate.getDayOfWeek() == DayOfWeek.MONDAY) {
+                    // 마감일이 월요일이면 월요일 하루만
+                    currentWeekStart = endDate;
+                    currentWeekEnd = endDate;
+                } else {
+                    // 마감일이 포함된 그 주의 월요일 ~ 마감일
+                    currentWeekStart = endDate.with(DayOfWeek.MONDAY);
+                    currentWeekEnd = endDate;
+                }
+                
+                WeeklyPenalty lastWeek = createWeeklyPenalty(challengeMember, currentWeekStart, currentWeekEnd);
+                weeklyPenalties.add(lastWeek);
+                break;
+            } else if (currentWeekEnd.isEqual(endDate)) {
+                // 마감일이 일요일인 경우
+                WeeklyPenalty week = createWeeklyPenalty(challengeMember, currentWeekStart, currentWeekEnd);
+                weeklyPenalties.add(week);
+                break;
+            } else {
+                // 중간 주
+                WeeklyPenalty week = createWeeklyPenalty(challengeMember, currentWeekStart, currentWeekEnd);
+                weeklyPenalties.add(week);
+                currentWeekStart = currentWeekEnd.plusDays(1);
+            }
+        }
+        
+        return weeklyPenalties;
+    }
+
+    /**
+     * 특정 주간 기간의 패널티 정보를 생성합니다.
+     *
+     * @param challengeMember 챌린지 멤버
+     * @param weekStart 주간 시작일
+     * @param weekEnd 주간 종료일
+     * @return 주간 패널티 현황
+     */
+    private WeeklyPenalty createWeeklyPenalty(ChallengeMember challengeMember, LocalDate weekStart, LocalDate weekEnd) {
+        // 해당 주간의 패널티 조회
+        List<Penalty> penalties = penaltyRepository.findByChallengeMemberIdAndWeekRange(
+                challengeMember.getId(),
+                weekStart,
+                weekEnd
+        );
+        
+        // 금액 계산
+        Long totalAmount = penalties.stream()
+                .mapToLong(Penalty::getPenaltyAmount)
+                .sum();
+        
+        Long paidAmount = penalties.stream()
+                .filter(Penalty::getPaid)
+                .mapToLong(Penalty::getPenaltyAmount)
+                .sum();
+        
+        Long nonPaidAmount = penalties.stream()
+                .filter(p -> !p.getPaid())
+                .mapToLong(Penalty::getPenaltyAmount)
+                .sum();
+        
+        // PenaltyResponse 리스트 생성
+        List<PenaltyResponse> penaltyResponses = penalties.stream()
+                .map(PenaltyResponse::from)
+                .toList();
+        
+        // LocalDateTime으로 변환 (startAt: 해당 주 시작일 00:00, endAt: 해당 주 종료일 23:59:59)
+        LocalDateTime startAt = weekStart.atStartOfDay();
+        LocalDateTime endAt = weekEnd.atTime(LocalTime.MAX);
+        
+        return WeeklyPenalty.builder()
+                .startAt(startAt)
+                .endAt(endAt)
+                .totalAmount(totalAmount)
+                .paidAmount(paidAmount)
+                .nonPaidAmount(nonPaidAmount)
+                .penaltyList(penaltyResponses)
+                .build();
+    }
 
 }
 

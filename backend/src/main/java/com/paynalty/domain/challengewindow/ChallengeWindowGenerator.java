@@ -59,8 +59,8 @@ public class ChallengeWindowGenerator {
 //     *
 //     * ⚠️ 테스트용: cron을 "0 */1 * * * *"로 변경하면 1분마다 실행됩니다.
 //     * 프로덕션 배포 전에는 "0 0 0 * * *"로 되돌려야 합니다.
-    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
-//     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
+//    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")  // 테스트용: 1분마다 실행
+     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
     @Transactional
     public void generateWindows() {
 

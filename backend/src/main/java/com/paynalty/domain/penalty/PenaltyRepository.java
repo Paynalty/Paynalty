@@ -115,6 +115,32 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
     @Query("SELECT COALESCE(SUM(p.penaltyAmount),0) FROM Penalty p WHERE p.challengeMember.challenge.id = :challengeId AND p.paid = false")
     Long sumAmountByChallengeIdAndNonPaid(@Param("challengeId") Long challengeId);
 
+    /**
+     * 특정 멤버의 특정 주간 기간에 생성된 패널티 조회
+     * ChallengeMember와 User, Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
+     *
+     * @param challengeMemberId 챌린지 멤버 ID
+     * @param weekStart 주간 시작일
+     * @param weekEnd 주간 종료일
+     * @return 패널티 리스트
+     */
+    @Query("""
+        SELECT p 
+        FROM Penalty p
+        JOIN FETCH p.challengeMember cm
+        JOIN FETCH cm.user
+        JOIN FETCH cm.challenge
+        WHERE cm.id = :challengeMemberId
+        AND CAST(p.createdAt AS date) >= :weekStart
+        AND CAST(p.createdAt AS date) <= :weekEnd
+        ORDER BY p.createdAt DESC
+        """)
+    List<Penalty> findByChallengeMemberIdAndWeekRange(
+            @Param("challengeMemberId") Long challengeMemberId,
+            @Param("weekStart") LocalDate weekStart,
+            @Param("weekEnd") LocalDate weekEnd
+    );
+
 }
 
 

@@ -58,7 +58,7 @@ public class ChallengeWindowEnforcer {
      * PENDING 상태이고 인증 종료 시간이 지난 ChallengeWindow를 검증합니다.
      * 10분마다 실행됩니다.
      */
-    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 */10 * * * *", zone = "Asia/Seoul")
     @Transactional
     public void enforceWindows() {
         LocalDateTime now = LocalDateTime.now();

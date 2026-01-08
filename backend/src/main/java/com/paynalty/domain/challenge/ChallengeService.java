@@ -6,8 +6,10 @@ import com.paynalty.domain.challengemember.ChallengeMemberResponse;
 import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
+import com.paynalty.domain.penalty.MemberPenalty;
 import com.paynalty.domain.penalty.PenaltyOverview;
 import com.paynalty.domain.penalty.PenaltyService;
+import com.paynalty.domain.penalty.WeeklyPenalty;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
@@ -526,13 +528,27 @@ public class ChallengeService {
         PenaltyOverview penaltyOverview = penaltyService.getPenaltyOverview(challengeId);
 
         // 챌린지 id로 해당 챌린지 맴버 조회
+        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+        
         // 맴버 별 주간 현황 데이터 불러오기 List에 담겨있음
-        // penalty 서비스에서 구현
+        List<MemberPenalty> memberPenaltyList = challengeMembers.stream()
+                .map(member -> {
+                    // 각 멤버의 주간 패널티 현황 조회
+                    List<WeeklyPenalty> weeklyPenalties = penaltyService.getWeeklyPenaltiesByMember(member);
+                    
+                    return MemberPenalty.builder()
+                            .memberName(member.getUser().getName())
+                            .tossId(member.getUser().getTossId())
+                            .weeklyPenaltyList(weeklyPenalties)
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         return ChallengePenaltyOverviewResponse.builder()
                 .totalPenalty(penaltyOverview.getTotalPenalty())
                 .paidPenalty(penaltyOverview.getPaidPenalty())
                 .nonPaidPenalty(penaltyOverview.getNonPaidPenalty())
+                .memberPenaltyList(memberPenaltyList)
                 .build();
 
     }
