@@ -12,9 +12,9 @@ import {
   getVerificationMessage,
   isTodayChallenge,
 } from '../../utils/challenge';
-import { Challenge } from './types';
+import { ChallengeResponse } from '../../api/challenges';
 
-export function ChallengeCard({ challenge }: { challenge: Challenge }) {
+export function ChallengeCard({ challenge }: { challenge: ChallengeResponse }) {
   const adaptive = useAdaptive();
   const navigation = useNavigation();
 
@@ -111,7 +111,7 @@ export function ChallengeCard({ challenge }: { challenge: Challenge }) {
   );
 }
 
-function ChallengeMembers({ members }: { members: Challenge['members'] }) {
+function ChallengeMembers({ members }: { members: ChallengeResponse['members'] }) {
   const adaptive = useAdaptive();
 
   if (members.length > 1) {

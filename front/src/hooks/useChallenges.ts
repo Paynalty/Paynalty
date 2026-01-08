@@ -1,6 +1,5 @@
 import { useQuery, queryOptions } from '@tanstack/react-query';
 import { getMyProgressChallenges, ChallengeResponse } from '../api/challenges';
-import { Challenge } from '../components/challenge/types';
 import { sortChallengesByPriority } from '../utils/challenge';
 import { ApiError } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -8,7 +7,7 @@ import { useAuthStore } from '../stores/authStore';
 /**
  * API 응답 데이터를 UI용 Challenge 객체로 변환합니다.
  */
-const mapToChallenge = (item: ChallengeResponse): Challenge => ({
+const mapToChallenge = (item: ChallengeResponse): ChallengeResponse => ({
   ...item,
   id: item.id,
   weeklyRequiredCount: item.weeklyRequiredCount,
@@ -17,7 +16,7 @@ const mapToChallenge = (item: ChallengeResponse): Challenge => ({
 /**
  * 상태별 정렬 로직을 적용합니다.
  */
-const sortChallenges = (challenges: Challenge[], status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
+const sortChallenges = (challenges: ChallengeResponse[], status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
   if (status === 'ACTIVE') {
     return sortChallengesByPriority(challenges);
   }

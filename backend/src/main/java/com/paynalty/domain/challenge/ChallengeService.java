@@ -126,6 +126,7 @@ public class ChallengeService {
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
                                 .members(memberList)
+                                .status(challengeStatus)
                                 .build();
                     } else if (challengeStatus == ChallengeStatus.COMPLETE) {
                         // 완료된 챌린지 - 마지막 주의 주간 인증 횟수 표시
@@ -145,6 +146,7 @@ public class ChallengeService {
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(VerificationStatus.NOT_VERIFIED)
                                 .members(memberList)
+                                .status(challengeStatus)
                                 .build();
                     } else {
                         // 진행 중(ACTIVE) 챌린지
@@ -165,6 +167,7 @@ public class ChallengeService {
                                 .verificationType(challenge.getVerificationType())
                                 .verificationStatus(verificationStatus)
                                 .members(memberList)
+                                .status(challengeStatus)
                                 .build();
                     }
                 })
@@ -207,6 +210,7 @@ public class ChallengeService {
                 .verificationType(challenge.getVerificationType())
                 .verificationStatus(verificationStatus)
                 .members(memberList)
+                .status(challengeStatus)
                 .build();
     }
 

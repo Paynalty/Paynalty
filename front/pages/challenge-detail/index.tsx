@@ -91,7 +91,7 @@ function Page() {
               
                const randomIndex = Math.floor(Math.random() * selectedChallenge.members.length);
                const randomMember = selectedChallenge.members[randomIndex];
-               return `${randomMember.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
+               return `${randomMember?.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
             })()}
           </Top.SubtitleParagraph>
         }

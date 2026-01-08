@@ -1,4 +1,4 @@
-import { verificationStatus } from '../components/challenge/types';
+import { VerificationStatus } from '../api/challenges';
 
 /**
  * "HH:mm:ss" 형식의 시간 문자열을 받아 오늘 날짜의 Date 객체로 변환합니다.
@@ -192,7 +192,7 @@ export const getNextScheduleMessage = (daysOfWeek: string[] | undefined): string
  * 챌린지 상태에 따른 뱃지(라벨, 색상) 정보를 반환합니다.
  */
 export const getChallengeStatusBadge = (
-  status: verificationStatus,
+  status: VerificationStatus,
   daysOfWeek: string[],
   weeklyRequiredCount: number,
   weeklyProgressCount: number,
