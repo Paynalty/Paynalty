@@ -144,24 +144,6 @@ public class ChallengeVerificationService {
     }
 
 
-    // 인증 데이터 최신순 불러오기(사용자것만) // 현재 사용 안하는 매서드
-    public Slice<ChallengeVerificationResponse> getMyVerifications(
-            Long challengeId, 
-            Long tossId, 
-            int page, 
-            int size
-    ) {
-        // Pageable 생성 (페이지 번호, 크기만 지정 - 정렬은 메서드명으로 처리)
-        Pageable pageable = PageRequest.of(page, size);
-        
-        // Slice<ChallengeVerification> 조회
-        Slice<ChallengeVerification> verificationSlice = challengeVerificationRepository
-                .findByChallengeIdAndUserTossIdOrderByDateDescIdDesc(challengeId, tossId, pageable);
-        
-        // Slice<ChallengeVerification> → Slice<ChallengeVerificationResponse> 변환
-        return verificationSlice.map(cv -> ChallengeVerificationResponse.from(cv, fileStorage.getFileUrl(cv.getImageUrl())));
-    }
-
     // 챌린지의 모든 참여자 인증 데이터를 최신순으로 페이징하여 조회합니다 (무한 스크롤)
     public Slice<ChallengeVerificationResponse> getAllVerifications(
             Long challengeId,

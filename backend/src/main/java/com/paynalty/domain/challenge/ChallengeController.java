@@ -128,4 +128,17 @@ public class ChallengeController {
         return ResponseEntity.ok().build();
     }
 
+    // 패널티 현황판
+    @Operation(summary = "챌린지 벌금 전체 현황")
+    @GetMapping("/{challengeId}/penalty_overview")
+    public ResponseEntity<ChallengePenaltyOverviewResponse> penaltyOverview(
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengePenaltyOverviewResponse response = challengeService.getPenaltyOverview(challengeId,tossId);
+        return ResponseEntity.ok(response);
+
+    }
+
 }

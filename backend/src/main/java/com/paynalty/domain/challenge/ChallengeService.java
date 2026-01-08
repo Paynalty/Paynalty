@@ -3,6 +3,10 @@ package com.paynalty.domain.challenge;
 import com.paynalty.domain.challengemember.*;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
+import com.paynalty.domain.penalty.MemberPenalty;
+import com.paynalty.domain.penalty.PenaltyOverview;
+import com.paynalty.domain.penalty.PenaltyService;
+import com.paynalty.domain.penalty.WeeklyPenalty;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
@@ -32,6 +36,7 @@ public class ChallengeService {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeVerificationService challengeVerificationService;
     private final UserService userService;
+    private final PenaltyService penaltyService;
 
 
     @Transactional
@@ -513,5 +518,35 @@ public class ChallengeService {
         return determineVerificationStatus(challenge, tossId);
     }
 
+    public ChallengePenaltyOverviewResponse getPenaltyOverview(Long challengeId, Long tossId) {
+        // 챌린지 id를 통해 벌금 데이터 조회. 데이터의 벌금액 총합,미납(paid = false), 납부(paid=true) 조회
+        // 패널티서비스에서 따로 매서드 구현후 패널티서비스 사용하기
+        PenaltyOverview penaltyOverview = penaltyService.getPenaltyOverview(challengeId);
+
+        // 챌린지 id로 해당 챌린지 맴버 조회
+        List<ChallengeMember> challengeMembers = challengeMemberRepository.findByChallengeId(challengeId);
+        
+        // 맴버 별 주간 현황 데이터 불러오기 List에 담겨있음
+        List<MemberPenalty> memberPenaltyList = challengeMembers.stream()
+                .map(member -> {
+                    // 각 멤버의 주간 패널티 현황 조회
+                    List<WeeklyPenalty> weeklyPenalties = penaltyService.getWeeklyPenaltiesByMember(member);
+                    
+                    return MemberPenalty.builder()
+                            .memberName(member.getUser().getName())
+                            .tossId(member.getUser().getTossId())
+                            .weeklyPenaltyList(weeklyPenalties)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return ChallengePenaltyOverviewResponse.builder()
+                .totalPenalty(penaltyOverview.getTotalPenalty())
+                .paidPenalty(penaltyOverview.getPaidPenalty())
+                .nonPaidPenalty(penaltyOverview.getNonPaidPenalty())
+                .memberPenaltyList(memberPenaltyList)
+                .build();
+
+    }
 }
 
