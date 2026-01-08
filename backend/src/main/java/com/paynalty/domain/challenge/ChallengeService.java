@@ -6,6 +6,8 @@ import com.paynalty.domain.challengemember.ChallengeMemberResponse;
 import com.paynalty.domain.challengemember.ChallengeMemberService;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
+import com.paynalty.domain.penalty.PenaltyOverview;
+import com.paynalty.domain.penalty.PenaltyService;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
 import com.paynalty.domain.user.UserService;
@@ -36,6 +38,7 @@ public class ChallengeService {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeVerificationService challengeVerificationService;
     private final UserService userService;
+    private final PenaltyService penaltyService;
 
 
     @Transactional
@@ -471,5 +474,17 @@ public class ChallengeService {
         return determineVerificationStatus(challenge, tossId);
     }
 
+    public ChallengePenaltyOverviewResponse getPenaltyOverview(Long challengeId, Long tossId) {
+        // 챌린지 id를 통해 벌금 데이터 조회. 데이터의 벌금액 총합,미납(paid = false), 납부(paid=true) 조회
+        // 패널티서비스에서 따로 매서드 구현후 패널티서비스 사용하기
+        PenaltyOverview penaltyOverview = penaltyService.getPenaltyOverview(challengeId);
+
+        return ChallengePenaltyOverviewResponse.builder()
+                .totalPenalty(penaltyOverview.getTotalPenalty())
+                .paidPenalty(penaltyOverview.getPaidPenalty())
+                .nonPaidPenalty(penaltyOverview.getNonPaidPenalty())
+                .build();
+
+    }
 }
 

@@ -103,6 +103,18 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
             @Param("tossId") Long tossId
     );
 
+    // 벌금 총합
+    @Query("SELECT COALESCE(SUM(p.penaltyAmount),0) FROM Penalty p WHERE p.challengeMember.challenge.id = :challengeId")
+    Long sumAmountByChallengeId(@Param("challengeId") Long challengeId);
+
+    // 납부 금액 총합
+    @Query("SELECT COALESCE(SUM(p.penaltyAmount),0) FROM Penalty p WHERE p.challengeMember.challenge.id = :challengeId AND p.paid = true")
+    Long sumAmountByChallengeIdAndPaid(@Param("challengeId") Long challengeId);
+
+    // 미납 금액 총합
+    @Query("SELECT COALESCE(SUM(p.penaltyAmount),0) FROM Penalty p WHERE p.challengeMember.challenge.id = :challengeId AND p.paid = false")
+    Long sumAmountByChallengeIdAndNonPaid(@Param("challengeId") Long challengeId);
+
 }
 
 

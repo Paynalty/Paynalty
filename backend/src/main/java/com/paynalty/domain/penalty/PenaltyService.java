@@ -135,5 +135,23 @@ public class PenaltyService {
                 .map(PenaltyResponse::from)
                 .toList();
     }
+
+    // 챌린지 서비스 476번에 사용할 매서드 만들기
+    public PenaltyOverview getPenaltyOverview(Long challengeId){
+        // 벌금 총합
+        Long total = penaltyRepository.sumAmountByChallengeId(challengeId);
+        // 납부 총합
+        Long paid = penaltyRepository.sumAmountByChallengeIdAndPaid(challengeId);
+        // 미납 총합
+        Long nonPaid = penaltyRepository.sumAmountByChallengeIdAndNonPaid(challengeId);
+
+        return PenaltyOverview.builder()
+                .totalPenalty(total)
+                .paidPenalty(paid)
+                .nonPaidPenalty(nonPaid)
+                .build();
+    }
+
+
 }
 
