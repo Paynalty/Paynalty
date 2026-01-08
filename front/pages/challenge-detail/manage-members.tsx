@@ -44,14 +44,8 @@ export default function Page() {
              // 최신 데이터 가져와서 Store 업데이트 (단건 API 사용)
              if (selectedChallenge) {
                 getChallengeDetail(selectedChallenge.id).then((freshData) => {
-                   const members = freshData.members || [];
-                   const participants = members.length > 0 ? members[0]?.userName || '' : ''; 
-                   
                    useChallengeStore.getState().setSelectedChallenge({
                      ...freshData,
-                     participants,
-                     participantCount: members.length,
-                     status: selectedChallenge.status
                    });
                    navigation.pop();
                 });

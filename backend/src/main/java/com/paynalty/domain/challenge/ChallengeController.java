@@ -68,12 +68,12 @@ public class ChallengeController {
                     "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
     )
     @GetMapping("/{challengeId}/detail")
-    public ResponseEntity<ChallengeDetailResponse> getDetail(
+    public ResponseEntity<ChallengeResponse> getDetail(
             @PathVariable Long challengeId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long tossId = userDetails.getUser().getTossId();
-        ChallengeDetailResponse response = challengeService.getMyChallengeDetail(challengeId, tossId);
+        ChallengeResponse response = challengeService.getMyChallengeDetail(challengeId, tossId);
         return ResponseEntity.ok(response);
     }
 

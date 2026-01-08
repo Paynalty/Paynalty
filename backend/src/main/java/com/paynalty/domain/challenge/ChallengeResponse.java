@@ -17,6 +17,9 @@ public class ChallengeResponse {
     @Schema(description = "오늘의 인증 상태 (VERIFIED: 인증함, NOT_VERIFIED: 인증안함)", example = "VerificationStatus 타입, 종류 : VERIFIED, NOT_VERIFIED")
     private VerificationStatus verificationStatus;
 
+    @Schema(description = "챌린지 상태 (ACTIVE, PENDING, COMPLETE)", example = "ChallengeStatus 타입")
+    private ChallengeStatus status;
+
     @Schema(description = "챌린지 ID", example = "Integer")
     private Long id;
 

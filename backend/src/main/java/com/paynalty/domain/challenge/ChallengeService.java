@@ -173,7 +173,45 @@ public class ChallengeService {
 
 
 
-            // updateRequest 데이터 설정 후 사용자 한테 전달
+    public ChallengeResponse getMyChallengeDetail(Long challengeId, Long tossId) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+        // 챌린지 상태
+        ChallengeStatus challengeStatus = challenge.calculateStatus();
+        List<ChallengeMemberResponse> memberList = challengeMemberService.getMembersByChallengeId(challenge.getId());
+
+        // 변동 필드 초기화
+        Integer weeklyProgressCount = 0;
+        VerificationStatus verificationStatus = VerificationStatus.NOT_VERIFIED;
+
+        if (challengeStatus == ChallengeStatus.COMPLETE) {
+            weeklyProgressCount = calculateWeeklyProgressCountForDate(challenge.getId(), tossId, challenge.getEndDate());
+        } else if (challengeStatus == ChallengeStatus.ACTIVE) { // ACTIVE
+            weeklyProgressCount = calculateWeeklyProgressCount(challenge.getId(), tossId);
+            verificationStatus = determineVerificationStatus(challenge.getId(), tossId);
+        }
+        // PENDING 상태인 경우 초기값(0, NOT_VERIFIED) 유지
+
+        return ChallengeResponse.builder()
+                .id(challenge.getId())
+                .title(challenge.getTitle())
+                .weeklyProgressCount(weeklyProgressCount)
+                .weeklyRequiredCount(challenge.getFrequency())
+                .penaltyAmount(challenge.getPenaltyAmount())
+                .verifyStart(challenge.getVerifyStartAt())
+                .verifyEnd(challenge.getVerifyEndAt())
+                .startAt(challenge.getStartDate())
+                .endAt(challenge.getEndDate())
+                .daysOfWeek(challenge.getDaysOfWeek())
+                .verificationType(challenge.getVerificationType())
+                .verificationStatus(verificationStatus)
+                .members(memberList)
+                .build();
+    }
+
+
+    // updateRequest 데이터 설정 후 사용자 한테 전달
     public ChallengeUpdateRequest getUpdateForm(Long challengeId, Long tossId){
         // 1. 챌린지 존재 확인
         Challenge challenge = challengeRepository.findById(challengeId)
@@ -257,7 +295,10 @@ public class ChallengeService {
             List<Long> userIds = request.getUserIds();
             challengeMemberService.addMembersToNewChallenge(user,challenge,userIds);
 
-            // hallengeDetailResponse 생성 및 반환
+            // 챌린지 상태 재계산
+            ChallengeStatus challengeStatus = challenge.calculateStatus();
+
+            // ChallengeResponse 생성 및 반환
             return ChallengeResponse.builder()
                     .id(challenge.getId())
                     .title(challenge.getTitle())
@@ -271,6 +312,7 @@ public class ChallengeService {
                     .daysOfWeek(challenge.getDaysOfWeek())
                     .verificationType(challenge.getVerificationType())
                     .verificationStatus(verificationStatus)
+                    .status(challengeStatus)
                     .build();
         }
 

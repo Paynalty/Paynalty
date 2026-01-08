@@ -27,7 +27,8 @@ export type CreateChallengeResponse = z.infer<typeof CreateChallengeResponseSche
 export const VerificationStatusSchema = z.enum(['VERIFIED', 'NOT_VERIFIED']);
 export type VerificationStatus = z.infer<typeof VerificationStatusSchema>;
 
-export const ChallengeDetailResponseSchema = z.object({
+export const ChallengeResponseSchema = z.object({
+  status: z.enum(['ACTIVE', 'PENDING', 'COMPLETE']),
   verificationStatus: VerificationStatusSchema,
   id: z.coerce.number(),
   title: z.coerce.string(),
@@ -41,7 +42,7 @@ export const ChallengeDetailResponseSchema = z.object({
   startAt: z.string().optional(),
   endAt: z.coerce.string(),
   members: z.array(z.object({
-    id: z.coerce.number(), // ChallengeMember ID
+    id: z.coerce.number(),
     tossId: z.coerce.number(),
     userName: z.string(),
     challengeId: z.coerce.number(),
@@ -51,7 +52,7 @@ export const ChallengeDetailResponseSchema = z.object({
     role: z.enum(['CREATOR', 'CHALLENGER']).optional(),
   })).optional().default([]),
 });
-export type ChallengeDetailResponse = z.infer<typeof ChallengeDetailResponseSchema>;
+export type ChallengeResponse = z.infer<typeof ChallengeResponseSchema>;
 
 export const createChallenge = (data: CreateChallengeRequest) => {
   return apiFetch<CreateChallengeResponse>('/api/challenge', {
@@ -62,16 +63,16 @@ export const createChallenge = (data: CreateChallengeRequest) => {
 };
 
 export const getChallengeDetail = (challengeId: number) => {
-  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/detail`, {
+  return apiFetch<ChallengeResponse>(`/api/challenge/${challengeId}/detail`, {
     method: 'GET',
-    schema: ChallengeDetailResponseSchema,
+    schema: ChallengeResponseSchema,
   });
 };
 
 export const getMyProgressChallenges = (status: 'PENDING' | 'ACTIVE' | 'COMPLETE' = 'ACTIVE') => {
-  return apiFetch<ChallengeDetailResponse[]>(`/api/challenge/${status}`, {
+  return apiFetch<ChallengeResponse[]>(`/api/challenge/${status}`, {
     method: 'GET',
-    schema: z.array(ChallengeDetailResponseSchema),
+    schema: z.array(ChallengeResponseSchema),
   });
 };
 
@@ -89,10 +90,10 @@ export const getChallengeEditForm = (challengeId: string) => {
  * 챌린지 정보를 수정합니다.
  */
 export const updateChallenge = (challengeId: string, data: CreateChallengeRequest) => {
-  return apiFetch<ChallengeDetailResponse>(`/api/challenge/${challengeId}/`, {
+  return apiFetch<ChallengeResponse>(`/api/challenge/${challengeId}/`, {
     method: 'PUT',
     body: JSON.stringify(data),
-    schema: ChallengeDetailResponseSchema,
+    schema: ChallengeResponseSchema,
   });
 };
 
