@@ -118,5 +118,22 @@ public class PenaltyService {
 
         return PenaltyResponse.from(savedPenalty);
     }
+
+    /**
+     * 사용자의 미납 패널티 조회
+     * 특정 챌린지에서 tossId와 관련된 패널티 데이터 중 paid 값이 false인 패널티만 조회합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 토스 ID
+     * @return 미납 패널티 내역 리스트 (최신순 정렬)
+     */
+    @Transactional(readOnly = true)
+    public List<PenaltyResponse> getAllNonPaidPenalty(Long challengeId, Long tossId) {
+        // 특정 챌린지에서 tossId와 관련된 패널티 데이터 중 paid 값이 false인 패널티만 불러오기
+        List<Penalty> penalties = penaltyRepository.findByChallengeIdAndTossIdAndPaidFalse(challengeId, tossId);
+        return penalties.stream()
+                .map(PenaltyResponse::from)
+                .toList();
+    }
 }
 
