@@ -59,16 +59,16 @@ public class ChallengeMemberService {
 
     // 챌린지 생성 시 생성자와 초대 친구들 챌린지 맴버로 생성
     @Transactional
-    public void addMembersToNewChallenge(User creator, Challenge challenge, List<Long> userIds) {
+    public void addMembersToNewChallenge(User creator, Challenge challenge, List<Long> tossIds) {
         // 1. 생성자 본인 추가
         addMemberIfNotExists(creator, challenge);
 
-        if (userIds == null || userIds.isEmpty()) {
+        if (tossIds == null || tossIds.isEmpty()) {
             return;
         }
 
-        // usersId 값으로 user찾아서 list에 넣고 아래 초대된 친구 추가에 전달
-        List<User> users = userRepository.findAllByTossIdIn(userIds);
+        // tossIds 값으로 user찾아서 list에 넣고 아래 초대된 친구 추가에 전달
+        List<User> users = userRepository.findAllByTossIdIn(tossIds);
 
         // 2. 초대된 친구들 추가
         for (User user : users) {
@@ -78,11 +78,11 @@ public class ChallengeMemberService {
 
     // 챌린지 생성자가 챌린지 멤버 수정
     @Transactional
-    public void updateChallengeMembers(Long challengeId, List<Long> updateMemberTossIds, Long requesterTossId) {
+    public void updateChallengeMembers(Long challengeId, List<Long> updateMemberTossIds, Long requesterUserId) {
 
         // 챌린지와 정보 조회 및 권한 확인
         ChallengeMember requesterMember = challengeMemberRepository
-                .findByChallengeIdAndUserTossIdWithFetch(challengeId, requesterTossId)
+                .findByChallengeIdAndUserIdWithFetch(challengeId, requesterUserId)
                 .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
 
         if (requesterMember.getRole() != MemberRole.CREATOR) {
@@ -92,6 +92,7 @@ public class ChallengeMemberService {
         Challenge challenge = requesterMember.getChallenge();
 
         // 수정 목록에 생성자 포함 여부 확인
+        Long requesterTossId = requesterMember.getUser().getTossId();
         if (!updateMemberTossIds.contains(requesterTossId)) {
             throw new CustomException(ChallengeMemberErrorCode.CREATOR_CANNOT_BE_REMOVED);
         }
@@ -133,6 +134,20 @@ public class ChallengeMemberService {
                     .collect(Collectors.toList());
             challengeMemberRepository.saveAll(updateChallengeMembers);
         }
+    }
+
+    // 챌린지 탈퇴
+    @Transactional
+    public void withdrawChallenge(Long challengeId, Long userId) {
+        ChallengeMember member = challengeMemberRepository
+                .findByChallengeIdAndUserIdWithFetch(challengeId, userId)
+                .orElseThrow(() -> new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER));
+
+        if (member.getRole() == MemberRole.CREATOR) {
+            throw new CustomException(ChallengeMemberErrorCode.CREATOR_CANNOT_BE_REMOVED);
+        }
+
+        challengeMemberRepository.delete(member);
     }
 
     /**

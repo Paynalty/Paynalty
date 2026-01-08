@@ -8,10 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-import java.util.List;
-import java.util.Optional;
-
-
 public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember, Long> {
 
     List<ChallengeMember> findByUserTossId(Long tossId);
@@ -25,33 +21,40 @@ public interface ChallengeMemberRepository extends JpaRepository<ChallengeMember
      * User와 Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
      *
      * @param challengeId 챌린지 ID
-     * @param tossId 사용자 토스 ID
+     * @param tossId      사용자 토스 ID
      * @return ChallengeMember (User, Challenge 포함)
      */
     @Query("""
-    SELECT cm
-    FROM ChallengeMember cm
-    JOIN FETCH cm.user
-    JOIN FETCH cm.challenge
-    WHERE cm.challenge.id = :challengeId
-    AND cm.user.tossId = :tossId
-    """)
+            SELECT cm
+            FROM ChallengeMember cm
+            JOIN FETCH cm.user
+            JOIN FETCH cm.challenge
+            WHERE cm.challenge.id = :challengeId
+            AND cm.user.tossId = :tossId
+            """)
     Optional<ChallengeMember> findByChallengeIdAndUserTossIdWithFetch(
             @Param("challengeId") Long challengeId,
-            @Param("tossId") Long tossId
-    );
+            @Param("tossId") Long tossId);
 
     @Query("""
-    SELECT cm
-    FROM ChallengeMember cm
-    JOIN FETCH cm.user
-    JOIN FETCH cm.challenge
-    WHERE cm.challenge IN :challenges
-    """)
+            SELECT cm
+            FROM ChallengeMember cm
+            JOIN FETCH cm.user
+            JOIN FETCH cm.challenge
+            WHERE cm.challenge.id = :challengeId
+            AND cm.user.id = :userId
+            """)
+    Optional<ChallengeMember> findByChallengeIdAndUserIdWithFetch(
+            @Param("challengeId") Long challengeId,
+            @Param("userId") Long userId);
+
+    @Query("""
+            SELECT cm
+            FROM ChallengeMember cm
+            JOIN FETCH cm.user
+            JOIN FETCH cm.challenge
+            WHERE cm.challenge IN :challenges
+            """)
     List<ChallengeMember> findWithUserAndChallengeIn(@Param("challenges") List<Challenge> challenges);
-
-
-
-    
 
 }

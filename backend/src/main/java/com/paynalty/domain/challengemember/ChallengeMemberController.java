@@ -37,9 +37,19 @@ public class ChallengeMemberController {
                         @Parameter(description = "챌린지 ID", required = true) @PathVariable Long challengeId,
                         @Valid @RequestBody ChallengeMemberUpdateRequest request,
                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-                Long requesterTossId = userDetails.getUser().getTossId();
-                challengeMemberService.updateChallengeMembers(challengeId, request.getUserTossIds(), requesterTossId);
+                Long requesterUserId = userDetails.getUser().getId();
+                challengeMemberService.updateChallengeMembers(challengeId, request.getUserTossIds(), requesterUserId);
 
                 return ResponseEntity.ok().build();
+        }
+
+        @Operation(summary = "챌린지 탈퇴", description = "참여 중인 챌린지에서 탈퇴합니다. (생성자는 탈퇴 불가)")
+        @DeleteMapping("/{challengeId}/me")
+        public ResponseEntity<Void> withdrawChallenge(
+                        @Parameter(description = "챌린지 ID", required = true) @PathVariable Long challengeId,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+                Long userId = userDetails.getUser().getId();
+                challengeMemberService.withdrawChallenge(challengeId, userId);
+                return ResponseEntity.noContent().build();
         }
 }
