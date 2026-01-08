@@ -26,6 +26,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
         JOIN ChallengeMember cm ON cm.challenge = c
         WHERE cm.user.tossId = :tossId
         AND c.status = :status
+        AND cm.isActive = true
     """)
     List<Challenge> findByUserTossIdAndStatus(@Param("tossId") Long tossId, @Param("status") ChallengeStatus status);
 

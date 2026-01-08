@@ -181,6 +181,15 @@ public class ChallengeService {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
+        // 참여 중인 멤버인지 확인 (Active 상태여야 함)
+        boolean isMember = challengeMemberRepository.findByChallengeIdAndIsActiveTrue(challengeId)
+                .stream()
+                .anyMatch(member -> member.getUser().getTossId().equals(tossId));
+
+        if (!isMember) {
+            throw new CustomException(ChallengeMemberErrorCode.NOT_CHALLENGE_MEMBER);
+        }
+
         // 챌린지 상태
         ChallengeStatus challengeStatus = challenge.calculateStatus();
         List<ChallengeMemberResponse> memberList = challengeMemberService.getMembersByChallengeId(challenge.getId());

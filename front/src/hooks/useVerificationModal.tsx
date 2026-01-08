@@ -103,12 +103,25 @@ export function useVerificationModal() {
 
       return await createVerification(selectedChallenge!.id, formData);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // 관련 쿼리 무효화하여 자동 리페칭
-      queryClient.invalidateQueries({ queryKey: ['latestVerification'] });
-      queryClient.invalidateQueries({ queryKey: ['verifications'] });
-      queryClient.invalidateQueries({ queryKey: ['memberVerificationCounts'] });
-      queryClient.invalidateQueries({ queryKey: ['challenges'] });
+      await queryClient.invalidateQueries({ queryKey: ['latestVerification'] });
+      await queryClient.invalidateQueries({ queryKey: ['verifications'] });
+      await queryClient.invalidateQueries({ queryKey: ['memberVerificationCounts'] });
+      await queryClient.invalidateQueries({ queryKey: ['challenges'] });
+
+      // Store 업데이트: 현재 챌린지 상세 정보를 새로 불러와서 verificationStatus 갱신
+      if (selectedChallenge?.id) {
+          try {
+              const { getChallengeDetail } = require('../api/challenges');
+              const { useChallengeStore } = require('../stores/challengeStore');
+              const freshDetail = await getChallengeDetail(selectedChallenge.id);
+              useChallengeStore.getState().setSelectedChallenge(freshDetail);
+          } catch (e) {
+              console.error('Failed to update challenge status in store:', e);
+          }
+      }
+
       Alert.alert('인증 성공', '인증이 완료되었습니다.');
     },
     onError: (error: Error) => {

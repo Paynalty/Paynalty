@@ -1,7 +1,16 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
-import {FixedBottomCTAProvider, List, ListHeader, ListRow, SegmentedControl, Top, Txt,} from '@toss/tds-react-native';
+import {
+    Button,
+    FixedBottomCTAProvider,
+    List,
+    ListHeader,
+    ListRow,
+    SegmentedControl,
+    Top,
+    Txt,
+} from '@toss/tds-react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {Alert, Linking, Pressable, ScrollView, View} from 'react-native';
+import {Alert, Linking, ScrollView, View} from 'react-native';
 import React, {useMemo, useState} from 'react';
 import {useChallengeStore} from '../../src/stores/challengeStore';
 import {useAllPenalties, useMyPenalties} from '../../src/hooks/usePenalties';
@@ -139,33 +148,30 @@ export default function Page() {
                       {penalty.amount.toLocaleString()}원
                     </Txt>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        {tab === 'ME' ? (
-                             <Pressable
-                               onPress={async () => {
-                                 try {
-                                   await updatePenaltyStatus(penalty.penaltyId, !penalty.paid);
-                                   // Invalidate queries to refresh data
-                                   await queryClient.invalidateQueries({ queryKey: ['penalties'] });
-                                 } catch (e) {
-                                   Alert.alert('오류', '상태 변경에 실패했습니다.');
-                                 }
+                        {tab === 'ME' && !penalty.paid ? (
+                             <Button
+                               size="tiny"
+                               type="danger"
+                               style="weak"
+                               onPress={() => {
+                                 Alert.alert('알림', '납부 완료 하셨습니까?', [
+                                   { text: '취소', style: 'cancel' },
+                                   {
+                                     text: '확인',
+                                     onPress: async () => {
+                                       try {
+                                         await updatePenaltyStatus(penalty.penaltyId, true);
+                                         await queryClient.invalidateQueries({ queryKey: ['penalties'] });
+                                       } catch (e) {
+                                         Alert.alert('오류', '상태 변경에 실패했습니다.');
+                                       }
+                                     },
+                                   },
+                                 ]);
                                }}
-                               style={({ pressed }) => [{
-                                 backgroundColor: !penalty.paid ? adaptive.red100 : adaptive.grey200,
-                                 paddingHorizontal: 8,
-                                 paddingVertical: 4,
-                                 borderRadius: 4,
-                                 opacity: pressed ? 0.7 : 1,
-                               }]}
                              >
-                               <Txt
-                                 typography="t7"
-                                 color={!penalty.paid ? adaptive.red600 : adaptive.grey600}
-                                 fontWeight="medium"
-                               >
-                                 {!penalty.paid ? '납부 체크' : '납부 완료'}
-                               </Txt>
-                             </Pressable>
+                               납부하기
+                             </Button>
                         ) : (
                             <Txt
                               typography="t7"

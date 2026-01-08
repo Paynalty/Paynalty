@@ -1,10 +1,10 @@
-import {Asset, Txt, Icon} from '@toss/tds-react-native';
-import {useEffect, useState, useMemo} from 'react';
+import {Asset, Icon, Txt} from '@toss/tds-react-native';
+import {useEffect, useMemo, useState} from 'react';
 import {useAdaptive} from '@toss/tds-react-native/private';
-import {Image, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import {Alert, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {formatTime, getFileUrl, getTimeDate} from '../../utils/challenge';
-import { deleteVerification } from '../../api/verifications';
-import { useQueryClient } from '@tanstack/react-query';
+import {deleteVerification} from '../../api/verifications';
+import {useQueryClient} from '@tanstack/react-query';
 
 interface VerificationItemProps {
     verificationId: number;
@@ -61,10 +61,26 @@ export function VerificationItem({
                     onPress: async () => {
                         try {
                             await deleteVerification(verificationId);
-                            // 관련 쿼리 무효화 (리스트, 최신 인증, 카운트 등)
+                            // 관련 쿼리 무효화 (리스트, 최신 인증, 카운트, 챌린지 상세(홈/리스트))
                             await queryClient.invalidateQueries({ queryKey: ['verifications'] });
                             await queryClient.invalidateQueries({ queryKey: ['latestVerification'] });
                             await queryClient.invalidateQueries({ queryKey: ['memberVerificationCounts'] });
+                            await queryClient.invalidateQueries({ queryKey: ['challenges'] });
+
+                            // Store 업데이트: 현재 챌린지 상세 정보를 새로 불러와서 verificationStatus 갱신
+                            // useChallengeStore는 hook rule 때문에 컴포넌트 내부에서 함수로 가져와야 함 or props로 id 받기
+                            const { getChallengeDetail } = require('../../api/challenges');
+                            const { useChallengeStore } = require('../../stores/challengeStore');
+                            // verificationId로 challengeId를 알 수 없으나, 
+                            // 보통 VerificationItem은 ChallengeDetail 페이지 내에서 쓰이므로 
+                            // 현재 selectedChallengeId를 Store에서 가져올 수 있음.
+                            const currentChallengeId = useChallengeStore.getState().selectedChallengeObject?.id;
+                            
+                            if (currentChallengeId) {
+                                const freshDetail = await getChallengeDetail(currentChallengeId);
+                                useChallengeStore.getState().setSelectedChallenge(freshDetail);
+                            }
+
                             Alert.alert('삭제 성공', '인증 내역이 삭제되었습니다.');
                         } catch (e) {
                             console.error('Failed to delete verification', e);

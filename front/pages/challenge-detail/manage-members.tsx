@@ -1,7 +1,7 @@
 import {createRoute, useNavigation} from '@granite-js/react-native';
 import {useChallengeStore} from '../../src/stores/challengeStore';
 import {useMutation, useQueryClient} from '@tanstack/react-query';
-import {updateChallengeMembers} from '../../src/api/challengeMembers';
+import {leaveChallenge, updateChallengeMembers} from '../../src/api/challengeMembers';
 import {getChallengeDetail} from '../../src/api/challenges';
 import {MemberManager} from '../../src/components/challenge/MemberManager';
 import {Alert} from 'react-native';
@@ -67,22 +67,49 @@ export default function Page() {
 
   const handleLeave = async () => {
     if (!selectedChallenge) return;
-    try {
-        // 이미 api/challengeMembers.ts 에 leaveChallenge 가 있다고 가정 (ChallengeDetail 에서 사용중인 것 확인)
-        const { leaveChallenge } = require('../../src/api/challengeMembers'); 
-        await leaveChallenge(selectedChallenge.id);
-        Alert.alert('알림', '챌린지에서 나갔어요.', [
-            { text: '확인', onPress: () => {
-                queryClient.invalidateQueries({ queryKey: ['myProgressChallenges'] });
-                // 선택된 챌린지 초기화 또는 목록으로 이동
-                useChallengeStore.getState().setSelectedChallenge(null as any); 
-                navigation.navigate('/'); // 홈으로 이동
-            }}
-        ]);
-    } catch (e) {
-        console.error(e);
-        Alert.alert('오류', '챌린지 나가기에 실패했어요.');
-    }
+
+    Alert.alert('알림', '정말 챌린지를 그만두시겠어요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '나가기',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await leaveChallenge(selectedChallenge.id);
+            Alert.alert('알림', '챌린지에서 나갔어요.', [
+              {
+                text: '확인',
+                onPress: () => {
+                  queryClient.invalidateQueries({ queryKey: ['challenges'] });
+                  useChallengeStore.getState().setSelectedChallenge(null as any);
+                  navigation.navigate('/'); // 홈으로 이동
+                },
+              },
+            ]);
+          } catch (e: any) {
+            console.error(e);
+            
+            // 미납 패널티 에러 처리 (MEM005)
+            if (e.data?.code === 'MEM005') {
+               Alert.alert(
+                 '미납된 패널티가 있어요', 
+                 '패널티를 모두 납부해야\n챌린지를 나갈 수 있어요.',
+                 [
+                   { text: '취소', style: 'cancel' },
+                   { 
+                     text: '납부하러 가기', 
+                     onPress: () => navigation.navigate('/challenge-detail/penalty-history') 
+                   }
+                 ]
+               );
+               return;
+            }
+
+            Alert.alert('오류', '챌린지 나가기에 실패했어요.');
+          }
+        },
+      },
+    ]);
   };
 
   if (!selectedChallenge) return null;
