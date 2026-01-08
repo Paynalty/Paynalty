@@ -18,41 +18,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChallengeMemberController {
 
-    private final ChallengeMemberService challengeMemberService;
+        private final ChallengeMemberService challengeMemberService;
 
-    @Operation(
-            summary = "챌린지 멤버 목록 조회",
-            description = "특정 챌린지에 참여 중인 멤버 목록을 조회합니다."
-    )
-    @GetMapping("/{challengeId}")
-    public ResponseEntity<List<ChallengeMemberResponse>> getMembers(
-            @Parameter(description = "챌린지 ID", required = true, example = "1")
-            @PathVariable Long challengeId
-    ) {
-        List<ChallengeMemberResponse> response = challengeMemberService.getMembersByChallengeId(challengeId);
-        return ResponseEntity.ok(response);
-    }
+        @Operation(summary = "챌린지 멤버 목록 조회", description = "특정 챌린지에 참여 중인 멤버 목록을 조회합니다.")
+        @GetMapping("/{challengeId}")
+        public ResponseEntity<List<ChallengeMemberResponse>> getMembers(
+                        @Parameter(description = "챌린지 ID", required = true, example = "1") @PathVariable Long challengeId) {
+                List<ChallengeMemberResponse> response = challengeMemberService.getMembersByChallengeId(challengeId);
+                return ResponseEntity.ok(response);
+        }
 
-    @Operation(
-            summary = "챌린지에 친구 초대 (멤버 추가)",
-            description = "챌린지 생성 후 추가로 친구를 초대하여 멤버로 추가합니다.\n\n"
-    )
-    @PostMapping
-    public ResponseEntity<String> addMember(
-            @Parameter(description = "챌린지 멤버 초대 요청 정보", required = true)
-            @Valid @RequestBody ChallengeMemberRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        Long tossId = userDetails.getUser().getTossId();
-        
-        String result = challengeMemberService.addMemberByInvitation(
-                request.getChallengeId(),
-                tossId,
-                request.getInviteeName(),
-                request.getInviteePhoneNumber()
-        );
-        
-        return ResponseEntity.ok(result);
-    }
+        @Operation(summary = "챌린지 멤버 목록 수정(챌린지 CREATOR 전용)", description = "챌린지 멤버 목록 요청된 상태로 업데이트 \n\n" +
+                        "동작 방식:\n" +
+                        "- 최종 목록 `userTossIds` 목록을 기준으로 멤버를 추가하거나 삭제하여 멤버 목록 업데이트\n" +
+                        "JWT 토큰 인증 필수")
+        @PutMapping("/{challengeId}/members")
+        public ResponseEntity<Void> updateMembers(
+                        @Parameter(description = "챌린지 ID", required = true) @PathVariable Long challengeId,
+                        @Valid @RequestBody ChallengeMemberUpdateRequest request,
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+                Long requesterTossId = userDetails.getUser().getTossId();
+                challengeMemberService.updateChallengeMembers(challengeId, request.getUserTossIds(), requesterTossId);
 
+                return ResponseEntity.ok().build();
+        }
 }
