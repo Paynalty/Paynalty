@@ -78,6 +78,31 @@ public interface PenaltyRepository extends JpaRepository<Penalty, Long> {
             @Param("weekEnd") LocalDate weekEnd
     );
 
+    /**
+     * 챌린지 내 사용자의 미납 패널티 조회
+     * 특정 챌린지에서 tossId와 관련된 패널티 데이터 중 paid 값이 false인 패널티만 조회합니다.
+     * ChallengeMember와 User, Challenge를 함께 fetch하여 N+1 문제를 방지합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 토스 ID
+     * @return 미납 패널티 리스트 (최신순 정렬)
+     */
+    @Query("""
+        SELECT p 
+        FROM Penalty p
+        JOIN FETCH p.challengeMember cm
+        JOIN FETCH cm.user
+        JOIN FETCH cm.challenge
+        WHERE cm.challenge.id = :challengeId 
+        AND cm.user.tossId = :tossId 
+        AND p.paid = false
+        ORDER BY p.createdAt DESC
+        """)
+    List<Penalty> findByChallengeIdAndTossIdAndPaidFalse(
+            @Param("challengeId") Long challengeId,
+            @Param("tossId") Long tossId
+    );
+
 }
 
 

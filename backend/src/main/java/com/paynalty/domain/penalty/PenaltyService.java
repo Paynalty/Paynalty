@@ -82,5 +82,58 @@ public class PenaltyService {
                 .map(PenaltyResponse::from)
                 .toList();
     }
+
+    /**
+     * 패널티 결제 완료 처리
+     * 패널티의 paid 필드를 true로 변경하고, paidAt을 현재 시간으로 설정합니다.
+     *
+     * @param penaltyId 패널티 ID
+     * @param tossId 사용자 토스 ID (권한 검증용)
+     * @return 결제 완료된 패널티 응답
+     * @throws CustomException 패널티가 없거나, 이미 결제되었거나, 권한이 없는 경우
+     */
+    @Transactional
+    public PenaltyResponse paidComplete(Long penaltyId, Long tossId) {
+        // penaltyId로 패널티 찾기
+        Penalty penalty = penaltyRepository.findById(penaltyId)
+                .orElseThrow(() -> new CustomException(PenaltyErrorCode.PENALTY_NOT_FOUND));
+
+        // 해당 penalty의 paid가 이미 true면 오류코드. 이미 결제 되었습니다 표시
+        if (penalty.getPaid()) {
+            throw new CustomException(PenaltyErrorCode.PENALTY_ALREADY_PAID);
+        }
+
+        // 해당 패널티의 챌린지 멤버 -> 사용자 tossId가 현재 로그인한 사용자의 토스 id와 같은지 검증
+        if (!penalty.getChallengeMember().getUser().getTossId().equals(tossId)) {
+            // 같지 않다면 '사용자가 해당 패널티의 권한이 없습니다' 오류코드 전달
+            throw new CustomException(PenaltyErrorCode.UNAUTHORIZED_PENALTY_ACCESS);
+        }
+
+        // 같으면 해당 패널티의 paid true로 변경, 결제시간을 현재로 수정
+        penalty.setPaid(true);
+        penalty.setPaidAt(java.time.LocalDateTime.now());
+
+        // 저장소 쿼리 실행
+        Penalty savedPenalty = penaltyRepository.save(penalty);
+
+        return PenaltyResponse.from(savedPenalty);
+    }
+
+    /**
+     * 사용자의 미납 패널티 조회
+     * 특정 챌린지에서 tossId와 관련된 패널티 데이터 중 paid 값이 false인 패널티만 조회합니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @param tossId 사용자 토스 ID
+     * @return 미납 패널티 내역 리스트 (최신순 정렬)
+     */
+    @Transactional(readOnly = true)
+    public List<PenaltyResponse> getAllNonPaidPenalty(Long challengeId, Long tossId) {
+        // 특정 챌린지에서 tossId와 관련된 패널티 데이터 중 paid 값이 false인 패널티만 불러오기
+        List<Penalty> penalties = penaltyRepository.findByChallengeIdAndTossIdAndPaidFalse(challengeId, tossId);
+        return penalties.stream()
+                .map(PenaltyResponse::from)
+                .toList();
+    }
 }
 

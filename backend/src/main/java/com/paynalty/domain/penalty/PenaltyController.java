@@ -53,4 +53,43 @@ public class PenaltyController {
         List<PenaltyResponse> response = penaltyService.getAllPenalties(challengeId, tossId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(
+            summary = "패널티 결제 완료 처리",
+            description = "특정 패널티의 결제를 완료 처리합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "📌 패널티의 paid 필드를 true로 변경하고, paidAt을 현재 시간으로 설정합니다.\n" +
+                    "📌 본인의 패널티만 결제 처리할 수 있습니다.\n" +
+                    "📌 이미 결제된 패널티는 다시 결제할 수 없습니다."
+    )
+    @PutMapping("/{penaltyId}")
+    public ResponseEntity<PenaltyResponse> paidComplete(
+            @Parameter(description = "패널티 ID", required = true, example = "1")
+            @PathVariable Long penaltyId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // 패널티의 필드 paid의 값을 true 변경, 해당 기능 실행 시점으로 패널티 필드의 paidAt 설정
+        Long tossId = userDetails.getUser().getTossId();
+        PenaltyResponse response = penaltyService.paidComplete(penaltyId, tossId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "미납 패널티 조회",
+            description = "특정 챌린지에서 사용자의 미납된 패널티(paid = false) 목록을 조회합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})\n" +
+                    "📌 본인의 미납 패널티만 조회할 수 있습니다.\n" +
+                    "📌 최신순으로 정렬되어 반환됩니다."
+    )
+    @GetMapping("/{challengeId}/non_paid")
+    public ResponseEntity<List<PenaltyResponse>> getAllNonPaid(
+            @Parameter(description = "챌린지 ID", required = true, example = "1")
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        // 미납한 벌금 데이터 불러오기
+        Long tossId = userDetails.getUser().getTossId();
+        List<PenaltyResponse> response = penaltyService.getAllNonPaidPenalty(challengeId, tossId);
+        return ResponseEntity.ok(response);
+    }
 }
