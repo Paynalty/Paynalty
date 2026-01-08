@@ -6,8 +6,12 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.penalty.Penalty;
+import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
+
+import java.time.LocalDateTime;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import com.paynalty.global.security.CustomUserDetails;
@@ -35,6 +39,7 @@ public class TestController {
     private final ChallengeRepository challengeRepository;
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
+    private final PenaltyRepository penaltyRepository;
 
     @Operation(
             summary = "더미 데이터 생성",
@@ -81,6 +86,7 @@ public class TestController {
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
         addMembers(c2, allUsers, currentUser);
         createVerifications(c2, allUsers, today, currentUser);
+        createPenalties(c2, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C3: ACTIVE - 하루 한 페이지 일기 쓰기 (저녁)
         Challenge c3 = createChallenge(currentUser, "더미: 하루 한 페이지 일기 쓰기",
@@ -89,6 +95,7 @@ public class TestController {
                 List.of(DayOfWeekType.MON, DayOfWeekType.WED, DayOfWeekType.FRI));
         addMembers(c3, allUsers, currentUser);
         createVerifications(c3, allUsers, today, currentUser);
+        createPenalties(c3, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C4: ACTIVE - 매일 물 2L 마시기 (매일)
         Challenge c4 = createChallenge(currentUser, "더미: 매일 물 2L 마시기",
@@ -97,6 +104,7 @@ public class TestController {
                 List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI, DayOfWeekType.SAT, DayOfWeekType.SUN));
         addMembers(c4, allUsers, currentUser);
         createVerifications(c4, allUsers, today, currentUser);
+        createPenalties(c4, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C5: COMPLETE - 영어 단어 외우기
         Challenge c5 = createChallenge(currentUser, "더미: 지난달 영어 단어 외우기",
@@ -105,6 +113,7 @@ public class TestController {
                 List.of(DayOfWeekType.MON, DayOfWeekType.TUE, DayOfWeekType.WED, DayOfWeekType.THU, DayOfWeekType.FRI));
         addMembers(c5, allUsers, currentUser);
         createVerificationsForCompleted(c5, allUsers, currentUser);
+        createPenalties(c5, allUsers, currentUser, today); // 벌금 더미 데이터
 
         // C6: ACTIVE - 스쿼트 50개 (화목토일)
         Challenge c6 = createChallenge(currentUser, "더미: 스쿼트 50개",
@@ -113,8 +122,9 @@ public class TestController {
                 List.of(DayOfWeekType.TUE, DayOfWeekType.THU, DayOfWeekType.SAT, DayOfWeekType.SUN));
         addMembers(c6, allUsers, currentUser);
         createVerifications(c6, allUsers, today, currentUser);
+        createPenalties(c6, allUsers, currentUser, today); // 벌금 더미 데이터
 
-        return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 6개 및 인증 내역) 생성이 완료되었습니다.");
+        return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 6개, 인증 내역, 벌금 내역) 생성이 완료되었습니다.");
     }
 
     private Challenge createChallenge(User creator, String title, LocalDate start, LocalDate end, int freq, Long penalty, LocalTime vStart, LocalTime vEnd, List<DayOfWeekType> days) {
@@ -207,5 +217,104 @@ public class TestController {
                             .imageUrl("temp.png")
                             .build()));
         }
+    }
+
+    /**
+     * 벌금 더미 데이터 생성
+     * ACTIVE와 COMPLETE 챌린지에 대해 다양한 시나리오의 벌금 데이터를 생성합니다.
+     * 
+     * @param challenge 챌린지
+     * @param allUsers 전체 사용자 목록
+     * @param currentUser 현재 로그인한 사용자
+     * @param today 오늘 날짜
+     */
+    private void createPenalties(Challenge challenge, List<User> allUsers, User currentUser, LocalDate today) {
+        // 1. 본인(currentUser)의 벌금 생성
+        ChallengeMember currentMember = challengeMemberRepository
+                .findByChallengeIdAndUserTossIdWithFetch(challenge.getId(), currentUser.getTossId())
+                .orElse(null);
+
+        if (currentMember != null) {
+            Long penaltyAmount = challenge.getPenaltyAmount();
+
+            // 미납 벌금들 (paid = false)
+            // 오늘 벌금
+            createPenaltyForMember(currentMember, penaltyAmount, today, false, null);
+            
+            // 어제 벌금
+            createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(1), false, null);
+            
+            // 3일 전 벌금
+            createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(3), false, null);
+            
+            // 7일 전 벌금
+            createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(7), false, null);
+
+            // 결제 완료 벌금들 (paid = true, paidAt 설정)
+            // 5일 전 벌금 (결제 완료) - 벌금 발생 다음날 결제
+            LocalDateTime paidAt5 = today.minusDays(5).atTime(14, 30);
+            createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(6), true, paidAt5);
+
+            // 10일 전 벌금 (결제 완료) - 벌금 발생 다음날 결제
+            LocalDateTime paidAt10 = today.minusDays(10).atTime(16, 0);
+            createPenaltyForMember(currentMember, penaltyAmount, today.minusDays(11), true, paidAt10);
+        }
+
+        // 2. 다른 멤버들의 벌금 생성 (미납 위주)
+        List<User> otherUsers = allUsers.stream()
+                .filter(u -> !u.getTossId().equals(currentUser.getTossId()))
+                .limit(2)
+                .toList();
+
+        for (int i = 0; i < otherUsers.size(); i++) {
+            User otherUser = otherUsers.get(i);
+            ChallengeMember member = challengeMemberRepository
+                    .findByChallengeIdAndUserTossIdWithFetch(challenge.getId(), otherUser.getTossId())
+                    .orElse(null);
+
+            if (member != null) {
+                Long penaltyAmount = challenge.getPenaltyAmount();
+                
+                if (i == 0) {
+                    // 다른 멤버 1: 2일 전, 4일 전 미납 벌금
+                    createPenaltyForMember(member, penaltyAmount, today.minusDays(2), false, null);
+                    createPenaltyForMember(member, penaltyAmount, today.minusDays(4), false, null);
+                } else if (i == 1) {
+                    // 다른 멤버 2: 6일 전, 8일 전 미납 벌금
+                    createPenaltyForMember(member, penaltyAmount, today.minusDays(6), false, null);
+                    createPenaltyForMember(member, penaltyAmount, today.minusDays(8), false, null);
+                }
+            }
+        }
+    }
+
+    /**
+     * 특정 멤버에 대한 벌금 생성
+     * 
+     * @param member 챌린지 멤버
+     * @param amount 벌금 금액
+     * @param createdDate 벌금 생성 날짜
+     * @param paid 결제 여부
+     * @param paidAt 결제 시간 (paid가 true인 경우 필수)
+     */
+    private void createPenaltyForMember(ChallengeMember member, Long amount, 
+                                       LocalDate createdDate, boolean paid, LocalDateTime paidAt) {
+        Penalty penalty = Penalty.builder()
+                .challengeMember(member)
+                .penaltyAmount(amount)
+                .build();
+
+        Penalty saved = penaltyRepository.save(penalty);
+
+        // createdAt 수동 설정 (더미 데이터를 위해 과거 날짜로 설정)
+        saved.setCreatedAt(createdDate.atTime(12, 0)); // 정오로 설정
+
+        // paid 상태 설정
+        if (paid && paidAt != null) {
+            saved.setPaid(true);
+            saved.setPaidAt(paidAt);
+        }
+
+        penaltyRepository.save(saved);
     }
 }
