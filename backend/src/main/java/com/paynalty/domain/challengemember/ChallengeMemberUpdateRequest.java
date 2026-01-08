@@ -14,5 +14,5 @@ public class ChallengeMemberUpdateRequest {
 
     @Schema(description = "수정된 챌린지 멤버들의 Toss ID 목록", example = "[1001, 1003, 1004]", required = true)
     @NotNull(message = "멤버 ID 목록은 필수")
-    private List<Long> userTossIds;
+    private List<Long> tossIds;
 }

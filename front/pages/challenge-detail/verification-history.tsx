@@ -11,7 +11,7 @@ import { AuthGuard } from '../../src/components/common/AuthGuard';
 export default function Page() {
   const adaptive = useAdaptive();
   const selectedChallenge = useChallengeStore((s) => s.selectedChallengeObject);
-  const challengeId = selectedChallenge?.id ? String(selectedChallenge.id) : '';
+  const challengeId = selectedChallenge?.id || null;
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useVerifications(challengeId);
 
   // 무한 쿼리 데이터를 단일 배열로 평탄화
@@ -61,7 +61,15 @@ export default function Page() {
             title={<Top.TitleParagraph color={adaptive.grey900}>{selectedChallenge.title}</Top.TitleParagraph>}
             subtitle2={
               <Top.SubtitleParagraph color={adaptive.grey600}>
-                {`${selectedChallenge.participants || ''} ${selectedChallenge.participantCount}명과 도전 중`}
+                {(() => {
+                   if (!selectedChallenge.members || selectedChallenge.members.length <= 1) {
+                       return '첫 번째로 도전하고 있어요';
+                   }
+                  
+                   const randomIndex = Math.floor(Math.random() * selectedChallenge.members.length);
+                   const randomMember = selectedChallenge.members[randomIndex];
+                   return `${randomMember?.userName} 외 ${selectedChallenge.members.length - 1}명과 함께 도전 중`;
+                })()}
               </Top.SubtitleParagraph>
             }
             right={

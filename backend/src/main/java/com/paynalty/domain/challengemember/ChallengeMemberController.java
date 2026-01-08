@@ -38,7 +38,7 @@ public class ChallengeMemberController {
                         @Valid @RequestBody ChallengeMemberUpdateRequest request,
                         @AuthenticationPrincipal CustomUserDetails userDetails) {
                 Long requesterUserId = userDetails.getUser().getId();
-                challengeMemberService.updateChallengeMembers(challengeId, request.getUserTossIds(), requesterUserId);
+                challengeMemberService.updateChallengeMembers(challengeId, request.getTossIds(), requesterUserId);
 
                 return ResponseEntity.ok().build();
         }

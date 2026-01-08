@@ -22,12 +22,15 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 }
 
 interface Mission {
-  id: string;
+  id: number;
   title: string;
   verificationStatus: 'VERIFIED' | 'NOT_VERIFIED';
   verifyStart: string;
   verifyEnd: string;
   penaltyAmount: number;
+  daysOfWeek?: string[];
+  weeklyRequiredCount?: number;
+  weeklyProgressCount?: number;
 }
 
 type CardItem = { type: 'SUMMARY' } | { type: 'CREATE'; action: () => void };

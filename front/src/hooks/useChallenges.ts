@@ -1,6 +1,5 @@
 import { useQuery, queryOptions } from '@tanstack/react-query';
-import { getMyProgressChallenges, ChallengeDetailResponse } from '../api/challenges';
-import { Challenge } from '../components/challenge/types';
+import { getMyProgressChallenges, ChallengeResponse } from '../api/challenges';
 import { sortChallengesByPriority } from '../utils/challenge';
 import { ApiError } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -8,19 +7,16 @@ import { useAuthStore } from '../stores/authStore';
 /**
  * API 응답 데이터를 UI용 Challenge 객체로 변환합니다.
  */
-const mapToChallenge = (item: ChallengeDetailResponse, status?: 'ACTIVE' | 'PENDING' | 'COMPLETE'): Challenge => ({
+const mapToChallenge = (item: ChallengeResponse): ChallengeResponse => ({
   ...item,
-  id: String(item.id),
-  weeklyRequiredCount: String(item.weeklyRequiredCount),
-  participantCount: 2, // Mock
-  participants: '기영, 호영', // Mock
-  status,
+  id: item.id,
+  weeklyRequiredCount: item.weeklyRequiredCount,
 });
 
 /**
  * 상태별 정렬 로직을 적용합니다.
  */
-const sortChallenges = (challenges: Challenge[], status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
+const sortChallenges = (challenges: ChallengeResponse[], status: 'ACTIVE' | 'PENDING' | 'COMPLETE') => {
   if (status === 'ACTIVE') {
     return sortChallengesByPriority(challenges);
   }
@@ -52,7 +48,7 @@ export const challengeQueries = {
       queryFn: async () => {
         try {
           const data = await getMyProgressChallenges(status);
-          const mapped = data.map((item) => mapToChallenge(item, status));
+          const mapped = data.map((item) => mapToChallenge(item));
           return sortChallenges(mapped, status);
         } catch (error) {
           if (error instanceof ApiError && error.status === 404) {
@@ -68,7 +64,7 @@ export const challengeQueries = {
       queryFn: async () => {
         try {
           const data = await getMyProgressChallenges('ACTIVE');
-          const mapped = data.map((item) => mapToChallenge(item, 'ACTIVE'));
+          const mapped = data.map((item) => mapToChallenge(item));
           return sortChallenges(mapped, 'ACTIVE');
         } catch (error) {
           if (error instanceof ApiError && error.status === 404) {

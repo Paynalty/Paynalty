@@ -62,6 +62,20 @@ public class ChallengeController {
         List<ChallengeResponse> response = challengeService.findDetailByStatus(tossId, status);
         return ResponseEntity.ok(response);
     }
+    @Operation(
+            summary = "챌린지 상세 정보 조회",
+            description = "챌린지의 상세 정보를 조회합니다.\n\n" +
+                    "🔐 JWT 토큰 인증 필수 (Authorization: Bearer {token})"
+    )
+    @GetMapping("/{challengeId}/detail")
+    public ResponseEntity<ChallengeResponse> getDetail(
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Long tossId = userDetails.getUser().getTossId();
+        ChallengeResponse response = challengeService.getMyChallengeDetail(challengeId, tossId);
+        return ResponseEntity.ok(response);
+    }
 
 
     // 수정을 위해 유저에게 보여줄 UpdateQuest 전달
