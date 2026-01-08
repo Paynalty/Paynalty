@@ -10,10 +10,11 @@ import {
   SegmentedControl,
 } from '@toss/tds-react-native';
 import { useAdaptive } from '@toss/tds-react-native/private';
-import { Linking, Alert, View, ScrollView, Platform } from 'react-native';
+import { Linking, Alert, View, ScrollView } from 'react-native';
 import React, { useState, useMemo } from 'react';
 import { useChallengeStore } from '../../src/stores/challengeStore';
 import { useAllPenalties, useMyPenalties } from '../../src/hooks/usePenalties';
+import { Card } from '../../src/components/common/Card';
 
 export const Route = createRoute('/penalty-history', {
   component: Page,
@@ -68,7 +69,7 @@ export default function Page() {
 
   return (
     <FixedBottomCTAProvider>
-      <ScrollView style={{ backgroundColor: adaptive.grey50 }}>
+      <ScrollView style={{ backgroundColor: adaptive.background }}>
         <Top
           title={
             <Top.TitleParagraph color={adaptive.grey900}>
@@ -84,24 +85,7 @@ export default function Page() {
 
         {/* 내 벌금 현황 카드 */}
         <View style={{ padding: 16 }}>
-          <View
-            style={{
-              backgroundColor: '#ffffff',
-              padding: 20,
-              borderRadius: 16,
-              ...Platform.select({
-                ios: {
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 8,
-                },
-                android: {
-                  elevation: 2,
-                },
-              }),
-            }}
-          >
+          <Card>
             <Txt typography="t6" color={adaptive.grey600}>
               내 미납 벌금
             </Txt>
@@ -109,7 +93,7 @@ export default function Page() {
             <Txt typography="t3" fontWeight="bold" color={adaptive.grey900}>
               {unpaidTotal.toLocaleString()}원
             </Txt>
-          </View>
+          </Card>
         </View>
 
         <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
@@ -180,16 +164,16 @@ export default function Page() {
         <Spacing size={40} />
       </ScrollView>
 
-      {/* 미납액이 있을 때만 송금 버튼 노출 (내 내역 탭 여부와 상관없이) */}
-      {unpaidTotal > 0 && (
-        <FixedBottomCTA
-          type="primary"
-          style="fill"
-          onPress={() => requestTossPayment(unpaidTotal)}
-        >
-          {unpaidTotal.toLocaleString()}원 토스로 송금하기
-        </FixedBottomCTA>
-      )}
+      <FixedBottomCTA
+        type="primary"
+        style="fill"
+        disabled={unpaidTotal === 0}
+        onPress={() => requestTossPayment(unpaidTotal)}
+      >
+        {unpaidTotal > 0
+          ? `${unpaidTotal.toLocaleString()}원 토스로 송금하기`
+          : '미납된 패널티가 없어요'}
+      </FixedBottomCTA>
     </FixedBottomCTAProvider>
   );
 }

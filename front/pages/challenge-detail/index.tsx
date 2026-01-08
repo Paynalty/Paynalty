@@ -3,6 +3,7 @@ import { Asset, BarChart, FixedBottomCTA, FixedBottomCTAProvider, ListHeader, To
 import { useAdaptive } from '@toss/tds-react-native/private';
 import { AuthGuard } from '../../src/components/common/AuthGuard';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Card } from '../../src/components/common/Card';
 import { VerificationGroup } from '../../src/components/verification/VerificationGroup';
 import { useVerificationModal } from '../../src/hooks/useVerificationModal';
 import { useLatestVerification, useMemberVerificationCounts } from '../../src/hooks/useVerifications';
@@ -126,25 +127,31 @@ function Page() {
           </Pressable>
         }
       />
-      {latestVerification ? (
-        <VerificationGroup
-          date={latestVerification.dateTime}
-          verifications={[
-            {
-              id: latestVerification.id,
-              userName: latestVerification.name,
-              imageUrl: latestVerification.image,
-              dateTime: latestVerification.dateTime,
-            },
-          ]}
-        />
-      ) : (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            인증 내역이 없습니다.
-          </Txt>
-        </View>
-      )}
+      <View style={{ marginBottom: 24 }}>
+        {latestVerification ? (
+          <VerificationGroup
+            date={latestVerification.dateTime}
+            verifications={[
+              {
+                id: latestVerification.id,
+                userName: latestVerification.name,
+                imageUrl: latestVerification.image,
+                dateTime: latestVerification.dateTime,
+              },
+            ]}
+          />
+        ) : (
+          <View style={{ paddingHorizontal: 16 }}>
+            <Card>
+              <View style={styles.emptyCard}>
+                <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                  인증 내역이 없습니다.
+                </Txt>
+              </View>
+            </Card>
+          </View>
+        )}
+      </View>
 
       {/* 주간 인증 현황 */}
       <ListHeader
@@ -154,35 +161,40 @@ function Page() {
           </ListHeader.TitleParagraph>
         }
       />
-      {memberCountsError ? (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            인증 현황을 불러올 수 없습니다.
-          </Txt>
-        </View>
-      ) : isMemberCountsLoading ? (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            로딩중...
-          </Txt>
-        </View>
-      ) : Array.isArray(memberCounts) &&
-        memberCounts.length > 0 &&
-        memberCounts.some((m) => m.verificationCount && m.verificationCount > 0) ? (
-        <BarChart
-          data={memberCounts.map((member) => ({
-            xAxisLabel: member.userName,
-            value: Number(member.verificationCount ?? 0),
-          }))}
-          fill={{ type: 'all-bar', theme: 'blue' }}
-        />
-      ) : (
-        <View style={[styles.verificationCard, styles.emptyCard]}>
-          <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-            멤버별 인증 현황 데이터가 없습니다.
-          </Txt>
-        </View>
-      )}
+      <Spacing size={8} />
+      <View style={{ paddingHorizontal: 16 }}>
+        <Card>
+          {memberCountsError ? (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                인증 현황을 불러올 수 없습니다.
+              </Txt>
+            </View>
+          ) : isMemberCountsLoading ? (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                로딩중...
+              </Txt>
+            </View>
+          ) : Array.isArray(memberCounts) &&
+            memberCounts.length > 0 &&
+            memberCounts.some((m) => m.verificationCount && m.verificationCount > 0) ? (
+            <BarChart
+              data={memberCounts.map((member) => ({
+                xAxisLabel: member.userName,
+                value: Number(member.verificationCount ?? 0),
+              }))}
+              fill={{ type: 'all-bar', theme: 'blue' }}
+            />
+          ) : (
+            <View style={styles.emptyCard}>
+              <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
+                멤버별 인증 현황 데이터가 없습니다.
+              </Txt>
+            </View>
+          )}
+        </Card>
+      </View>
       
 
       <ListHeader
@@ -341,15 +353,6 @@ function Page() {
 }
 
 const styles = StyleSheet.create({
-  verificationCard: {
-    padding: 16,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
   emptyCard: {
     minHeight: 180,
     justifyContent: 'center',
