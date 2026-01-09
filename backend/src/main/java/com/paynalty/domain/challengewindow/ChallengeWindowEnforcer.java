@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,8 +78,23 @@ public class ChallengeWindowEnforcer {
 
         log.info("{}개의 PENDING Window를 검증합니다.", pendingWindows.size());
 
-        // STEP2: 챌린지 타입별로 그룹화
+        // STEP2: 삭제된 챌린지에 대한 Window 제거 및 챌린지 타입별로 그룹화
+        // 삭제된 챌린지에 대한 Window는 자동으로 삭제되어야 합니다.
+        List<ChallengeWindow> windowsToDelete = new ArrayList<>();
+        
         Map<Boolean, List<ChallengeWindow>> windowsByType = pendingWindows.stream()
+                .filter(window -> {
+                    // Challenge 존재 여부 확인
+                    Optional<Challenge> challengeOpt = challengeRepository.findById(window.getChallengeId());
+                    if (challengeOpt.isEmpty()) {
+                        // 삭제된 챌린지에 대한 Window는 삭제 대상으로 표시
+                        log.warn("삭제된 챌린지에 대한 Window 발견 - Window ID: {}, Challenge ID: {}. Window를 삭제합니다.",
+                                window.getId(), window.getChallengeId());
+                        windowsToDelete.add(window);
+                        return false; // 필터링에서 제외
+                    }
+                    return true;
+                })
                 .collect(Collectors.partitioningBy(window -> {
                     Challenge challenge = challengeRepository.findById(window.getChallengeId())
                             .orElse(null);
@@ -86,6 +102,12 @@ public class ChallengeWindowEnforcer {
                             && challenge.getDaysOfWeek() != null 
                             && !challenge.getDaysOfWeek().isEmpty();
                 }));
+
+        // STEP2-1: 삭제된 챌린지에 대한 Window 삭제
+        if (!windowsToDelete.isEmpty()) {
+            challengeWindowRepository.deleteAll(windowsToDelete);
+            log.info("삭제된 챌린지에 대한 {}개의 Window를 삭제했습니다.", windowsToDelete.size());
+        }
 
         // STEP3: 요일 기반 챌린지 Window 처리 (기존 로직)
         List<ChallengeWindow> dayBasedWindows = windowsByType.get(true);
@@ -118,9 +140,15 @@ public class ChallengeWindowEnforcer {
         LocalDate windowDate = window.getChallengeWindowStart().toLocalDate();
 
         // Challenge 조회 (인증 시간대 확인용)
-        Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Challenge not found: " + challengeId));
+        // 이미 enforceWindows()에서 존재 여부를 확인했지만, 이중 안전장치로 확인
+        Optional<Challenge> challengeOpt = challengeRepository.findById(challengeId);
+        if (challengeOpt.isEmpty()) {
+            log.warn("요일 기반 Window 처리 중 삭제된 챌린지 발견 - Window ID: {}, Challenge ID: {}. Window를 삭제합니다.",
+                    window.getId(), challengeId);
+            challengeWindowRepository.delete(window);
+            return;
+        }
+        Challenge challenge = challengeOpt.get();
 
         // 해당 날짜의 인증 데이터 조회
         Optional<com.paynalty.domain.challengeverification.ChallengeVerification> verificationOpt =
@@ -188,9 +216,16 @@ public class ChallengeWindowEnforcer {
         Long tossId = window.getTossId();
         LocalDate windowDate = window.getChallengeWindowStart().toLocalDate();
 
-        Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Challenge not found: " + challengeId));
+        // Challenge 조회 (인증 시간대 확인용)
+        // 이미 enforceWindows()에서 존재 여부를 확인했지만, 이중 안전장치로 확인
+        Optional<Challenge> challengeOpt = challengeRepository.findById(challengeId);
+        if (challengeOpt.isEmpty()) {
+            log.warn("주간 횟수 기반 Window 처리 중 삭제된 챌린지 발견 - Window ID: {}, Challenge ID: {}. Window를 삭제합니다.",
+                    window.getId(), challengeId);
+            challengeWindowRepository.delete(window);
+            return;
+        }
+        Challenge challenge = challengeOpt.get();
 
         // STEP 1: 해당 날짜의 인증 데이터 조회 및 인증 시간대 확인
         Optional<com.paynalty.domain.challengeverification.ChallengeVerification> verificationOpt =

@@ -1,5 +1,7 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.challengewindow.ChallengeWindow;
+import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
 import com.paynalty.domain.challengemember.*;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
@@ -37,6 +39,7 @@ public class ChallengeService {
     private final ChallengeVerificationService challengeVerificationService;
     private final UserService userService;
     private final PenaltyService penaltyService;
+    private final ChallengeWindowRepository challengeWindowRepository;
 
 
     @Transactional
@@ -352,7 +355,15 @@ public class ChallengeService {
                 throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_DELETE);
             }
 
-            // 4단계: 챌린지 삭제 (Cascade로 관련 데이터 자동 삭제)
+            // 4단계: ChallengeWindow 삭제 (JPA 연관관계가 없어서 수동 삭제 필요)
+            // ChallengeWindow는 Challenge와 JPA 연관관계가 없고 단순히 challengeId만 저장하므로
+            // Cascade 삭제가 작동하지 않습니다. 데이터베이스 외래키 제약조건 위반을 방지하기 위해 먼저 삭제합니다.
+            List<ChallengeWindow> challengeWindows = challengeWindowRepository.findByChallengeId(challengeId);
+            if (!challengeWindows.isEmpty()) {
+                challengeWindowRepository.deleteAll(challengeWindows);
+            }
+
+            // 5단계: 챌린지 삭제 (Cascade로 ChallengeMember, ChallengeVerification, ChallengeBank 자동 삭제)
             challengeRepository.delete(challenge);
         }
 
