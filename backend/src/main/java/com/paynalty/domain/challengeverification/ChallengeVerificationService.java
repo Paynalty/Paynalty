@@ -129,7 +129,12 @@ public class ChallengeVerificationService {
     public ChallengeVerificationResponse getLatestVerification(Long challengeId) {
         ChallengeVerification cv = challengeVerificationRepository
                 .findTopByChallengeIdOrderByDateDescIdDesc(challengeId)
-                .orElseThrow(() -> new CustomException(ChallengeVerificationErrorCode.NO_VERIFICATION_DATA));
+                .orElse(null);
+        
+        if (cv == null) {
+            return null;
+        }
+        
         return ChallengeVerificationResponse.from(cv, fileStorage.getFileUrl(cv.getImageUrl()));
     }
 
