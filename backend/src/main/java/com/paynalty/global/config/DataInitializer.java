@@ -1,4 +1,4 @@
-
+/*
 package com.paynalty.global.config;
 
 import com.paynalty.domain.challenge.ChallengeRepository;
@@ -40,7 +40,7 @@ public class DataInitializer {
                         .tossId(1001L)
                         .build());
                 
-                /*
+
                 // 2. 이순신 (ChallengeRequest 예시 데이터)
                 userRepository.save(User.builder()
                         .name("이순신")
@@ -60,7 +60,7 @@ public class DataInitializer {
                 }
 
                 log.info("테스트용 User 데이터 10개가 생성되었습니다.");
-                */
+
             }
             
             /*
@@ -721,8 +721,9 @@ public class DataInitializer {
                     }
                 }
             }
-            */
+
 
         };
     }
 }
+*/
