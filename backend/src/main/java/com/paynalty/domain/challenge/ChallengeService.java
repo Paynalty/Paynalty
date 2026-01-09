@@ -6,7 +6,9 @@ import com.paynalty.domain.challengemember.*;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.penalty.MemberPenalty;
+import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyOverview;
+import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.penalty.PenaltyService;
 import com.paynalty.domain.penalty.WeeklyPenalty;
 import com.paynalty.domain.user.User;
@@ -39,6 +41,7 @@ public class ChallengeService {
     private final ChallengeVerificationService challengeVerificationService;
     private final UserService userService;
     private final PenaltyService penaltyService;
+    private final PenaltyRepository penaltyRepository;
     private final ChallengeWindowRepository challengeWindowRepository;
 
 
@@ -363,7 +366,15 @@ public class ChallengeService {
                 challengeWindowRepository.deleteAll(challengeWindows);
             }
 
-            // 5단계: 챌린지 삭제 (Cascade로 ChallengeMember, ChallengeVerification, ChallengeBank 자동 삭제)
+            // todo 소프트 삭제로 변경 예정
+            // 5단계: Penalty 삭제 (ChallengeMember 삭제 전에 Penalty 먼저 삭제)
+            // Penalty가 ChallengeMember를 참조하고 있어 외래키 제약조건 위반을 방지하기 위해 먼저 삭제합니다.
+            List<Penalty> penalties = penaltyRepository.findAllByChallengeId(challengeId);
+            if (!penalties.isEmpty()) {
+                penaltyRepository.deleteAll(penalties);
+            }
+
+            // 6단계: 챌린지 삭제 (Cascade로 ChallengeMember, ChallengeVerification, ChallengeBank 자동 삭제)
             challengeRepository.delete(challenge);
         }
 
