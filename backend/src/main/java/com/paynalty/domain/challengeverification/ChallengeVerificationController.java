@@ -59,6 +59,9 @@ public class ChallengeVerificationController {
             @PathVariable Long challengeId
     ) {
         ChallengeVerificationResponse response = challengeVerificationService.getLatestVerification(challengeId);
+        if (response == null) {
+            return ResponseEntity.ok(null);
+        }
         return ResponseEntity.ok(response);
     }
 

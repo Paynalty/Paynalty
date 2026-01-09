@@ -34,4 +34,13 @@ public interface ChallengeWindowRepository extends JpaRepository<ChallengeWindow
             @Param("now") LocalDateTime now
     );
 
+    /**
+     * 특정 챌린지 ID로 ChallengeWindow 목록을 조회합니다.
+     * 챌린지 삭제 시 관련 ChallengeWindow를 먼저 삭제하기 위해 사용됩니다.
+     *
+     * @param challengeId 챌린지 ID
+     * @return 해당 챌린지의 ChallengeWindow 목록
+     */
+    List<ChallengeWindow> findByChallengeId(Long challengeId);
+
 }

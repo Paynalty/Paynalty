@@ -1,5 +1,8 @@
 package com.paynalty.domain.user;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paynalty.domain.toss.TossApiClient;
 import com.paynalty.global.error.CustomException;
 import com.paynalty.global.error.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -7,10 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paynalty.domain.toss.TossApiClient;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,6 @@ public class UserService {
     private User getOrCreateUser(Long tossId) {
         return userRepository.findByTossId(tossId)
                 .orElseGet(() -> {
-                    log.info("신규 사용자 생성: TossId={}", tossId);
                     User newUser = User.builder()
                             .tossId(tossId)
                             .build();
@@ -75,7 +73,6 @@ public class UserService {
     public User saveUserInfo(Long tossId, String name, String phoneNum, String email) {
         User user = getOrCreateUser(tossId);
 
-        log.info("사용자 정보 업데이트: userId={}, name={}, phone={}, email={}", user.getId(), name, phoneNum, email);
         user.updateUserInfo(name, phoneNum, email);
         return userRepository.save(user);
     }
