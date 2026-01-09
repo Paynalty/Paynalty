@@ -30,6 +30,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       AWS_REGION: ${AWS_REGION}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     env_file:
       - .env
     volumes:
@@ -40,6 +41,7 @@ services:
     networks:
       - paynalty-network
     restart: unless-stopped
+
 
 networks:
   paynalty-network:

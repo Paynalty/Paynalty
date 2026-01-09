@@ -12,11 +12,11 @@ import java.util.List;
 @Repository
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     /**
-     * 사용자가 참여한 챌린지 중 특정 상태의 챌린지를 조회합니다.
+     * 사용자가 참여한 챌린지를 조회합니다.
      * ChallengeMember를 통해 참여 여부를 확인합니다.
+     * 상태 필터링은 Service 레이어에서 계산된 상태를 기준으로 수행합니다.
      *
-     * @param userId 사용자 ID
-     * @param status 챌린지 상태 (PENDING, ACTIVE, COMPLETE)
+     * @param tossId 사용자 토스 ID
      * @return 사용자가 참여한 챌린지 목록
      */
     @Query("""
@@ -25,10 +25,9 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
         JOIN FETCH c.user
         JOIN ChallengeMember cm ON cm.challenge = c
         WHERE cm.user.tossId = :tossId
-        AND c.status = :status
         AND cm.isActive = true
     """)
-    List<Challenge> findByUserTossIdAndStatus(@Param("tossId") Long tossId, @Param("status") ChallengeStatus status);
+    List<Challenge> findByUserTossId(@Param("tossId") Long tossId);
 
     // WHERE start_date <= today AND end_date >= until과 동일
     List<Challenge> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate periodStartDate, LocalDate periodEndDate);
