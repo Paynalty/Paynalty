@@ -78,7 +78,7 @@ export default function Page() {
                 alert('목표를 만들었습니다.');
             }
 
-            await queryClient.invalidateQueries({queryKey: challengeQueries.all});
+            queryClient.invalidateQueries({queryKey: challengeQueries.all});
 
             // 성공 시 데이터 초기화
             resetChallengeData();
