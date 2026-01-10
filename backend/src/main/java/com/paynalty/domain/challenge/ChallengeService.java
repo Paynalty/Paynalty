@@ -1,10 +1,14 @@
 package com.paynalty.domain.challenge;
 
+import com.paynalty.domain.challengewindow.ChallengeWindow;
+import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
 import com.paynalty.domain.challengemember.*;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
 import com.paynalty.domain.challengeverification.ChallengeVerificationService;
 import com.paynalty.domain.penalty.MemberPenalty;
+import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyOverview;
+import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.penalty.PenaltyService;
 import com.paynalty.domain.penalty.WeeklyPenalty;
 import com.paynalty.domain.user.User;
@@ -37,6 +41,8 @@ public class ChallengeService {
     private final ChallengeVerificationService challengeVerificationService;
     private final UserService userService;
     private final PenaltyService penaltyService;
+    private final PenaltyRepository penaltyRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
 
 
     @Transactional
@@ -101,11 +107,16 @@ public class ChallengeService {
     }
 
 
-    public List<ChallengeResponse> findDetailByStatus(Long tossId, ChallengeStatus status) {
-        // 사용자가 참여 중인 챌린지 중 특정 상태의 챌린지 불러오기
-        List<Challenge> challenges = challengeRepository.findByUserTossIdAndStatus(tossId, status);
+    public List<ChallengeResponse> findDetailByStatus(Long tossId, ChallengeStatus requestedStatus) {
+        // 사용자가 참여 중인 모든 챌린지를 조회
+        List<Challenge> allChallenges = challengeRepository.findByUserTossId(tossId);
 
-        return challenges.stream()
+        // 계산된 상태를 기준으로 필터링 (실시간 상태 반영)
+        return allChallenges.stream()
+                .filter(challenge -> {
+                    ChallengeStatus calculatedStatus = challenge.calculateStatus();
+                    return calculatedStatus == requestedStatus;
+                })
                 .map(challenge -> {
                     // 챌린지 상태에 따라 다른 처리
                     ChallengeStatus challengeStatus = challenge.calculateStatus();
@@ -347,7 +358,23 @@ public class ChallengeService {
                 throw new CustomException(ChallengeErrorCode.NOT_CHALLENGE_CREATOR_FOR_DELETE);
             }
 
-            // 4단계: 챌린지 삭제 (Cascade로 관련 데이터 자동 삭제)
+            // 4단계: ChallengeWindow 삭제 (JPA 연관관계가 없어서 수동 삭제 필요)
+            // ChallengeWindow는 Challenge와 JPA 연관관계가 없고 단순히 challengeId만 저장하므로
+            // Cascade 삭제가 작동하지 않습니다. 데이터베이스 외래키 제약조건 위반을 방지하기 위해 먼저 삭제합니다.
+            List<ChallengeWindow> challengeWindows = challengeWindowRepository.findByChallengeId(challengeId);
+            if (!challengeWindows.isEmpty()) {
+                challengeWindowRepository.deleteAll(challengeWindows);
+            }
+
+            // todo 소프트 삭제로 변경 예정
+            // 5단계: Penalty 삭제 (ChallengeMember 삭제 전에 Penalty 먼저 삭제)
+            // Penalty가 ChallengeMember를 참조하고 있어 외래키 제약조건 위반을 방지하기 위해 먼저 삭제합니다.
+            List<Penalty> penalties = penaltyRepository.findAllByChallengeId(challengeId);
+            if (!penalties.isEmpty()) {
+                penaltyRepository.deleteAll(penalties);
+            }
+
+            // 6단계: 챌린지 삭제 (Cascade로 ChallengeMember, ChallengeVerification, ChallengeBank 자동 삭제)
             challengeRepository.delete(challenge);
         }
 

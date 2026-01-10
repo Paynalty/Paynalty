@@ -1,20 +1,10 @@
 /*
-
 package com.paynalty.global.config;
 
-import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.challenge.ChallengeRepository;
-import com.paynalty.domain.challenge.DayOfWeekType;
-import com.paynalty.domain.challenge.VerificationType;
-import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
-import com.paynalty.domain.challengemember.MemberRole;
-import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
-import com.paynalty.domain.challengewindow.ChallengeWindow;
 import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
-import com.paynalty.domain.challengewindow.ChallengeWindowStatus;
-import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
 import com.paynalty.domain.user.UserRepository;
@@ -24,11 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -54,8 +39,8 @@ public class DataInitializer {
                         .email("hong@example.com")
                         .tossId(1001L)
                         .build());
-                */
-/*
+                
+
                 // 2. 이순신 (ChallengeRequest 예시 데이터)
                 userRepository.save(User.builder()
                         .name("이순신")
@@ -73,13 +58,12 @@ public class DataInitializer {
                             .tossId(1000L + i)
                             .build());
                 }
-                            *//*
-
 
                 log.info("테스트용 User 데이터 10개가 생성되었습니다.");
+
             }
-            */
-/*
+            
+            /*
             if (challengeRepository.count() == 0) {
 
                 List<User> users = userRepository.findAll();
@@ -737,10 +721,9 @@ public class DataInitializer {
                     }
                 }
             }
-            *//*
+
 
         };
     }
 }
-
 */

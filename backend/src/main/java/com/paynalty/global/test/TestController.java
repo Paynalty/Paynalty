@@ -2,6 +2,7 @@ package com.paynalty.global.test;
 
 import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.challenge.ChallengeRepository;
+import com.paynalty.domain.challenge.ChallengeStatus;
 import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challenge.VerificationType;
 import com.paynalty.domain.challengemember.ChallengeMember;
@@ -9,6 +10,9 @@ import com.paynalty.domain.challengemember.ChallengeMemberRepository;
 import com.paynalty.domain.challengemember.MemberRole;
 import com.paynalty.domain.challengeverification.ChallengeVerification;
 import com.paynalty.domain.challengeverification.ChallengeVerificationRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindow;
+import com.paynalty.domain.challengewindow.ChallengeWindowRepository;
+import com.paynalty.domain.challengewindow.ChallengeWindowStatus;
 import com.paynalty.domain.penalty.Penalty;
 import com.paynalty.domain.penalty.PenaltyRepository;
 import com.paynalty.domain.user.User;
@@ -42,6 +46,7 @@ public class TestController {
     private final ChallengeMemberRepository challengeMemberRepository;
     private final ChallengeVerificationRepository challengeVerificationRepository;
     private final PenaltyRepository penaltyRepository;
+    private final ChallengeWindowRepository challengeWindowRepository;
 
     @Operation(
             summary = "더미 데이터 생성",
@@ -155,7 +160,10 @@ public class TestController {
         createVerifications(c7, allUsers, today, currentUser);
         createPenalties(c7, allUsers, currentUser, today);
 
-        return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 6개, 인증 내역, 벌금 내역) 생성이 완료되었습니다.");
+        // ChallengeWindow 더미 데이터 생성
+        createChallengeWindows(currentUser, today);
+
+        return ResponseEntity.ok("테스트 유저(" + tossId + ")를 위한 풍부한 더미 데이터(챌린지 7개, 인증 내역, 벌금 내역, ChallengeWindow) 생성이 완료되었습니다.");
     }
 
     private Challenge createChallenge(User creator, String title, LocalDate start, LocalDate end, int freq, Long penalty, LocalTime vStart, LocalTime vEnd, List<DayOfWeekType> days) {
@@ -347,5 +355,69 @@ public class TestController {
         }
 
         penaltyRepository.save(saved);
+    }
+
+    // ----- 01-09 수정 내용
+
+    /**
+     * ChallengeWindow 더미 데이터 생성
+     * ACTIVE 챌린지의 멤버들에게 다양한 상태의 윈도우를 생성합니다.
+     *
+     * @param currentUser 현재 로그인한 사용자
+     * @param today 오늘 날짜
+     */
+    private void createChallengeWindows(User currentUser, LocalDate today) {
+        // ACTIVE 상태의 챌린지 하나 선택
+        List<Challenge> activeChallenges = challengeRepository.findAll().stream()
+                .filter(c -> c.getStatus() == ChallengeStatus.ACTIVE)
+                .limit(1)
+                .toList();
+
+        if (activeChallenges.isEmpty()) {
+            return;
+        }
+
+        Challenge challenge = activeChallenges.get(0);
+        List<ChallengeMember> members = challengeMemberRepository.findByChallengeId(challenge.getId()).stream()
+                .limit(2)  // 멤버 2명만 선택
+                .toList();
+
+        if (members.isEmpty()) {
+            return;
+        }
+
+        // 각 멤버에게 윈도우 생성
+        for (ChallengeMember member : members) {
+            Long tossId = member.getUser().getTossId();
+            LocalTime verifyStart = challenge.getVerifyStartAt();
+            LocalTime verifyEnd = challenge.getVerifyEndAt();
+
+            // 오늘 윈도우 (PENDING)
+            challengeWindowRepository.save(ChallengeWindow.builder()
+                    .challengeId(challenge.getId())
+                    .tossId(tossId)
+                    .challengeWindowStart(today.atTime(verifyStart))
+                    .challengeWindowEnd(today.atTime(verifyEnd))
+                    .challengeWindowStatus(ChallengeWindowStatus.PENDING)
+                    .build());
+
+            // 어제 윈도우 (SUCCESS)
+            challengeWindowRepository.save(ChallengeWindow.builder()
+                    .challengeId(challenge.getId())
+                    .tossId(tossId)
+                    .challengeWindowStart(today.minusDays(1).atTime(verifyStart))
+                    .challengeWindowEnd(today.minusDays(1).atTime(verifyEnd))
+                    .challengeWindowStatus(ChallengeWindowStatus.SUCCESS)
+                    .build());
+
+            // 그제 윈도우 (FAIL)
+            challengeWindowRepository.save(ChallengeWindow.builder()
+                    .challengeId(challenge.getId())
+                    .tossId(tossId)
+                    .challengeWindowStart(today.minusDays(2).atTime(verifyStart))
+                    .challengeWindowEnd(today.minusDays(2).atTime(verifyEnd))
+                    .challengeWindowStatus(ChallengeWindowStatus.FAIL)
+                    .build());
+        }
     }
 }

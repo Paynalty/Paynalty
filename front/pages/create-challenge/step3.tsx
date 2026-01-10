@@ -1,9 +1,9 @@
-import { createRoute, Spacing } from '@granite-js/react-native';
-import { Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Asset, Txt } from '@toss/tds-react-native';
-import { useAdaptive } from '@toss/tds-react-native/private';
-import { useState } from 'react';
-import { View, Modal, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { useCreateChallengeStore } from '../../src/stores/createChallengeStore';
+import {createRoute, Spacing} from '@granite-js/react-native';
+import {Asset, Button, FixedBottomCTA, FixedBottomCTAProvider, ProgressBar, Top, Txt} from '@toss/tds-react-native';
+import {useAdaptive} from '@toss/tds-react-native/private';
+import {useState} from 'react';
+import {Modal, Pressable, ScrollView, StyleSheet, View} from 'react-native';
+import {useCreateChallengeStore} from '../../src/stores/createChallengeStore';
 
 export const Route = createRoute('/create-challenge/step3', {
   component: Page,
@@ -39,9 +39,6 @@ function Page() {
     return new Date(year, month, 0).getDate();
   };
   const days = Array.from({ length: getDaysInMonth(year, month) }, (_, i) => i + 1);
-
-  // 날짜 포맷팅
-  const formattedDate = `${year}년 ${month}월 ${day}일`;
 
   // 마감날짜가 유효한지 확인 (오늘보다 미래인지)
   const isDeadlineValid = () => {

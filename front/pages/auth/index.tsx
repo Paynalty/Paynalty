@@ -1,4 +1,4 @@
-import {Asset, Top, List, ListRow, FixedBottomCTA, FixedBottomCTAProvider, Button} from '@toss/tds-react-native';
+import {Asset, FixedBottomCTA, FixedBottomCTAProvider, List, ListRow, Top} from '@toss/tds-react-native';
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {Storage} from '@apps-in-toss/framework';
@@ -26,8 +26,8 @@ export default function Page() {
     };
 
     return (
-        <ScrollView>
-            <>
+        <>
+            <ScrollView>
                 <Spacing size={14}/>
                 <Top
                     title={
@@ -53,10 +53,10 @@ export default function Page() {
                     }
                 />
                 <>
-                    <View style={{ alignItems: 'center', justifyContent: 'center',  marginVertical: -16 }}>
+                    <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: -16}}>
                         <Asset.Image
-                            frameShape={{ width: 300, height: 300 }}
-                            source={{ uri: 'https://i.ibb.co/fdHRBmx3/onboarding-character.png' }}
+                            frameShape={{width: 300, height: 300}}
+                            source={{uri: 'https://i.ibb.co/fdHRBmx3/onboarding-character.png'}}
                             accessibilityLabel=""
                         />
                     </View>
@@ -123,15 +123,15 @@ export default function Page() {
                         verticalPadding="small"
                     />
                 </List>
-                <FixedBottomCTAProvider>
-                    <FixedBottomCTA
-                        loading={false}
-                        onPress={handleStartWithLogin}
-                    >
-                        페이널티 시작하기
-                    </FixedBottomCTA>
-                </FixedBottomCTAProvider>
-            </>
-        </ScrollView>
+            </ScrollView>
+            <FixedBottomCTAProvider>
+                <FixedBottomCTA
+                    loading={false}
+                    onPress={handleStartWithLogin}
+                >
+                    페이널티 시작하기
+                </FixedBottomCTA>
+            </FixedBottomCTAProvider>
+        </>
     );
 }
