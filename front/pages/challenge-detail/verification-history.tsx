@@ -131,7 +131,7 @@ export default function Page() {
             ))
           ) : (
             <View style={{ padding: 40, alignItems: 'center' }}>
-              <Txt color={adaptive.grey500}>아직 인증 내역이 없습니다.</Txt>
+              <Txt color={adaptive.grey500}>인증 내역이 없어요</Txt>
             </View>
           )}
 

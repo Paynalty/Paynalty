@@ -136,7 +136,7 @@ function Page() {
         }
       />
       <View style={{ marginBottom: 24 }}>
-        {latestVerification ? (
+        {latestVerification && latestVerification.image ? (
           <VerificationGroup
             date={latestVerification.dateTime}
             verifications={[
@@ -154,7 +154,7 @@ function Page() {
             <Card>
               <View style={styles.emptyCard}>
                 <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-                  인증 내역이 없습니다.
+                  최근 인증 내역이 없어요
                 </Txt>
               </View>
             </Card>
@@ -176,7 +176,7 @@ function Page() {
           {memberCountsError ? (
             <View style={styles.emptyCard}>
               <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-                인증 현황을 불러올 수 없습니다.
+                인증 현황을 불러올 수 없어요
               </Txt>
             </View>
           ) : isMemberCountsLoading ? (
@@ -198,7 +198,7 @@ function Page() {
           ) : (
             <View style={styles.emptyCard}>
               <Txt color={adaptive.grey500} typography="st13" fontWeight="medium">
-                멤버별 인증 현황 데이터가 없습니다.
+                아직 이번 주 아무도 인증하지 않았어요
               </Txt>
             </View>
           )}
