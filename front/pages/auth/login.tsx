@@ -4,6 +4,7 @@ import {useAdaptive} from '@toss/tds-react-native/private';
 import {appLogin, Storage} from '@apps-in-toss/framework';
 import {useState} from 'react';
 import {apiFetch} from '../../src/api/client';
+import {queryClient} from '../../src/queryClient';
 
 import {setLoggedIn} from '../../src/stores/authStore';
 
@@ -30,11 +31,10 @@ export default function Page() {
         }),
       });
 
-      // 우리 서버에서 발급한 JWT 액세스 토큰 저장
       if (response && response.accessToken) {
         await Storage.setItem('accessToken', response.accessToken);
-        setLoggedIn(true); // 로그인 성공 상태 전역 업데이트
-        // console.log('Access token saved successfully');
+        setLoggedIn(true); 
+        queryClient.resetQueries({ queryKey: ['challenges'] }); 
       }
 
       navigation.navigate('/');

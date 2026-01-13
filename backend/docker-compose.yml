@@ -31,6 +31,7 @@ services:
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       AWS_REGION: ${AWS_REGION}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      TZ: Asia/Seoul
     env_file:
       - .env
     volumes:

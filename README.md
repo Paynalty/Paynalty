@@ -14,81 +14,80 @@
 
 ### 📱 UI Preview
 
-| 메인 화면 | 오늘의 미션 |
-| :---: | :---: |
+|                                  메인 화면                                   |                             오늘의 미션                              |
+|:------------------------------------------------------------------------:|:---------------------------------------------------------------:|
 | <img src="./docs/img/preview2.png" width="300" alt="Challenge Creation"> | <img src="./docs/img/preview1.png" width="300" alt="Dashboard"> |
 
+---
+
+### 🛠 Tech Stack
+
+![2.png](docs/img/2.png)
 
 ---
 
-### 🛠 Product Stack & Status
+### 🚀 Workflow
 
+### FRONT
 
-- **Backend** 
-<img src="./docs/img/stack_back.png" alt="readmeImg">
+#### 상태 관리 전략
 
-- **Frontend** 
-<img src="./docs/img/stack_front.png" alt="readmeImg">
+![3.png](docs/img/3.png)
 
-- **Database** 
-<img src="./docs/img/stack_DB.png" alt="readmeImg">
+#### 인증 및 데이터 동기화 / 챌린지 삭제
 
+![4.png](docs/img/4.png)
+
+### BACKEND
+
+#### 토스 로그인
+
+![5.png](docs/img/5.png)
+
+#### 챌린지 생성
+
+![6.png](docs/img/6.png)
+
+#### 인증 생성
+
+![7.png](docs/img/7.png)
+
+#### window generator
+
+![8.png](docs/img/8.png)
+
+#### window enforcer
+
+![9.png](docs/img/9.png)
 ---
 
-### 🚀 Key Technical Highlights
+### 시연 영상
 
-#### 1. Skin in the Game: 강력한 행동 제약
-단순한 알림 보단 **실제 비용(Penalty)과** 연결하여 사용자가 목표를 포기할 수 없는 환경을 조성합니다. 실패는 기록의 파편화가 아닌 정산의 Trigger이며, 모든 내역은 투명하게 로그로 남습니다.
-
-#### 2. mTLS 기반의 Fintech 보안 구현
-AppsInToss 플랫폼과의 통신 시, Client와 Server가 상호 인증하는 **mTLS(Mutual TLS)**를 적용하였습니다. 이는 높은 수준의 보안이 요구되는 금융권 API 연동 표준을 준수하며, 프로젝트의 기술적 완성도를 뒷받침합니다.
-
-#### 3. Embedded Mini-app 기반의 심리스한 UX
-별도의 앱 설치 없이 토스 앱 내에서 즉시 구동되는 **WebView 기반 Mini-app** 형태로 개발되었습니다. 토스 사용자의 접근성을 극대화하고, 익숙한 UI를 통해 서비스 몰입감을 높였습니다.
-
-#### 4. 데이터 기반의 실패 분석 (Failure Analytics)
-모든 실패와 벌금 발생 내역을 데이터화하여 시각화합니다. 사용자는 자신의 실패 패턴을 파악하고, 이를 바탕으로 더 현실적이고 달성 가능한 목표를 재설계할 수 있습니다.
-
----
-
-### 🏗 Architecture & Domain Model
-
-Paynalty는 유지보수와 확장을 고려하여 **Domain-Driven Design (DDD)** 지향의 구조를 가집니다.
-
-| Component | Responsibility & Description |
-| :--- | :--- |
-| **Challenge** | 목표 정의, 인증 규칙, Penalty 정책 등을 관리하는 핵심 도메인 |
-| **Penalty** | 실패 이벤트 발생 시 생성되는 벌금 데이터를 처리하며, 결제 상태와 연계 |
-| **Toss Integration** | mTLS Handshake, Token Exchange 등 토스 플랫폼 연동을 추상화한 Module |
-| **User** | 토스 OAuth를 통한 사용자 식별 및 Profile 정보 관리 |
+|**온보딩, 메인, 로그인**|**챌린지 생성**|
+|:----------------------------------------:|:-----------------------------------------------:|
+| ![onboarding.gif](docs/img/onboarding.gif) | ![challengeCreate.gif](docs/img/challengeCreate.gif) |
+|**친구 초대**|**챌린지 디테일/벌금, 인증 내역, 수정 삭제**|
+|![invite.gif](docs/img/invite.gif)|![challengeDetail.gif](docs/img/challengeDetail.gif)|
+|**인증 하기**||
+|![verfication.gif](docs/img/verfication.gif)||
 
 ---
 
 ### 💻 Getting Started
 
 #### Prerequisites
-- **JDK 21** & **Node.js 18+**
-- AppsInToss Console에서 발급받은 **mTLS 인증서 (.pem)**
 
-#### Backend Setup
-```bash
-cd backend
-./gradlew bootRun --args='--spring.profiles.active=dev'
-```
+- **JDK 21**
+- AppsInToss Console에서 발급받은 **mTLS 인증서 (.pem)**
+- 환경변수 파일 .env
+- 샌드박스 APP
 
 #### Frontend Setup
+
 ```bash
 cd front
 npm install
-npm run start
+npm run dev
 ```
 
 ---
-
-### 📄 License
-본 프로젝트는 팀 Paynalty의 포트폴리오 프로젝트로, 무단 복제 및 전재를 금합니다. 
-
----
-<p align="right"><a href="#paynalty-페이널티">↑ Back to Top</a></p>
-
-

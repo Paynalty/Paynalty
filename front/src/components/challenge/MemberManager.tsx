@@ -223,6 +223,7 @@ export function MemberManager({
           loading={isExternalLoading}
           onPress={() => isCreator ? onSave(selectedUsers) : onLeave?.()}
           type={isCreator ? "primary" : "danger"}
+          style="fill"
         >
           <Txt color={adaptive.background}>
             {isCreator ? saveButtonText : '챌린지 나가기'}

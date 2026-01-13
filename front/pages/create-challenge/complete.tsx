@@ -1,5 +1,6 @@
 import {createRoute, Spacing} from '@granite-js/react-native';
 import {Asset, Button, FixedBottomCTA, FixedBottomCTAProvider, List, ListRow, Top} from '@toss/tds-react-native';
+import {ScrollView, View} from 'react-native';
 import {useAdaptive} from '@toss/tds-react-native/private';
 import {useState} from 'react';
 import {useCreateChallengeStore} from '../../src/stores/createChallengeStore';
@@ -8,7 +9,6 @@ import {formatDate, formatDaysOfWeek, formatTime, getVerificationTypeLabel} from
 import {useQueryClient} from '@tanstack/react-query';
 import {challengeQueries} from '../../src/hooks/useChallenges';
 import {z} from 'zod';
-import {ScrollView} from "react-native";
 
 export const Route = createRoute('/create-challenge/complete', {
     component: Page,
@@ -117,116 +117,116 @@ export default function Page() {
                     }
                     title={<Top.TitleParagraph size={28}>목표를 만들었어요</Top.TitleParagraph>}
                 />
-                <List rowSeparator="none">
-                    <ListRow
-                        left={
-                            <ListRow.Image
-                                type="circle"
-                                source={{
-                                    uri: 'https://static.toss.im/ml-product/square-salt-topped-saltbread.png',
-                                }}
-                            />
-                        }
-                        contents={
-                            <ListRow.Texts
-                                type="2RowTypeD"
-                                top="목표"
-                                topProps={{color: adaptive.grey600}}
-                                bottom={challengeData.title}
-                                bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            />
-                        }
-                        verticalPadding="small"
-                    />
-                    <ListRow
-                        left={
-                            <ListRow.Image
-                                type="circle"
-                                source={{
-                                    uri: 'https://static.toss.im/ml-product/yellow-slippers.png',
-                                }}
-                            />
-                        }
-                        contents={
-                            <ListRow.Texts
-                                type="2RowTypeD"
-                                top="마감일"
-                                topProps={{color: adaptive.grey600}}
-                                bottom={formatDate(challengeData.endDate || '')}
-                                bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            />
-                        }
-                        verticalPadding="small"
-                    />
-                    <ListRow
-                        left={
-                            <ListRow.Image
-                                type="circle"
-                                source={{
-                                    uri: 'https://static.toss.im/ml-product/workgloves-constructiongloves.png',
-                                }}
-                            />
-                        }
-                        contents={
-                            <ListRow.Texts
-                                type="2RowTypeD"
-                                top="인증 주기"
-                                topProps={{color: adaptive.grey600}}
-                                bottom={
-                                    challengeData.daysOfWeek && challengeData.daysOfWeek.length > 0
-                                        ? `${formatDaysOfWeek(challengeData.daysOfWeek)} / 주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
-                                        : `주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+                <View style={{ paddingHorizontal: 20 }}>
+                        <List rowSeparator="none">
+                            <ListRow
+                                left={
+                                    <ListRow.Image
+                                        type="circle"
+                                        source={{
+                                            uri: 'https://i.ibb.co/CKhzxbxv/3dicons-flag-dynamic-color.png',
+                                        }}
+                                    />
                                 }
-                                bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            />
-                        }
-                        verticalPadding="small"
-                    />
-                    <ListRow
-                        left={
-                            <ListRow.Image
-                                type="circle"
-                                source={{
-                                    uri: 'https://static.toss.im/ml-product/rubber-duck.png',
-                                }}
-                            />
-                        }
-                        contents={
-                            <ListRow.Texts
-                                type="2RowTypeD"
-                                top="인증 방법"
-                                topProps={{color: adaptive.grey600}}
-                                bottom={getVerificationTypeLabel(challengeData.verificationType)}
-                                bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            />
-                        }
-                        verticalPadding="small"
-                    />
-                    <ListRow
-                        left={
-                            <ListRow.Image
-                                type="circle"
-                                source={{
-                                    uri: 'https://static.toss.im/ml-product/squirrel-sitting-left.png',
-                                }}
-                            />
-                        }
-                        contents={
-                            <ListRow.Texts
-                                type="2RowTypeD"
-                                top="벌금"
-                                topProps={{color: adaptive.grey600}}
-                                bottom={
-                                    challengeData.penaltyAmount === 'custom'
-                                        ? `${Number(challengeData.customAmount).toLocaleString()}원`
-                                        : `${Number(challengeData.penaltyAmount).toLocaleString()}원`
+                                contents={
+                                    <ListRow.Texts
+                                        type="2RowTypeD"
+                                        top="목표 이름"
+                                        topProps={{color: adaptive.grey600}}
+                                        bottom={challengeData.title}
+                                        bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
+                                    />
                                 }
-                                bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
-                            />
-                        }
                         verticalPadding="small"
-                    />
-                </List>
+                            />
+                            <ListRow
+                                left={
+                                    <ListRow.Image
+                                        type="circle"
+                                        source={{uri: 'https://i.ibb.co/TDqZjskw/3dicons-bookmark-dynamic-gradient.png'}}
+                                    />
+                                }
+                                contents={
+                                    <ListRow.Texts
+                                        type="2RowTypeD"
+                                        top="기간"
+                                        topProps={{color: adaptive.grey600}}
+                                        bottom={`${formatDate(calculateStartDate((loading as any) || 'tomorrow'))} \n ~ ${formatDate(challengeData.endDate || '')}`}
+                                        bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
+                                    />
+                                }
+                        verticalPadding="small"
+                            />
+                            <ListRow
+                                left={
+                                    <ListRow.Image
+                                        type="circle"
+                                        source={{
+                                            uri: 'https://i.ibb.co/4ZR2psrT/3dicons-pin-dynamic-color.png',
+                                        }}
+                                    />
+                                }
+                                contents={
+                                    <ListRow.Texts
+                                        type="2RowTypeD"
+                                        top="인증 규칙"
+                                        topProps={{color: adaptive.grey600}}
+                                        bottom={
+                                            challengeData.daysOfWeek && challengeData.daysOfWeek.length > 0
+                                                ? `${formatDaysOfWeek(challengeData.daysOfWeek)} / 주 ${challengeData.frequency}회\n${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+                                                : `주 ${challengeData.frequency}회 / ${formatTime(challengeData.verifyStartAt || '')} ~ ${formatTime(challengeData.verifyEndAt || '')}`
+                                        }
+                                        bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
+                                    />
+                                }
+                        verticalPadding="small"
+                            />
+                            <ListRow
+                                left={
+                                    <ListRow.Image
+                                        type="circle"
+                                        source={{
+                                            uri: 'https://i.ibb.co/7djV1d1M/3dicons-picture-dynamic-color.png',
+                                        }}
+                                    />
+                                }
+                                contents={
+                                    <ListRow.Texts
+                                        type="2RowTypeD"
+                                        top="인증 방법"
+                                        topProps={{color: adaptive.grey600}}
+                                        bottom={getVerificationTypeLabel(challengeData.verificationType)}
+                                        bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
+                                    />
+                                }
+                        verticalPadding="small"
+                            />
+                            <ListRow
+                                left={
+                                    <ListRow.Image
+                                        type="circle"
+                                        source={{
+                                            uri: 'https://i.ibb.co/67kpWZ3F/3dicons-heart-dynamic-color.png',
+                                        }}
+                                    />
+                                }
+                                contents={
+                                    <ListRow.Texts
+                                        type="2RowTypeD"
+                                        top="실패 시 패널티"
+                                        topProps={{color: adaptive.grey600}}
+                                        bottom={
+                                            challengeData.penaltyAmount === 'custom'
+                                                ? `${Number(challengeData.customAmount).toLocaleString()}원`
+                                                : `${Number(challengeData.penaltyAmount).toLocaleString()}원`
+                                        }
+                                        bottomProps={{color: adaptive.grey800, fontWeight: 'bold'}}
+                                    />
+                                }
+                        verticalPadding="small"
+                            />
+                        </List>
+                </View>
             </ScrollView>
             <FixedBottomCTAProvider>
                 {challengeData.isEditing ? (
