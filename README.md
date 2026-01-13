@@ -65,11 +65,11 @@
 
 |**온보딩, 메인, 로그인**|**챌린지 생성**|
 |:----------------------------------------:|:-----------------------------------------------:|
-| ![온보딩페이지, 메인페이지, 로그인.gif](docs/img/%E1%84%8B%E1%85%A9%E1%86%AB%E1%84%87%E1%85%A9%E1%84%83%E1%85%B5%E1%86%BC%E1%84%91%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%8C%E1%85%B5%2C%20%E1%84%86%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AB%E1%84%91%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%8C%E1%85%B5%2C%20%E1%84%85%E1%85%A9%E1%84%80%E1%85%B3%E1%84%8B%E1%85%B5%E1%86%AB.gif) | ![챌린지 생성.gif](docs/img/%E1%84%8E%E1%85%A2%E1%86%AF%E1%84%85%E1%85%B5%E1%86%AB%E1%84%8C%E1%85%B5%20%E1%84%89%E1%85%A2%E1%86%BC%E1%84%89%E1%85%A5%E1%86%BC.gif) |
+| ![onboarding.gif](docs/img/onboarding.gif) | ![challengeCreate.gif](docs/img/challengeCreate.gif) |
 |**친구 초대**|**챌린지 디테일/벌금, 인증 내역, 수정 삭제**|
-|![친구 초대.gif](docs/img/%E1%84%8E%E1%85%B5%E1%86%AB%E1%84%80%E1%85%AE%20%E1%84%8E%E1%85%A9%E1%84%83%E1%85%A2.gif)|![챌린지 디테일.gif](docs/img/%E1%84%8E%E1%85%A2%E1%86%AF%E1%84%85%E1%85%B5%E1%86%AB%E1%84%8C%E1%85%B5%20%E1%84%83%E1%85%B5%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.gif)|
+|![invite.gif](docs/img/invite.gif)|![challengeDetail.gif](docs/img/challengeDetail.gif)|
 |**인증 하기**||
-|![인증.gif](docs/img/%E1%84%8B%E1%85%B5%E1%86%AB%E1%84%8C%E1%85%B3%E1%86%BC.gif)||
+|![verfication.gif](docs/img/verfication.gif)||
 
 ---
 
