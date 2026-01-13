@@ -111,15 +111,15 @@ public class ChallengeService {
         // 사용자가 참여 중인 모든 챌린지를 조회
         List<Challenge> allChallenges = challengeRepository.findByUserTossId(tossId);
 
-        // 계산된 상태를 기준으로 필터링 (실시간 상태 반영)
+        // 상태에 따른 필터링
         return allChallenges.stream()
                 .filter(challenge -> {
-                    ChallengeStatus calculatedStatus = challenge.calculateStatus();
-                    return calculatedStatus == requestedStatus;
+                    ChallengeStatus challengeStatus = challenge.getStatus();
+                    return challengeStatus == requestedStatus;
                 })
                 .map(challenge -> {
                     // 챌린지 상태에 따라 다른 처리
-                    ChallengeStatus challengeStatus = challenge.calculateStatus();
+                    ChallengeStatus challengeStatus = challenge.getStatus();
                     List<ChallengeMemberResponse> memberList = challengeMemberService.getMembersByChallengeId(challenge.getId());
 
                     if (challengeStatus == ChallengeStatus.PENDING) {
