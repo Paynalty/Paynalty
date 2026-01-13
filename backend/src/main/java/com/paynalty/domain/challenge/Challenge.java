@@ -159,4 +159,9 @@ public class Challenge extends BaseTimeEntity {
         this.frequency = frequency;
     }
 
+    // 챌린지 상태 업데이트 매서드
+    public void updateStatus(){
+        this.status = calculateStatus(startDate,endDate);
+    }
+
 }

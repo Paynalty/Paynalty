@@ -34,6 +34,14 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
     List<Challenge> user(User user);
 
+    /**
+     * status가 PENDING 또는 ACTIVE인 챌린지를 조회합니다.
+     * 
+     * @return PENDING 또는 ACTIVE 상태의 챌린지 목록
+     */
+    @Query("SELECT c FROM Challenge c WHERE c.status IN :statuses")
+    List<Challenge> findByStatusIn(@Param("statuses") List<ChallengeStatus> statuses);
+
 
 }
 
