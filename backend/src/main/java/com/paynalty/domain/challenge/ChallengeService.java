@@ -387,7 +387,7 @@ public class ChallengeService {
 
      /**
       * 시작일이 유효한지 확인합니다.
-      * - 시작일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      * - 시작일이 오늘보다 이전이면 안됨.
       *
       * @param startDate 시작일
       * @throws CustomException 시작일이 유효하지 않은 경우
@@ -397,10 +397,6 @@ public class ChallengeService {
 
          if (startDate.isBefore(today)) {
              throw new CustomException(ChallengeErrorCode.INVALID_START_DATE_PAST);
-         }
-
-         if (startDate.isEqual(today)) {
-             throw new CustomException(ChallengeErrorCode.INVALID_START_DATE_TODAY);
          }
      }
 
