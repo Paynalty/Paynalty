@@ -34,7 +34,7 @@ export default function Page() {
       if (response && response.accessToken) {
         await Storage.setItem('accessToken', response.accessToken);
         setLoggedIn(true); 
-        await queryClient.invalidateQueries({ queryKey: ['challenges'] }); 
+        queryClient.resetQueries({ queryKey: ['challenges'] }); 
       }
 
       navigation.navigate('/');
