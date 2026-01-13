@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ChallengeErrorCode implements ErrorCode {
     // 챌린지 관련 에러 (CHA001~CHA099)
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "CHA001", "챌린지를 찾을 수 없습니다."),
+    CHALLENGE_IS_COMPLETED(HttpStatus.BAD_REQUEST, "CHA002","마감된 챌린지는 수정이 불가능합니다."),
     
     // 챌린지 생성 시 유효성 검증 에러
     INVALID_FREQUENCY(HttpStatus.BAD_REQUEST, "CHA010", "dayOfWeeks가 없을 때는 frequency 값(양수)이 필수입니다."),

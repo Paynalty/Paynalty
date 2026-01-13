@@ -242,6 +242,11 @@ public class ChallengeService {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
+        // 해당 챌린지의 status가 COMPLETE이면 수정 불가
+        if (challenge.getStatus() == ChallengeStatus.COMPLETE) {
+            throw new CustomException(ChallengeErrorCode.CHALLENGE_IS_COMPLETED);
+        }
+
         // 2. 권한 확인 (생성자인지 확인)
         ChallengeMember member = challengeMemberRepository
                 .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
@@ -267,6 +272,11 @@ public class ChallengeService {
             // 1단계: 챌린지 존재 여부 확인
             Challenge challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+            // 해당 챌린지의 status가 COMPLETE이면 수정 불가
+            if (challenge.getStatus() == ChallengeStatus.COMPLETE) {
+                throw new CustomException(ChallengeErrorCode.CHALLENGE_IS_COMPLETED);
+            }
 
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인 및 권한 확인
             ChallengeMember member = challengeMemberRepository
