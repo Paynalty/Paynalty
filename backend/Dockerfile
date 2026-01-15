@@ -19,6 +19,16 @@ RUN ./gradlew bootJar --no-daemon
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
+# --- 시간 설정 추가 시작 ---
+# Ubuntu 기반이므로 apt-get을 사용하여 tzdata 설치
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    ln -fs /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    dpkg-reconfigure --frontend noninteractive tzdata && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV TZ=Asia/Seoul
+
 # 로그 폴더 생성 및 권한 설정
 RUN mkdir -p /var/log/paynalty && chmod 777 /var/log/paynalty
 
