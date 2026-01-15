@@ -111,15 +111,15 @@ public class ChallengeService {
         // 사용자가 참여 중인 모든 챌린지를 조회
         List<Challenge> allChallenges = challengeRepository.findByUserTossId(tossId);
 
-        // 계산된 상태를 기준으로 필터링 (실시간 상태 반영)
+        // 상태에 따른 필터링
         return allChallenges.stream()
                 .filter(challenge -> {
-                    ChallengeStatus calculatedStatus = challenge.calculateStatus();
-                    return calculatedStatus == requestedStatus;
+                    ChallengeStatus challengeStatus = challenge.getStatus();
+                    return challengeStatus == requestedStatus;
                 })
                 .map(challenge -> {
                     // 챌린지 상태에 따라 다른 처리
-                    ChallengeStatus challengeStatus = challenge.calculateStatus();
+                    ChallengeStatus challengeStatus = challenge.getStatus();
                     List<ChallengeMemberResponse> memberList = challengeMemberService.getMembersByChallengeId(challenge.getId());
 
                     if (challengeStatus == ChallengeStatus.PENDING) {
@@ -242,6 +242,11 @@ public class ChallengeService {
         Challenge challenge = challengeRepository.findById(challengeId)
                 .orElseThrow(() -> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
 
+        // 해당 챌린지의 status가 COMPLETE이면 수정 불가
+        if (challenge.getStatus() == ChallengeStatus.COMPLETE) {
+            throw new CustomException(ChallengeErrorCode.CHALLENGE_IS_COMPLETED);
+        }
+
         // 2. 권한 확인 (생성자인지 확인)
         ChallengeMember member = challengeMemberRepository
                 .findByChallengeIdAndUserTossIdWithFetch(challengeId, tossId)
@@ -267,6 +272,11 @@ public class ChallengeService {
             // 1단계: 챌린지 존재 여부 확인
             Challenge challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(()-> new CustomException(ChallengeErrorCode.CHALLENGE_NOT_FOUND));
+
+            // 해당 챌린지의 status가 COMPLETE이면 수정 불가
+            if (challenge.getStatus() == ChallengeStatus.COMPLETE) {
+                throw new CustomException(ChallengeErrorCode.CHALLENGE_IS_COMPLETED);
+            }
 
             // 2단계: 사용자가 해당 챌린지의 멤버인지 확인 및 권한 확인
             ChallengeMember member = challengeMemberRepository
@@ -387,7 +397,7 @@ public class ChallengeService {
 
      /**
       * 시작일이 유효한지 확인합니다.
-      * - 시작일이 오늘보다 이후여야 함 (오늘 포함 불가)
+      * - 시작일이 오늘보다 이전이면 안됨.
       *
       * @param startDate 시작일
       * @throws CustomException 시작일이 유효하지 않은 경우
@@ -397,10 +407,6 @@ public class ChallengeService {
 
          if (startDate.isBefore(today)) {
              throw new CustomException(ChallengeErrorCode.INVALID_START_DATE_PAST);
-         }
-
-         if (startDate.isEqual(today)) {
-             throw new CustomException(ChallengeErrorCode.INVALID_START_DATE_TODAY);
          }
      }
 

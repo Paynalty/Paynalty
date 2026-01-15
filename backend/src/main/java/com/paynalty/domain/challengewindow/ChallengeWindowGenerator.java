@@ -2,6 +2,7 @@ package com.paynalty.domain.challengewindow;
 
 import com.paynalty.domain.challenge.Challenge;
 import com.paynalty.domain.challenge.ChallengeRepository;
+import com.paynalty.domain.challenge.ChallengeStatus;
 import com.paynalty.domain.challenge.DayOfWeekType;
 import com.paynalty.domain.challengemember.ChallengeMember;
 import com.paynalty.domain.challengemember.ChallengeMemberRepository;
@@ -63,6 +64,21 @@ public class ChallengeWindowGenerator {
      @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")  // 프로덕션: 매일 자정 실행
     @Transactional
     public void generateWindows() {
+
+        // [0단계] 모든 챌린지 조회 후 각 챌린지 status 업데이트
+        // 1. PENDING, ACTIVE인 챌린지만 조회 (COMPLETE된 건 더 이상 업데이트할 필요가 없음)
+        List<ChallengeStatus> statusesToUpdate = List.of(ChallengeStatus.PENDING, ChallengeStatus.ACTIVE);
+        List<Challenge> challengeList = challengeRepository.findByStatusIn(statusesToUpdate);
+        
+        // 2. 리스트 목록 반복을 통해 각 챌린지 상태 업데이트
+        for (Challenge challenge : challengeList) {
+            challenge.updateStatus();
+        }
+        
+        // 3. 업데이트된 챌린지들을 DB에 저장
+        if (!challengeList.isEmpty()) {
+            challengeRepository.saveAll(challengeList);
+        }
 
         // [1단계] rolling lookahead 기간 설정
         // today : 스케줄 실행 기준일 (KST)
