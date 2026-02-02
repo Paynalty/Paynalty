@@ -114,6 +114,13 @@ public class UserService {
 
         // 2. 사용자 정보 영구 삭제
         userRepository.delete(user);
-        log.info("사용자 정보 삭제 완료: userId={}", userId);
     }
+
+    @Transactional
+    public void unlinkByTossId(Long tossId) {
+        userRepository.findByTossId(tossId).ifPresent(user -> {
+            userRepository.delete(user);
+        });
+    }
+
 }

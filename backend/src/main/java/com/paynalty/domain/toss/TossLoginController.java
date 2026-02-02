@@ -149,4 +149,28 @@ public class TossLoginController {
 
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "토스 로그인 연동 해제 콜백", description = "사용자가 토스 앱에서 직접 연동 해제 시 호출됨")
+    @PostMapping("/callback/unlink")
+    public ResponseEntity<Void> handleTossUnlinkCallback(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestBody JsonNode callbackData) {
+        try {
+            // 보안을 위한 Basic Auth 검증 (Toss Console에 설정한 값과 일치해야 함)
+            String expectedHeader = "Basic "
+                    + java.util.Base64.getEncoder().encodeToString((tossApiClient.getApiKey() + ":").getBytes());
+            if (authHeader == null || !authHeader.equals(expectedHeader)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            if (callbackData.has("userKey")) {
+                Long userKey = callbackData.get("userKey").asLong();
+                userService.unlinkByTossId(userKey);
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }
