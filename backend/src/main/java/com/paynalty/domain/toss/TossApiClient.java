@@ -88,4 +88,8 @@ public class TossApiClient {
                                 jsonBody,
                                 headers);
         }
+
+        public String getApiKey() {
+                return tossApiConfig.getApiKey();
+        }
 }
